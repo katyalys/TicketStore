@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  catalog.webapi:
+    image: ${DOCKER_REGISTRY-}catalogwebapi
+    build:
+      context: .
+      dockerfile: src/Services/Catalog/Catalog.WebApi/Dockerfile
+
+  identity.webapi:
+    image: ${DOCKER_REGISTRY-}identitywebapi
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Identity.WebApi/Dockerfile
+
+
+  order.webapi:
+    image: ${DOCKER_REGISTRY-}orderwebapi
+    build:
+      context: .
+      dockerfile: src/Services/Order/Order.WebApi/Dockerfile
+
