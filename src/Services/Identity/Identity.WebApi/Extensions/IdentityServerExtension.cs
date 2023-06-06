@@ -1,16 +1,9 @@
-﻿using Identity.Domain;
-using Microsoft.AspNetCore.Identity;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+﻿using Microsoft.AspNetCore.Identity;
 using IdentityServer;
 using Identity.IdentityServer;
 using Duende.IdentityServer.Services;
 using IdentityDbContext = Identity.Infrastructure.Data.IdentityDbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Duende.IdentityServer.Validation;
-using Microsoft.AspNet.Identity;
-using System.Security.Claims;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Identity.WebApi.Extensions
 {
@@ -23,10 +16,6 @@ namespace Identity.WebApi.Extensions
                 .AddDefaultTokenProviders()
                 .AddRoles<IdentityRole>();
 
-            //services.AddDefaultIdentity<UserManager>()
-            //       .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders().AddDefaultUI();
-
-
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryPersistedGrants()
@@ -37,12 +26,10 @@ namespace Identity.WebApi.Extensions
                 .AddAspNetIdentity<IdentityUser>();
 
             services.AddTransient<IProfileService, IdentityProfileService>();
-           // services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerPasswordValidator>();
 
             services.Configure<IdentityOptions>(config =>
             {
                 config.Password.RequireDigit = true;
-               // config.Password.RequiredLength = 20;
                 config.Password.RequireUppercase = true;
                 config.Password.RequireNonAlphanumeric = false;
             });
@@ -54,13 +41,6 @@ namespace Identity.WebApi.Extensions
             })
              .AddJwtBearer(options =>
              {
-                 //options.TokenValidationParameters = new TokenValidationParameters()
-                 //{
-                 //    //ValidateIssuer = false,
-                 //    //ValidateAudience = false,
-                 //    RoleClaimType = ClaimTypes.Role
-
-                 //};
                  options.Authority = configuration["ID4:Authority"];
                  options.Audience = configuration["ID4:Audience"];
                  options.RequireHttpsMetadata = false;
@@ -81,15 +61,6 @@ namespace Identity.WebApi.Extensions
             //        policy.RequireRole("Admin");
             //    });
             //});
-
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy(Policies.AdminOnly, policy =>
-            //    {
-            //        policy.RequireRole(Roles.AdminRole.Name);
-            //    });
-            //});
-            // services.AddAuthorization(options => options.AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin")));
         }
     }
 }

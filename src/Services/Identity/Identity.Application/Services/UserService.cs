@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
 using Identity.Application.Dtos;
+using Identity.Application.Interfaces;
 using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Identity.Application.Services
 {
-    public class AccountService
+    public class UserService: IUserService
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository _identityUser;
-        public AccountService(IUserRepository identityUser, IMapper mapper)
+        public UserService(IUserRepository identityUser, IMapper mapper)
         {
             _identityUser = identityUser;
             _mapper = mapper;
@@ -74,6 +73,15 @@ namespace Identity.Application.Services
             }).ToList();
         }
 
-
+        public async Task<UserWithRoles> GetById(string id)
+        {
+            var user = await _identityUser.GetByIdAsync(id);
+            var role = await _identityUser.GetUserRole(id);
+            return new UserWithRoles
+            {
+                User = _mapper.Map<UserViewModel>(user),
+                Roles = role.ToList()
+            }; 
+        }
     }
 }

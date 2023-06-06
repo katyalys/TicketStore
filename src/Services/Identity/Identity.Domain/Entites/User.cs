@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Identity.Domain.Enums.EnumAttributes;
 
 namespace Identity.Domain
 {
@@ -29,8 +28,5 @@ namespace Identity.Domain
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-
-       // public IsDeletedEnum IsDeleted { get; set; }
-       // public IsAdminEnum IsAdmin { get; set; }
     }
 }

@@ -28,10 +28,5 @@ namespace Identity.Application.Dtos
         [Required]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
-
-        //public string Role { get; set; }
-
-        //public IsDeletedEnum IsDeleted { get; set; }
-        //public IsAdminEnum IsAdmin { get; set; }
     }
 }

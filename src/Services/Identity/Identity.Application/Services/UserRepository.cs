@@ -1,14 +1,7 @@
-﻿using Identity.Infrastructure.Data;
-using Identity.Infrastructure.Interfaces;
-using IdentityModel;
+﻿using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Identity.Application.Services
 {
@@ -32,10 +25,10 @@ namespace Identity.Application.Services
         {
             string rolename = (await _identityUser.GetRolesAsync(entity)).FirstOrDefault();
 
-            await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Name, entity.UserName));
-            await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Email, entity.Email));
-           // await _identityUser.AddClaimAsync(entity, new Claim(JwtClaimTypes.Role, rolename));
-            await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Role, rolename));
+            await _identityUser.AddClaimAsync(entity, new Claim("role", rolename));
+            //await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Name, entity.UserName));
+            //await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Email, entity.Email));
+            //await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Role, rolename));
         }
 
         public async Task AddAsync(IdentityUser entity, string password)
@@ -53,6 +46,12 @@ namespace Identity.Application.Services
         public async Task<IdentityUser> GetByIdAsync(string id)
         {
             return await _identityUser.FindByIdAsync(id);
+        }
+
+        public async Task<IList<string>> GetUserRole(string userId)
+        {
+            var user = await GetByIdAsync(userId);
+            return await _identityUser.GetRolesAsync(user);
         }
 
         public async Task<Dictionary<IdentityUser, List<string>>> GetAllUsersWithRolesAsync()
@@ -81,7 +80,6 @@ namespace Identity.Application.Services
                 return (user, newRole);
             }
 
-            // If the role update fails, you can handle the error or return null
             return (null, null);
         }
     }

@@ -1,9 +1,11 @@
 using Events.Api.Extensions;
+using Identity.Application.Interfaces;
 using Identity.Application.Mapper;
 using Identity.Application.Services;
 using Identity.Infrastructure.Data;
 using Identity.Infrastructure.Interfaces;
 using Identity.WebApi.Extensions;
+using IdentityServer;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +23,9 @@ builder.Services.AddControllers();
 builder.Services.AddIdentityServerConfig(configuration, environment);
 builder.Services.AddSwagger();
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
-builder.Services.AddScoped(typeof(AccountService));  //»«Ã≈Õ»“‹
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, IdentityTokenService>();
+builder.Services.AddScoped(typeof(IdentityTokenService));
 builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
 

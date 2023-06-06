@@ -16,5 +16,6 @@ namespace Identity.Infrastructure.Interfaces
 		Task DeleteAsync(IdentityUser entity);
 		Task<bool> CheckIfExists(IdentityUser entity);
 		Task AddClaimssAsync(IdentityUser entity);
+		Task<IList<string>> GetUserRole(string userId);
 	}
 }

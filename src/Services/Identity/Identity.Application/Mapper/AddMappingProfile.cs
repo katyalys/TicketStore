@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Identity.Application.Dtos;
 using Identity.Domain;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Identity;
 
 namespace Identity.Application.Mapper
@@ -17,6 +18,8 @@ namespace Identity.Application.Mapper
             CreateMap<IdentityUser, RegisterUser>().ReverseMap();
             CreateMap<IdentityUser, LoginUser>().ReverseMap();
             CreateMap<IdentityUser, UserViewModel>().ReverseMap();
+            CreateMap<TokenResponse, TokenViewModel>()
+                .ForMember(dest => dest.StatusCode, opt => opt.MapFrom(src => src.HttpStatusCode));
         }
     }
 }
