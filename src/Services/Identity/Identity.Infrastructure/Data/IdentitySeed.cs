@@ -43,18 +43,20 @@ namespace Identity.Infrastructure.Data
 
             await userManager.CreateAsync(user, "Katya123");
             await userManager.AddToRoleAsync(user, "Customer");
+            await userManager.SetLockoutEnabledAsync(user, false);
             await userManager.AddClaimsAsync(user, new List<Claim>{
-                new Claim(ClaimTypes.Role, "Customer"),
-                new Claim(ClaimTypes.Name, admin.UserName),
-                new Claim(ClaimTypes.Email, admin.Email),
+                new Claim("role", "Customer"),
+                //new Claim(ClaimTypes.Name, admin.UserName),
+                //new Claim(ClaimTypes.Email, admin.Email),
             });
 
             await userManager.CreateAsync(admin, "Admin123");
             await userManager.AddToRoleAsync(admin, "Admin");
+            await userManager.SetLockoutEnabledAsync(admin, false);
             await userManager.AddClaimsAsync(admin, new List<Claim>{
-                new Claim(ClaimTypes.Role, "Admin"),
-                new Claim(ClaimTypes.Name, admin.UserName),
-                new Claim(ClaimTypes.Email, admin.Email),
+                new Claim("role", "Admin"),
+                //new Claim(ClaimTypes.Name, admin.UserName),
+                //new Claim(ClaimTypes.Email, admin.Email),
             });
 
         }

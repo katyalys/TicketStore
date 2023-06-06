@@ -34,6 +34,7 @@ namespace Identity.Application.Services
         public async Task AddAsync(IdentityUser entity, string password)
         {
             await _identityUser.CreateAsync(entity, password);
+            await _identityUser.SetLockoutEnabledAsync(entity, false);
             await _identityUser.AddToRoleAsync(entity, "customer");
 
         }
