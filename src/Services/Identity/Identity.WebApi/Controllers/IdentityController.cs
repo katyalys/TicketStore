@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Duende.IdentityServer;
 using AutoMapper;
 using Identity.Application.Interfaces;
+using Identity.Domain.Entites;
+using Identity.Infrastructure.Attributes;
 
 namespace Identity.WebApi.Controllers
 {
@@ -32,21 +34,9 @@ namespace Identity.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteUserById(string userId)
         {
-            var claim = HttpContext.User.Claims;
-            if (HttpContext.User.Identity.Name != userId)
-            {
-                bool result = await _userService.DeleteUser(userId);
-
-                if (!result)
-                {
-                    return NotFound();
-                }
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest();
-            }
+            //var claim = HttpContext.User.Claims;
+            var result = await _userService.DeleteUser(userId);
+            return HandleResult(result);
         }
 
         [HttpGet("Admin/ListAllUsers")]
@@ -57,14 +47,7 @@ namespace Identity.WebApi.Controllers
         public async Task<IActionResult> ListAllUsers()
         {
             var users = await _userService.GetAllUsers();
-            if (users == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(users);
-            }
+            return HandleResult(users);
         }
 
         [Authorize(Roles = "Admin")]
@@ -75,14 +58,7 @@ namespace Identity.WebApi.Controllers
         public async Task<IActionResult> ChangeUserRole(string id, string newRole)
         {
             var user = await _userService.ChangeRole(id, newRole);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(user);
-            }
+            return HandleResult(user);
         }
 
         [Authorize(Roles = "Admin")]
@@ -93,21 +69,14 @@ namespace Identity.WebApi.Controllers
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetById(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(user);
-            }
+            return HandleResult(user);
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
-            await _userService.RegisterCustomer(registerUser);
-            return Ok();
+            var result = await _userService.RegisterCustomer(registerUser);
+            return HandleResult(result);
         }
 
         [HttpPost("Token")]
@@ -117,11 +86,30 @@ namespace Identity.WebApi.Controllers
             return Ok(tokenRes);
         }
 
+        [CustomAuthorization]
+        [Authorize(IdentityServerConstants.LocalApi.PolicyName)]
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(string clientId, string clientSecret, string refreshToken)
         {
             var tokenRes = await _tokenService.GetRefreshedTokenPairAsync(clientId, clientSecret, refreshToken);
             return Ok(tokenRes);
+        }
+
+        private IActionResult HandleResult<T>(Result<T> result)
+        {
+            if (result.Succeeded)
+            {
+                return Ok(result.Value);
+            }
+
+            var error = result.Errors[0];
+            return error.StatusCode switch
+            {
+                ErrorStatusCode.NotFound => NotFound(error.Message),
+                ErrorStatusCode.WrongAction => BadRequest(error.Message),
+                ErrorStatusCode.ForbiddenAction => Forbid(error.Message),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
         }
     }
 }

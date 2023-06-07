@@ -1,4 +1,5 @@
-﻿using Identity.Infrastructure.Interfaces;
+﻿using Identity.Domain.Entites;
+using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -15,8 +16,7 @@ namespace Identity.Application.Services
 
         public async Task<bool> CheckIfExists(IdentityUser entity)
         {
-            var isExist = await _identityUser.Users.AnyAsync(x => x.Email == entity.Email || x.UserName == entity.UserName)
-              .ConfigureAwait(false);
+            var isExist = await _identityUser.Users.AnyAsync(x => x.Email == entity.Email || x.UserName == entity.UserName);
 
             return isExist;
         }
@@ -30,6 +30,7 @@ namespace Identity.Application.Services
             //await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Email, entity.Email));
             //await _identityUser.AddClaimAsync(entity, new Claim(ClaimTypes.Role, rolename));
         }
+
 
         public async Task AddAsync(IdentityUser entity, string password)
         {
@@ -46,7 +47,7 @@ namespace Identity.Application.Services
 
         public async Task<IdentityUser> GetByIdAsync(string id)
         {
-            return await _identityUser.FindByIdAsync(id);
+           return await _identityUser.FindByIdAsync(id);
         }
 
         public async Task<IList<string>> GetUserRole(string userId)
@@ -72,16 +73,11 @@ namespace Identity.Application.Services
 
         public async Task<(IdentityUser user, string newRole)> UpdateUserRoleAsync(IdentityUser user, string newRole)
         {
+
             var currentRoles = await _identityUser.GetRolesAsync(user);
             var result = await _identityUser.RemoveFromRolesAsync(user, currentRoles);
-
-            if (result.Succeeded)
-            {
-                await _identityUser.AddToRoleAsync(user, newRole);
-                return (user, newRole);
-            }
-
-            return (null, null);
+            await _identityUser.AddToRoleAsync(user, newRole);
+            return (user, newRole);
         }
     }
 }

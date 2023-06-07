@@ -39,6 +39,11 @@ namespace IdentityServer
 
             var token = await client.RequestPasswordTokenAsync(passwordTokenRequest);
 
+            if (token.IsError)
+            {
+                return null;
+            }
+
             var tokenRes = _mapper.Map<TokenViewModel>(token);
             return tokenRes;
         }

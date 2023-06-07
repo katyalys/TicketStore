@@ -16,7 +16,7 @@ namespace IdentityServer
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var user = await _userManager.GetUserAsync(context.Subject);
-
+            //await _userManager.SetLockoutEnabledAsync(user, false);
             var isDeleted = await _userManager.GetLockoutEnabledAsync(user);
             if (isDeleted == true)
                 throw new Exception("User is deleted");

@@ -1,13 +1,14 @@
 ﻿using Identity.Application.Dtos;
+using Identity.Domain.Entites;
 
 namespace Identity.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<int> RegisterCustomer(RegisterUser registerUser);
-        Task<bool> DeleteUser(string id);
-        Task<UserWithRoles> ChangeRole(string id, string role);
-        Task<List<UserWithRoles>> GetAllUsers();
-        Task<UserWithRoles> GetById(string id);
+        Task<Result<string>> RegisterCustomer(RegisterUser registerUser);
+        Task<Result<string>> DeleteUser(string id);
+        Task<Result<UserWithRoles>> ChangeRole(string id, string role);
+        Task<Result<List<UserWithRoles>>> GetAllUsers();
+        Task<Result<UserWithRoles>> GetById(string id);
     }
 }
