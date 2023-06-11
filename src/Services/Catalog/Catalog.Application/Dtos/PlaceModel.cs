@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Catalog.Domain.Entities
+namespace Catalog.Application.Dtos
 {
-    public class Place: BaseEntity
+    public class PlaceModel
     {
         public string City { get; set; }
         public string Street { get; set; }
         public int PlaceNumber { get; set; }
-        public bool IsDeleted { get; set; }
-        public List<Concert>? Concerts { get; set; } = new();
-        public List<Sector>? Sectors { get; set; } = new();
     }
 }

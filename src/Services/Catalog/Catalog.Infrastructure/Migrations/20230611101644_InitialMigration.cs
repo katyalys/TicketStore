@@ -33,7 +33,7 @@ namespace Catalog.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StatusType = table.Column<int>(type: "int", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,9 +47,10 @@ namespace Catalog.Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PosterLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(550)", maxLength: 550, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Perfomer = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Perfomer = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     GenreName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     PlaceId = table.Column<int>(type: "int", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
@@ -96,6 +97,7 @@ namespace Catalog.Infrastructure.Migrations
                     ConcertId = table.Column<int>(type: "int", nullable: true),
                     SectorId = table.Column<int>(type: "int", nullable: true),
                     StatusId = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Row = table.Column<int>(type: "int", nullable: false),
                     Seat = table.Column<int>(type: "int", nullable: false)
                 },

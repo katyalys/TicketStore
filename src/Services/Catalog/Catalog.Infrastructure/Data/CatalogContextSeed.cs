@@ -17,11 +17,11 @@ namespace Catalog.Infrastructure.Data
 
 			await context.AddRangeAsync(new Status
 			{
-				StatusType = StatusTypes.Bought,
+				Name = "Bought",
 			},
 			new Status
 			{
-				StatusType = StatusTypes.Free,
+				Name = "Free",
 			});
 			await context.SaveChangesAsync();
 
@@ -139,7 +139,7 @@ namespace Catalog.Infrastructure.Data
             {
                 Concert = context.Concerts.Where(s => s.Name == "POST HUMAN").Select(s => s).FirstOrDefault(),
                 Sector = context.Sectors.Where(s => s.Name == SectorName.A).Select(s => s).FirstOrDefault(),
-                Status = context.Statuses.Where(s => s.StatusType == StatusTypes.Free).Select(s => s).FirstOrDefault(),
+                StatusId = (int)StatusTypes.Free,
                 Row = 1,
                 Seat = 1,
             },
@@ -147,7 +147,7 @@ namespace Catalog.Infrastructure.Data
             {
                 Concert = context.Concerts.Where(s => s.Name == "Evolve Tour").Select(s => s).FirstOrDefault(),
                 Sector = context.Sectors.Where(s => s.Name == SectorName.DanceFloor).Select(s => s).FirstOrDefault(),
-                Status = context.Statuses.Where(s => s.StatusType == StatusTypes.Free).Select(s => s).FirstOrDefault(),
+                StatusId = (int)StatusTypes.Free,
                 Row = 2,
                 Seat = 2,
             },
@@ -155,7 +155,7 @@ namespace Catalog.Infrastructure.Data
             {
                 Concert = context.Concerts.Where(s => s.Name == "Evolve Tour").Select(s => s).FirstOrDefault(),
                 Sector = context.Sectors.Where(s => s.Name == SectorName.DanceFloor).Select(s => s).FirstOrDefault(),
-                Status = context.Statuses.Where(s => s.StatusType == StatusTypes.Free).Select(s => s).FirstOrDefault(),
+                StatusId = (int)StatusTypes.Free,
                 Row = 10,
                 Seat = 10,
             });

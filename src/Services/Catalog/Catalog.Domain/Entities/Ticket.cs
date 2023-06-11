@@ -6,19 +6,17 @@ using System.Threading.Tasks;
 
 namespace Catalog.Domain.Entities
 {
-    public class Ticket
+    public class Ticket: BaseEntity
     {
-        public int Id { get; set; }
-
         public int? ConcertId { get; set; }
         public Concert? Concert { get; set; }
 
         public int? SectorId { get; set; }
         public Sector? Sector { get; set; }
 
-      //  public int? StatusId { get; set; }
+        public int? StatusId { get; set; }
         public Status? Status { get; set; }
-
+        public bool IsDeleted { get; set; }
         public int Row { get; set; }
         public int Seat { get; set; }
     }

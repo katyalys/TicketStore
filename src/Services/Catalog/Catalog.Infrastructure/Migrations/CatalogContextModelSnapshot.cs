@@ -50,16 +50,19 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Perfomer")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int?>("PlaceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PosterLink")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -136,8 +139,9 @@ namespace Catalog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("StatusType")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -154,6 +158,9 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.Property<int?>("ConcertId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Row")
                         .HasColumnType("int");

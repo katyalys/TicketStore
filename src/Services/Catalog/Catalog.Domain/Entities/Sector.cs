@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 
 namespace Catalog.Domain.Entities
 {
-    public class Sector
+    public class Sector: BaseEntity
     {
-        public int Id { get; set; }
         public SectorName Name { get; set; }
         public int RowNumber { get; set; }
         public int RowSeatNumber { get; set; } //kol-vo mest v ryady
         public decimal Price { get; set; }
         public string? PictureLink { get; set; }
 
-      //  public int? PlaceId { get; set; }
+        public int? PlaceId { get; set; }
         public Place? Place { get; set; }
 
         public List<Ticket>? Tickets { get; set; } = new();
