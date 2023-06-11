@@ -10,6 +10,5 @@ namespace Identity.Application.Dtos
         public HttpStatusCode StatusCode { get; set; }
         public int ExpiresIn { get; set; }
         public string RefreshToken { get; set; }
-
     }
 }

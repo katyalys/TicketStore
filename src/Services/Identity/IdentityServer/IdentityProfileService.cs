@@ -7,6 +7,7 @@ namespace IdentityServer
 {
     public class IdentityProfileService : IProfileService
     {
+
         private UserManager<IdentityUser> _userManager;
         public IdentityProfileService(UserManager<IdentityUser> userManager)
         {
@@ -16,15 +17,8 @@ namespace IdentityServer
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var user = await _userManager.GetUserAsync(context.Subject);
-            //await _userManager.SetLockoutEnabledAsync(user, false);
-            var isDeleted = await _userManager.GetLockoutEnabledAsync(user);
-            if (isDeleted == true)
-                throw new Exception("User is deleted");
-
             var roles = await _userManager.GetRolesAsync(user);
-
             var claims = roles.Select(role => new Claim("role", role));
-
             context.IssuedClaims.AddRange(claims);
         }
 
@@ -32,7 +26,15 @@ namespace IdentityServer
         {
             var user = await _userManager.GetUserAsync(context.Subject);
 
-            context.IsActive = (user != null);
+            var isDeleted = await _userManager.GetLockoutEnabledAsync(user);
+            if (isDeleted)
+            {
+                context.IsActive = false;
+            }
+            else
+            {
+                context.IsActive = (user != null);
+            }
         }
     }
 }

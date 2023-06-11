@@ -44,23 +44,7 @@ namespace Identity.WebApi.Extensions
                  options.Authority = configuration["ID4:Authority"];
                  options.Audience = configuration["ID4:Audience"];
                  options.RequireHttpsMetadata = false;
-                 //options.TokenValidationParameters = new TokenValidationParameters()
-                 //{
-                 //    //ValidateIssuer = false,
-                 //    //ValidateAudience = false,
-                 //    RoleClaimType = ClaimTypes.Role
-
-                 //};
-
              });
-
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("AdminOnly", policy =>
-            //    {
-            //        policy.RequireRole("Admin");
-            //    });
-            //});
         }
     }
 }

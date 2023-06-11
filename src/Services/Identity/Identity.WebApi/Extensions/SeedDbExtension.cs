@@ -26,6 +26,5 @@ namespace Identity.WebApi.Extensions
 
 			await IdentitySeed.SeedDataAsync(userManager, roleManager);
 		}
-
 	}
 }

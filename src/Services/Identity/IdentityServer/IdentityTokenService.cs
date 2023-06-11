@@ -1,24 +1,40 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using Identity.Application.Dtos;
+using Identity.Application.Services;
+using Identity.Domain.ErrorModels;
 using IdentityModel.Client;
+using Microsoft.Extensions.Configuration;
 
 namespace IdentityServer
 {
     public class IdentityTokenService: ITokenService
     {
-        private readonly IMapper _mapper;
 
-        public IdentityTokenService(IMapper mapper)
+        private readonly IMapper _mapper;
+        private IValidator<LoginUser> _validator;
+        private readonly string _url;
+
+        public IdentityTokenService(IMapper mapper, IValidator<LoginUser> validator, IConfiguration configuration)
         {
             _mapper = mapper;
+            _validator = validator;
+            _url = configuration["ID4:Authority"];
         }
 
-        public async Task<TokenViewModel> GetToken(LoginUser loginUser)
+        public async Task<Result<TokenViewModel>> GetToken(LoginUser loginUser)
         {
+            ValidationResult result = await _validator.ValidateAsync(loginUser);
+            if (!result.IsValid)
+            {
+                return ResultReturnService.CreateErrorResult<TokenViewModel>(ErrorStatusCode.WrongAction, "Invalid values");
+            }
+
             var client = new HttpClient();
             var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
-                Address = "http://localhost:5012",
+                Address = _url,
                 Policy = new DiscoveryPolicy { RequireHttps = false, }
             });
 
@@ -38,14 +54,9 @@ namespace IdentityServer
             };
 
             var token = await client.RequestPasswordTokenAsync(passwordTokenRequest);
-
-            if (token.IsError)
-            {
-                return null;
-            }
-
             var tokenRes = _mapper.Map<TokenViewModel>(token);
-            return tokenRes;
+
+            return new Result<TokenViewModel>() { Value = tokenRes };
         }
 
         public async Task<TokenViewModel> GetRefreshedTokenPairAsync(string clientId, string clientSecret, string refreshToken)
@@ -54,7 +65,7 @@ namespace IdentityServer
 
             var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
-                Address = "http://localhost:5012",
+                Address = _url,
                 Policy = new DiscoveryPolicy { RequireHttps = false, }
             });
             if (disco.IsError)
@@ -76,6 +87,7 @@ namespace IdentityServer
             }
 
             var tokenRes = _mapper.Map<TokenViewModel>(refreshTokenResponse);
+
             return tokenRes;
         }
     }

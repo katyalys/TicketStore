@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Identity.Application.Dtos;
-using Identity.Domain;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Identity;
 

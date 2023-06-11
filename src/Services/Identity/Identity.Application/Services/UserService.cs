@@ -1,77 +1,78 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using Identity.Application.Dtos;
 using Identity.Application.Interfaces;
-using Identity.Domain.Entites;
+using Identity.Domain.ErrorModels;
 using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Identity.Application.Services;
 
 namespace Identity.Application.Services
 {
     public class UserService: IUserService
     {
+
         private readonly IMapper _mapper;
-        private readonly IUserRepository _identityUser;
+        private readonly IUserStorageProvider _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserService(IUserRepository identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
+        private IValidator<RegisterUser> _validator;
+        public UserService(IUserStorageProvider identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager,
+            IValidator<RegisterUser> validator)
         {
             _identityUser = identityUser;
             _mapper = mapper;
             _roleManager = roleManager;
+            _validator = validator;
         }
 
         public async Task<Result<string>> RegisterCustomer(RegisterUser registerUser)
         {
-            if (registerUser.Password == registerUser.ConfirmPassword)
+            ValidationResult result = await _validator.ValidateAsync(registerUser);
+            if (!result.IsValid)
             {
-                var user = _mapper.Map<IdentityUser>(registerUser);
-                var isExist = await _identityUser.CheckIfExists(user);
-
-                if (isExist)
-                {
-                    return new Result<string>()
-                    {
-                        Errors = new List<ErrorClass>
-                        {
-                            new(ErrorStatusCode.WrongAction, "User already registered")
-                        }
-                    };
-                };
-
-                await _identityUser.AddAsync(user, registerUser.Password);
-                await _identityUser.AddClaimssAsync(user);
-
-                return new Result<string>()
-                {
-                    Value = "Success",
-                };
+                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Invalid values");
             }
-            else {
-                return new Result<string>()
+
+            var user = _mapper.Map<IdentityUser>(registerUser);
+            var isExist = await _identityUser.CheckIfExists(user);
+
+            if (isExist)
+            {
+                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "User already registered");
+            };
+
+            try
+            {
+                var resultList = await _identityUser.AddAsync(user, registerUser.Password);
+                if (resultList.Any(res => !res.Succeeded))
                 {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.WrongAction, "Passwords don't match")
-                    }
-                };
+                    return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Something went wrong");
+                }
             }
+            catch
+            {
+                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Length of username max 15 symblos");
+            }
+
+            await _identityUser.AddClaimssAsync(user);
+
+            return new Result<string>()
+            {
+                Value = "Success",
+            };
         }
 
-        public async Task<Result<string>> DeleteUser(string id) {
+        public async Task<Result<string>> DeleteUser(string id) 
+        {
             var user = await _identityUser.GetByIdAsync(id);
 
-            if (user != null) {
-                await _identityUser.DeleteAsync(user);
-            }
-            else
+            if (user == null) 
             {
-                return new Result<string>()
-                {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.NotFound, "There is no user with such id found")
-                    }
-                };
+                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
+            await _identityUser.DeleteAsync(user);
+
             return new Result<string>(){ Value = "Success"};
         }
 
@@ -79,36 +80,22 @@ namespace Identity.Application.Services
         {
             if (! await _roleManager.RoleExistsAsync(role))
             {
-                return new Result<UserWithRoles>()
-                {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.NotFound, "No such role")
-                    }
-                };
+                return ResultReturnService.CreateErrorResult<UserWithRoles>(ErrorStatusCode.NotFound, "No such role");
             }
 
             var user = await _identityUser.GetByIdAsync(id);
-            if (user != null)
+            if (user == null)
             {
-                var updatedUser = await _identityUser.UpdateUserRoleAsync(user, role);
-                var userWithRole =  new UserWithRoles
-                                    {
-                                        User = _mapper.Map<UserViewModel>(updatedUser.user),
-                                        Roles = new List<string>() { updatedUser.newRole }
-                                    };
-                return new Result<UserWithRoles>() { Value = userWithRole };
+                return ResultReturnService.CreateErrorResult<UserWithRoles>(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
-            else
+            var updatedUser = await _identityUser.UpdateUserRoleAsync(user, role);
+            var userWithRole = new UserWithRoles
             {
-                return new Result<UserWithRoles>()
-                {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.NotFound, "There is no user with such id found")
-                    }
-                };
-            }
+                User = _mapper.Map<UserViewModel>(updatedUser.user),
+                Roles = new List<string>() { updatedUser.newRole }
+            };
+
+            return new Result<UserWithRoles>() { Value = userWithRole };
         }
 
         public async Task<Result<List<UserWithRoles>>> GetAllUsers()
@@ -117,42 +104,25 @@ namespace Identity.Application.Services
 
             if (usersWithRoles == null)
             {
-                return new Result<List<UserWithRoles>>()
-                {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.NotFound, "No users")
-                    }
-                };
+                return ResultReturnService.CreateErrorResult<List<UserWithRoles>>(ErrorStatusCode.NotFound, "No users");
             };
-
-            var users = usersWithRoles.Select(x => new UserWithRoles
-                                        {
-                                            User = _mapper.Map<UserViewModel>(x.Key),
-                                            Roles = x.Value
-                                        }).ToList();
 
             return new Result<List<UserWithRoles>>()
             {
-                Value = users
+                Value = usersWithRoles
             };
         }
 
         public async Task<Result<UserWithRoles>> GetById(string id)
         {
             var user = await _identityUser.GetByIdAsync(id);
-            var role = await _identityUser.GetUserRole(id);
-            if (user == null || role == null)
+            if (user == null)
             {
-                return new Result<UserWithRoles>()
-                {
-                    Errors = new List<ErrorClass>
-                    {
-                        new(ErrorStatusCode.NotFound, "There is no user with such id found")
-                    }
-                };
+                return ResultReturnService.CreateErrorResult<UserWithRoles>(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
 
+            var role = await _identityUser.GetUserRole(id);
+          
             var userWithRole = new UserWithRoles
             {
                 User = _mapper.Map<UserViewModel>(user),

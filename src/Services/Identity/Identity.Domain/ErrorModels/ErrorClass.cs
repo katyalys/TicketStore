@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Identity.Domain.Entites
+namespace Identity.Domain.ErrorModels
 {
     public class ErrorClass
     {

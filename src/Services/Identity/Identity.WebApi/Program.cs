@@ -1,4 +1,6 @@
 using Events.Api.Extensions;
+using FluentValidation;
+using Identity.Application.FluentValidation;
 using Identity.Application.Interfaces;
 using Identity.Application.Mapper;
 using Identity.Application.Services;
@@ -20,9 +22,11 @@ builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
 builder.Services.AddIdentityServerConfig(configuration, environment);
 builder.Services.AddSwagger();
-builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IUserStorageProvider), typeof(UserStorageProvider));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));

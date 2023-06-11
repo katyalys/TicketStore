@@ -20,6 +20,5 @@ namespace Identity.Infrastructure.Attributes
                 authorized = true;
             }
         }
-
     }
 }

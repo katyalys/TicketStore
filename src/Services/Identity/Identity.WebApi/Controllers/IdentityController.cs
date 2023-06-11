@@ -1,14 +1,12 @@
 using Identity.Application.Dtos;
-using Identity.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using IdentityServer;
 using Microsoft.AspNetCore.Authorization;
 using Duende.IdentityServer;
 using AutoMapper;
 using Identity.Application.Interfaces;
-using Identity.Domain.Entites;
 using Identity.Infrastructure.Attributes;
+using Identity.WebApi.Helpers;
 
 namespace Identity.WebApi.Controllers
 {
@@ -16,6 +14,7 @@ namespace Identity.WebApi.Controllers
     [Route("[controller]")]
     public class IdentityController : ControllerBase
     {
+
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
 
@@ -25,21 +24,20 @@ namespace Identity.WebApi.Controllers
             _tokenService = tokenService;
         }
 
-        //    [Authorize(Policy = "AdminOnly")]
         [Authorize(Roles = "Admin")]
         [Authorize(IdentityServerConstants.LocalApi.PolicyName)]
-        [HttpPost("Admin/DeleteUser")]
+        [HttpPost("DeleteUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteUserById(string userId)
         {
-            //var claim = HttpContext.User.Claims;
             var result = await _userService.DeleteUser(userId);
-            return HandleResult(result);
+
+            return ErrorHandle.HandleResult(result);
         }
 
-        [HttpGet("Admin/ListAllUsers")]
+        [HttpGet("ListAllUsers")]
         [Authorize(Roles = "Admin")]
         [Authorize(IdentityServerConstants.LocalApi.PolicyName)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -47,43 +45,48 @@ namespace Identity.WebApi.Controllers
         public async Task<IActionResult> ListAllUsers()
         {
             var users = await _userService.GetAllUsers();
-            return HandleResult(users);
+
+            return ErrorHandle.HandleResult(users);
         }
 
         [Authorize(Roles = "Admin")]
         [Authorize(IdentityServerConstants.LocalApi.PolicyName)]
-        [HttpPost("Admin/ChangeUserRole")]
+        [HttpPost("ChangeUserRole")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ChangeUserRole(string id, string newRole)
         {
             var user = await _userService.ChangeRole(id, newRole);
-            return HandleResult(user);
+
+            return ErrorHandle.HandleResult(user);
         }
 
         [Authorize(Roles = "Admin")]
         [Authorize(IdentityServerConstants.LocalApi.PolicyName)]
-        [HttpPost("Admin/GetUser")]
+        [HttpPost("GetUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetById(id);
-            return HandleResult(user);
+
+            return ErrorHandle.HandleResult(user);
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
             var result = await _userService.RegisterCustomer(registerUser);
-            return HandleResult(result);
+
+            return ErrorHandle.HandleResult(result);
         }
 
         [HttpPost("Token")]
         public async Task<IActionResult> Login(LoginUser loginUser)
         {
             var tokenRes = await _tokenService.GetToken(loginUser);
-            return Ok(tokenRes);
+
+            return ErrorHandle.HandleResult(tokenRes);
         }
 
         [CustomAuthorization]
@@ -92,24 +95,8 @@ namespace Identity.WebApi.Controllers
         public async Task<IActionResult> RefreshToken(string clientId, string clientSecret, string refreshToken)
         {
             var tokenRes = await _tokenService.GetRefreshedTokenPairAsync(clientId, clientSecret, refreshToken);
+
             return Ok(tokenRes);
-        }
-
-        private IActionResult HandleResult<T>(Result<T> result)
-        {
-            if (result.Succeeded)
-            {
-                return Ok(result.Value);
-            }
-
-            var error = result.Errors[0];
-            return error.StatusCode switch
-            {
-                ErrorStatusCode.NotFound => NotFound(error.Message),
-                ErrorStatusCode.WrongAction => BadRequest(error.Message),
-                ErrorStatusCode.ForbiddenAction => Forbid(error.Message),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            };
         }
     }
 }

@@ -15,9 +15,11 @@ namespace Identity.Infrastructure.Data
 		public static async Task SeedDataAsync(Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager, Microsoft.AspNetCore.Identity.RoleManager<IdentityRole> roleManager) {
 
             if (roleManager.Roles.Any())
+            {
                 return;
+            }
 
-            var passwordHasher = new PasswordHasher<User>();
+            var passwordHasher = new PasswordHasher<IdentityUser>();
             await roleManager.CreateAsync(new IdentityRole
             {
                 Name = "Admin"
@@ -46,8 +48,6 @@ namespace Identity.Infrastructure.Data
             await userManager.SetLockoutEnabledAsync(user, false);
             await userManager.AddClaimsAsync(user, new List<Claim>{
                 new Claim("role", "Customer"),
-                //new Claim(ClaimTypes.Name, admin.UserName),
-                //new Claim(ClaimTypes.Email, admin.Email),
             });
 
             await userManager.CreateAsync(admin, "Admin123");
@@ -55,50 +55,7 @@ namespace Identity.Infrastructure.Data
             await userManager.SetLockoutEnabledAsync(admin, false);
             await userManager.AddClaimsAsync(admin, new List<Claim>{
                 new Claim("role", "Admin"),
-                //new Claim(ClaimTypes.Name, admin.UserName),
-                //new Claim(ClaimTypes.Email, admin.Email),
             });
-
         }
-
-        //public static void SeedData(IdentityDbContext identityDbContext)
-        //{
-        //	if (!identityDbContext.User.Any())
-        //	{
-        //		var passwordHasher = new PasswordHasher<User>();
-
-        //		var events = new List<User>
-        //		{
-        //			new User
-        //			{
-        //				Email = "admin@gmail.com",
-        //				PhoneNumber = "+375296880051",
-        //				UserName = "admin",
-        //				NormalizedUserName = "admin".Normalize().ToUpperInvariant(),
-        //				NormalizedEmail = "admin@gmail.com".Normalize().ToUpperInvariant(),
-        //				Password = passwordHasher.HashPassword(null, "Admin123"),
-        //				PasswordHash = passwordHasher.HashPassword(null, "Admin123"),
-        //				IsAdmin = IsAdminEnum.Admin,
-        //				IsDeleted = IsDeletedEnum.NotDeleted,
-        //			},
-
-        //			new User
-        //			{
-        //				Email = "katya@gmail.com",
-        //				PhoneNumber = "+375296580051",
-        //				UserName = "katya",
-        //				NormalizedUserName = "katya".Normalize().ToUpperInvariant(),
-        //				NormalizedEmail = "katya@gmail.com".Normalize().ToUpperInvariant(),
-        //				Password = passwordHasher.HashPassword(null, "Katya123"),
-        //				PasswordHash = passwordHasher.HashPassword(null, "Katya123"),
-        //				IsAdmin = IsAdminEnum.NotAdmin,
-        //				IsDeleted = IsDeletedEnum.NotDeleted,
-        //			},
-
-        //		};
-        //		identityDbContext.User.AddRange(events);
-        //		identityDbContext.SaveChanges();
-        //	}
-        //}
     }
 }

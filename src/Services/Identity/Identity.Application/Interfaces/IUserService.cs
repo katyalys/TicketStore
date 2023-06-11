@@ -1,5 +1,5 @@
 ﻿using Identity.Application.Dtos;
-using Identity.Domain.Entites;
+using Identity.Domain.ErrorModels;
 
 namespace Identity.Application.Interfaces
 {
