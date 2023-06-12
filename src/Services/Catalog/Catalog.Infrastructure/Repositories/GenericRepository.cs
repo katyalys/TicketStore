@@ -21,7 +21,9 @@ namespace Catalog.Infrastructure.Repositories
 
         public void Delete(T entity)
         {
-            _context.Set<T>().Remove(entity);
+            // _context.Set<T>().Remove(entity);
+            entity.IsDeleted = true;
+            _context.Entry(entity).State = EntityState.Modified;
         }
 
         public async Task<T> GetByIdAsync(int id)

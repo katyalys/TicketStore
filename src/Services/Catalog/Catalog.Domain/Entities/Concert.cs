@@ -18,7 +18,7 @@ namespace Catalog.Domain.Entities
 
         public int? PlaceId { get; set; }
         public Place? Place { get; set; }
-        public bool IsDeleted { get; set; }
+       // public bool IsDeleted { get; set; }
         public List<Ticket>? Tickets { get; set; } = new();
     }
 }

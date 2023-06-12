@@ -18,7 +18,6 @@ namespace Catalog.WebApi.Controllers
             _catalogService = catalogService;
         }
 
-        //
         [HttpGet("AllConcerts")]
         public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
         {
@@ -27,7 +26,6 @@ namespace Catalog.WebApi.Controllers
             return _mapper.Map<IReadOnlyList<ConcertsShortViewModel>>(concerts);
         }
 
-        //
         [HttpGet("GetConcertById/{id}")]
         public async Task<FullInfoConcertModel> ConcertById(int id)
         {
@@ -35,7 +33,6 @@ namespace Catalog.WebApi.Controllers
             return _mapper.Map<FullInfoConcertModel>(concert);
         }
 
-        //
         [HttpGet("SearchConcerts")]
         public async Task<IReadOnlyList<ConcertsShortViewModel>> SearchConcerts([FromQuery] string searchTerm)
         {
@@ -64,22 +61,8 @@ namespace Catalog.WebApi.Controllers
             return Ok();
         }
 
-        //[HttpDelete("1/{id}")]
-        //public async Task<IActionResult> DeleteConcert1(int id)
-        //{
-        //    try
-        //    {
-        //        await _catalogService.DeleteConcertAsync(id);
-        //    }
-        //    catch (NullReferenceException)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok();
-        //}
-
-        [HttpPost("EditConcert")]
-        public async Task EditConcert(ConcertFullInfo concertFullInfo, int idConcert)
+        [HttpPost("EditConcert1")]
+        public async Task<IActionResult> EditConcert1(FullInfoConcertModel concertFullInfo, int idConcert)
         {
             var existingConcert = await _catalogService.GetConcert(idConcert);
 
@@ -88,9 +71,9 @@ namespace Catalog.WebApi.Controllers
 
             //Update the concert in the catalog
             await _catalogService.UpdateConcertAsync(updatedConcert);
+            return Ok();
         }
 
-        //
         [HttpGet("Admin/ListAllConcerts")]
         public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts()
         {

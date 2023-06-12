@@ -1,4 +1,5 @@
-﻿using Catalog.Domain.Entities;
+﻿using Catalog.Domain;
+using Catalog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -96,7 +97,7 @@ namespace Catalog.Infrastructure.Data
             await context.AddRangeAsync(new Sector
             {
                 Name = SectorName.B,
-                Price = sector.SetPriceBasedOnName(nameof(SectorName.B)),
+                Price = TicketPriceCalculator.CalculatePrice((decimal)100.1, SectorName.B, place1.City),
                 RowNumber = 16,
                 RowSeatNumber = 14,
                 Place = place1,
@@ -104,7 +105,7 @@ namespace Catalog.Infrastructure.Data
             new Sector
             {
                 Name = SectorName.DanceFloor,
-                Price = sector.SetPriceBasedOnName(nameof(SectorName.DanceFloor)),
+                Price = TicketPriceCalculator.CalculatePrice((decimal)100.1, SectorName.DanceFloor, place1.City),
                 RowNumber = 15,
                 RowSeatNumber = 15,
                 Place = place1,
@@ -112,7 +113,7 @@ namespace Catalog.Infrastructure.Data
             new Sector
             {
                 Name = SectorName.A,
-                Price = sector.SetPriceBasedOnName(nameof(SectorName.A)),
+                Price = TicketPriceCalculator.CalculatePrice((decimal)100.1, SectorName.A, place2.City),
                 RowNumber = 0,
                 RowSeatNumber = 55,
                 Place = place2,
@@ -120,7 +121,7 @@ namespace Catalog.Infrastructure.Data
             new Sector
             {
                 Name = SectorName.A,
-                Price = sector.SetPriceBasedOnName(nameof(SectorName.A)),
+                Price = TicketPriceCalculator.CalculatePrice((decimal)100.1, SectorName.A, place2.City),
                 RowNumber = 20,
                 RowSeatNumber = 25,
                 Place = place2,
@@ -128,7 +129,7 @@ namespace Catalog.Infrastructure.Data
             new Sector
             {
                 Name = SectorName.B,
-                Price = sector.SetPriceBasedOnName(nameof(SectorName.B)),
+                Price = TicketPriceCalculator.CalculatePrice((decimal)100.1, SectorName.B, place2.City),
                 RowNumber = 20,
                 RowSeatNumber = 25,
                 Place = place2,

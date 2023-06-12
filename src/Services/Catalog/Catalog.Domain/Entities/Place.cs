@@ -11,7 +11,7 @@ namespace Catalog.Domain.Entities
         public string City { get; set; }
         public string Street { get; set; }
         public int PlaceNumber { get; set; }
-        public bool IsDeleted { get; set; }
+     //   public bool IsDeleted { get; set; }
         public List<Concert>? Concerts { get; set; } = new();
         public List<Sector>? Sectors { get; set; } = new();
     }
