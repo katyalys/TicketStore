@@ -11,7 +11,7 @@ namespace Catalog.Application.Dtos.SectorDtos
     {
         public string SectorName { get; set; }
         public int RowNumber { get; set; }
-        public int RowSeatNumber { get; set; } //kol-vo mest v ryady
-        public string SeatRange { get; set; }
+        public int RowSeatNumber { get; set; }
+        public List<SeatRangeDto> SeatRanges { get; set; }
     }
 }

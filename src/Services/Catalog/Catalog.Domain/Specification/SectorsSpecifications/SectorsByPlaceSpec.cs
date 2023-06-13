@@ -17,14 +17,14 @@ namespace Catalog.Domain.Specification.SectorsSpecifications
 
         public SectorsByPlaceSpec(int placeId, SectorName sectorName)
         {
-            AddCriteria(s => s.PlaceId == placeId);
+            AddCriteria(s => s.PlaceId == placeId && s.Name == sectorName);
             AddInclude(s => s.Place);
-            AddCriteria(s => s.Name != sectorName);
+           // AddCriteria(s => s.Name == sectorName);
         }
 
-        public SectorsByPlaceSpec(SectorName sectorName, int placeId)
-        {
-            AddCriteria(s => s.Name == sectorName && s.PlaceId == placeId);
-        }
+        //public SectorsByPlaceSpec(SectorName sectorName, int placeId)
+        //{
+        //    AddCriteria(s => s.Name == sectorName && s.PlaceId == placeId);
+        //}
     }
 }

@@ -25,8 +25,7 @@ namespace Catalog.WebApi.Helpers
 				.ReverseMap();
 
 			CreateMap<Sector, SectorFullInffoDto>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => 
-											   TicketPriceCalculator.CalculatePrice(src.Price, src.Name, src.Place.City)))
+				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
 				.ReverseMap();
 		}
 

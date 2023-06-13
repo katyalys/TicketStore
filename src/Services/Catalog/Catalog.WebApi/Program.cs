@@ -1,3 +1,4 @@
+using Catalog.Application.Interfaces;
 using Catalog.Domain.Interfaces;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
@@ -19,6 +20,8 @@ builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IPlaceService, PlaceService>();
+builder.Services.AddScoped<ISectorService, SectorService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
