@@ -31,9 +31,9 @@ namespace Catalog.WebApi.Controllers
         }
 
         [HttpDelete("DeleteSector")]
-        public async Task<IActionResult> DeleteSector(int sectorId, int placeId)
+        public async Task<IActionResult> DeleteSector(int sectorId)
         {
-            await _sectorService.DeleteSector(sectorId, placeId);
+            await _sectorService.DeleteSector(sectorId);
             return Ok();
         }
 

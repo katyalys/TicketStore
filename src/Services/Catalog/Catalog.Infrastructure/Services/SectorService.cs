@@ -92,51 +92,58 @@ namespace Catalog.Infrastructure.Services
         }
 
         //
-        public async Task DeleteSector(int sectorId, int placeId)
+        public async Task DeleteSector(int sectorId)
         {
-            //var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
-            //if (place == null)
-            //{
-            //    throw new Exception("No place with such Id");
-            //}
+            var sector = await _unitOfWork.Repository<Sector>().GetByIdAsync(sectorId);
+            if (sector.PlaceId == null)
+            {
+                throw new Exception("No place with such Id");
+            }
 
-            var spec = new SectorsToDeleteSpec(placeId, sectorId);
-            var sector = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
-            if (sector != null)
+            var spec = new SectorsToDeleteSpec(sectorId, sector.PlaceId);
+            var sectorWithTickets = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
+            if (sectorWithTickets != null)
             {
                 throw new Exception("Cant delete sector because of existing tickets");
             }
-            _unitOfWork.Repository<Sector>().Delete(sector);
+
+            _unitOfWork.Repository<Sector>().Delete(sector); 
             await _unitOfWork.Complete();
         }
 
+        // нельзя менять PlaceId иначе будут несогл данные в концерт и сектор (ну я его и так не могу поменять)
         public async Task UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto)
         {
-            //var spec = new SectorsByPlaceSpec(sectorFullInffoDto.Name, sectorFullInffoDto.PlaceId);
-            //var sector = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
-            //if (sector == null)
-            //{
-            //    throw new Exception("No sector with such placeId or name");
-            //}
+            SectorName enumName = (SectorName)Enum.Parse(typeof(SectorName), sectorFullInffoDto.Name);
+            var spec = new SectorsByPlaceSpec(sectorFullInffoDto.PlaceId, enumName);
+            var sector = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
+            if (sector == null)
+            {
+                throw new Exception("No sector with such placeId or name");
+            }
 
-            //var ticketSpec = new TicketsSoldForSectorSpec(sector.Id, (int)StatusTypes.Bought);
-            //var ticketsSold = await _unitOfWork.Repository<Ticket>().ListAsync(ticketSpec);
+            var ticketSpec = new TicketsSoldForSectorSpec(sector.Id);
+            var ticketsSold = await _unitOfWork.Repository<Ticket>().ListAsync(ticketSpec);
 
-            //if (ticketsSold.Any())
-            //{
-            //    // Retrieve the maximum row number and maximum seats in a row from the existing tickets
-            //    var maxRowNumber = ticketsSold.Max(t => t.Row);
-            //    var maxSeatsInRow = ticketsSold.Max(t => t.Seat);
+            if (ticketsSold.Any())
+            {
+                // Retrieve the maximum row number and maximum seats in a row from the existing tickets
+                var maxRowNumber = ticketsSold.Max(t => t.Row);
+                var maxSeatsInRow = ticketsSold.Max(t => t.Seat);
 
-            //    // Calculate the maximum seat number in the last row
-            //    //var maxSeatNumber = (maxRowNumber - 1) * maxSeatsInRow + sectorFullInffoDto.RowSeatNumber;
-            //    // Check if the number of rows or seats in each row is being decreased
-            //    if (sectorFullInffoDto.RowNumber < maxRowNumber || sectorFullInffoDto.RowSeatNumber < maxSeatsInRow 
-            //        /*|| sectorFullInffoDto.RowSeatNumber < maxSeatNumber*/)
-            //    {
-            //        throw new Exception("Cannot decrease the number of rows or seats. Tickets have already been sold.");
-            //    }
-            //}
+                // Calculate the maximum seat number in the last row
+                //var maxSeatNumber = (maxRowNumber - 1) * maxSeatsInRow + sectorFullInffoDto.RowSeatNumber;
+                // Check if the number of rows or seats in each row is being decreased
+                if (sectorFullInffoDto.RowNumber <= maxRowNumber || sectorFullInffoDto.RowSeatNumber <= maxSeatsInRow
+                    /*|| sectorFullInffoDto.RowSeatNumber < maxSeatNumber*/)
+                {
+                    throw new Exception("Cannot decrease the number of rows or seats. Tickets have already been sold.");
+                }
+            }
+
+            var updatedSector = _mapper.Map(sectorFullInffoDto, sector);
+            _unitOfWork.Repository<Sector>().Update(updatedSector);
+            await _unitOfWork.Complete();
         }
     }
 }

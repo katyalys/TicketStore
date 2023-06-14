@@ -11,7 +11,7 @@ namespace Catalog.Application.Interfaces
     {
         Task<List<SectorInfoDto>> ListAllPossibleSeats(int placeId);
         Task AddSector(SectorFullInffoDto sectorAddDto);
-        Task DeleteSector(int sectorId, int placeId);
+        Task DeleteSector(int sectorId);
         Task UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto);
     }
 }

@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 namespace Catalog.Domain.Specification.SectorsSpecifications
 {
+    //public class TicketsSoldForSectorSpec : BaseSpecification<Sector>
+    //{
+    //    public TicketsSoldForSectorSpec(int sectorId) : base(t => t.Id == sectorId)
+    //    {
+    //        AddInclude(t => t.Tickets);
+    //        AddCriteria(t => t.Tickets.Any(t => t.StatusId == 1));
+    //    }
+    //}
+
     public class TicketsSoldForSectorSpec : BaseSpecification<Ticket>
     {
-        public TicketsSoldForSectorSpec(int sectorId, int statusId)
+        public TicketsSoldForSectorSpec(int sectorId)
         {
-            AddCriteria(t => t.SectorId == sectorId && t.StatusId == statusId);
-           // AddInclude(t => t.Sector);
+            AddCriteria(t => t.StatusId == 1 && t.SectorId == sectorId);
         }
     }
 }

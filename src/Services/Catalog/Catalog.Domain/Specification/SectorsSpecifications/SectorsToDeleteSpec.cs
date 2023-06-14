@@ -9,11 +9,10 @@ namespace Catalog.Domain.Specification.SectorsSpecifications
 {
     public class SectorsToDeleteSpec : BaseSpecification<Sector>
     {
-        public SectorsToDeleteSpec(int placeId, int sectorName)
+        public SectorsToDeleteSpec(int sectorId, int? placeId) : base(s => s.Id == sectorId)
         {
-            AddCriteria(s => s.PlaceId == placeId);
-            AddCriteria(s => s.Name == (SectorName)sectorName);
-            AddCriteria(s => s.Tickets != null && !s.Tickets.Any(t => t.IsDeleted));
+            AddInclude(s => s.Tickets);
+            AddCriteria(s => s.PlaceId == placeId && s.Tickets.Any(t => t.IsDeleted == false));
         }
     }
 }
