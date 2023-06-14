@@ -16,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<CatalogContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddAuthentificate();
+builder.Services.AddSwagger();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
