@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using IdentityServer;
-using Identity.IdentityServer;
 using Duende.IdentityServer.Services;
 using IdentityDbContext = Identity.Infrastructure.Data.IdentityDbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Identity.IdentityServer;
 
 namespace Identity.WebApi.Extensions
 {

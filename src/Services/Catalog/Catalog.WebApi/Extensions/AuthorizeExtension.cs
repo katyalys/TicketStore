@@ -9,9 +9,10 @@ namespace Catalog.WebApi.Extensions
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "https://localhost:5012";
+                    options.Authority = "http://localhost:5012";
                     options.Audience = "Identity WebApi";
                     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
+                    options.RequireHttpsMetadata = false;
                 });
             return services;
         }

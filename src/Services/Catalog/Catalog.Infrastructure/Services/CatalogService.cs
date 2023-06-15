@@ -2,6 +2,8 @@
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;

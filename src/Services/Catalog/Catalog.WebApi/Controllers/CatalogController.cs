@@ -4,10 +4,14 @@ using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.WebApi.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;

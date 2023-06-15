@@ -37,6 +37,10 @@ namespace Identity.IdentityServer
                     RefreshTokenExpiration=TokenExpiration.Absolute,
                     AbsoluteRefreshTokenLifetime= (int) (DateTime.Now.AddDays(60)- DateTime.Now).TotalSeconds,
                     RefreshTokenUsage = TokenUsage.ReUse,
+<<<<<<< HEAD
+
+=======
+>>>>>>> identityServer
                 }
             };
         }
@@ -69,10 +73,14 @@ namespace Identity.IdentityServer
                     DisplayName ="Identity WebApi",
                     Description = "Identity WebApi Access",
                     ApiSecrets = new List<Secret> {new Secret("IdentityWebApiSecret".Sha256())},
+<<<<<<< HEAD
                     // include the following using claims in access token (in addition to subject id)
                     UserClaims = {
                         "role",
                      },
+=======
+                    UserClaims = { "role", },
+>>>>>>> identityServer
                     Scopes = new List<string>{ "Identity", "offline_access", "IdentityServerApi"},
                 }
             };

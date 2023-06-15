@@ -21,6 +21,8 @@ namespace Catalog.Domain.Entities
         public int Row { get; set; }
         public int Seat { get; set; }
 
+        public string? CustomerId { get; set; }
+
         public void Validate()
         {
             if (Sector != null)
