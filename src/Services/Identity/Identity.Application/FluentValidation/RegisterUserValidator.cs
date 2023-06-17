@@ -25,11 +25,20 @@ namespace Identity.Application.FluentValidation
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters.");
+                .MinimumLength(6).WithMessage("Password must be at least 6 characters.")
+                .Must(password => IsPasswordValid(password))
+                .WithMessage("Password should include at least one digit and one uppercase letter.");
 
             RuleFor(x => x.ConfirmPassword)
                 .NotEmpty().WithMessage("Confirm password is required.")
                 .Equal(x => x.Password).WithMessage("Passwords do not match.");
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            return !string.IsNullOrEmpty(password) &&
+                   password.Any(char.IsDigit) &&
+                   password.Any(char.IsUpper);
         }
     }
 }

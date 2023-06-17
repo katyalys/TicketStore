@@ -7,6 +7,8 @@ using AutoMapper;
 using Identity.Application.Interfaces;
 using Identity.Infrastructure.Attributes;
 using Identity.WebApi.Helpers;
+using Identity.Application.Services;
+using Identity.Domain.ErrorModels;
 
 namespace Identity.WebApi.Controllers
 {

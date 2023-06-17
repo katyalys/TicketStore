@@ -25,12 +25,6 @@ namespace IdentityServer
 
         public async Task<Result<TokenViewModel>> GetToken(LoginUser loginUser)
         {
-            ValidationResult result = await _validator.ValidateAsync(loginUser);
-            if (!result.IsValid)
-            {
-                return ResultReturnService.CreateErrorResult<TokenViewModel>(ErrorStatusCode.WrongAction, "Invalid values");
-            }
-
             var client = new HttpClient();
             var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {

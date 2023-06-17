@@ -9,6 +9,8 @@ using Identity.Infrastructure.Interfaces;
 using Identity.WebApi.Extensions;
 using IdentityServer;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation.AspNetCore;
+using Identity.Application.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +24,9 @@ builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddScoped<IValidator<RegisterUser>, RegisterUserValidator>();
+builder.Services.AddScoped<IValidator<LoginUser>, LoginUserValidator>();
 builder.Services.AddIdentityServerConfig(configuration, environment);
 builder.Services.AddSwagger();
 builder.Services.AddScoped(typeof(IUserStorageProvider), typeof(UserStorageProvider));

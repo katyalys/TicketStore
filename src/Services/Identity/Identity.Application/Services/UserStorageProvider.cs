@@ -36,7 +36,7 @@ namespace Identity.Application.Services
         {
             var createResult = await _identityUser.CreateAsync(entity, password);
             var deleteResult = await _identityUser.SetLockoutEnabledAsync(entity, false);
-            var roleResult = await _identityUser.AddToRoleAsync(entity, "customer");
+            var roleResult = await _identityUser.AddToRoleAsync(entity, "Customer");
             var listResult = new List<IdentityResult>() { createResult, deleteResult, roleResult}; 
 
             return listResult;
