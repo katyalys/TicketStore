@@ -31,6 +31,7 @@ namespace Catalog.Infrastructure.Services
         {
             var spec = new ConcertFullInfo(id);
             var concert = _unitOfWork.Repository<Concert>().GetEntityWithSpec(spec);
+
             return concert;
         }
 
@@ -38,6 +39,7 @@ namespace Catalog.Infrastructure.Services
         {
             var spec = new ConcertsBySearchSpec(searchTerm);
             var concerts = _unitOfWork.Repository<Concert>().ListAsync(spec);
+
             return concerts;
         }
 
@@ -69,6 +71,7 @@ namespace Catalog.Infrastructure.Services
         {
             var spec = new ConcertFullInfo();
             var allConcerts = await _unitOfWork.Repository<Concert>().ListAsync(spec);
+
             return allConcerts;
         }
 

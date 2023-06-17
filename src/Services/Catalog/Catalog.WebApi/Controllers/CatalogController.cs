@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.WebApi.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    [Authorize]
+    //[ApiController]
+    //[Route("[controller]")]
+    //[Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;
@@ -63,6 +63,7 @@ namespace Catalog.WebApi.Controllers
             {
                 return NotFound();
             }
+
             return Ok();
         }
 
@@ -70,12 +71,9 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> EditConcert1(FullInfoConcertModel concertFullInfo, int idConcert)
         {
             var existingConcert = await _catalogService.GetConcert(idConcert);
-
-            //Perform mapping of updated information
             var updatedConcert = _mapper.Map(concertFullInfo, existingConcert);
-
-            //Update the concert in the catalog
             await _catalogService.UpdateConcertAsync(updatedConcert);
+
             return Ok();
         }
 

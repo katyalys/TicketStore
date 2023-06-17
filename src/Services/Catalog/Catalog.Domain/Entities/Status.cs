@@ -15,6 +15,7 @@ namespace Catalog.Domain.Entities
     public enum StatusTypes { 
         Bought,
         Free,
+        Book,
     }
 
 }

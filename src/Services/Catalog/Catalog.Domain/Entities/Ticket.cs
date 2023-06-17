@@ -17,7 +17,7 @@ namespace Catalog.Domain.Entities
 
         public int? StatusId { get; set; }
         public Status? Status { get; set; }
-      //  public bool IsDeleted { get; set; }
+
         public int Row { get; set; }
         public int Seat { get; set; }
 

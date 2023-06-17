@@ -18,7 +18,6 @@ namespace Catalog.Infrastructure.Data.Config
 			builder.Property(d => d.PlaceNumber).HasMaxLength(5).IsRequired();
 			builder.Property(d => d.Street).HasMaxLength(30).IsRequired();
 			builder.Property(d => d.IsDeleted).HasDefaultValue(false).IsRequired();
-		//	builder.HasMany(d => d.Concerts).WithOne(d => d.Place);
 			builder.HasMany(d => d.Sectors).WithOne(d => d.Place);
 		}
 	}

@@ -26,7 +26,6 @@ namespace Catalog.Infrastructure.Services
 
         public async Task AddPlaceAsync(Place place)
         {
-           // var place = _mapper.Map<Place>(placeModel);
             var places = await _unitOfWork.Repository<Place>().ListAllAsync();
             bool placeExists = places.Any(p => p.City == place.City && p.Street == place.Street && p.PlaceNumber == place.PlaceNumber);
 
@@ -56,7 +55,7 @@ namespace Catalog.Infrastructure.Services
             foreach (var sector in place.Sectors)
             {
                 _unitOfWork.Repository<Sector>().Delete(sector);
-                await _unitOfWork.Complete();
+               // await _unitOfWork.Complete();
             }
 
             _unitOfWork.Repository<Place>().Delete(place);
@@ -65,7 +64,6 @@ namespace Catalog.Infrastructure.Services
 
         public async Task UpdatePlaceAsync(Place updatedPlace)
         {
-           // var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
             if (updatedPlace == null && updatedPlace.IsDeleted != true)
             {
                 throw new Exception("No place with such id");
@@ -78,6 +76,7 @@ namespace Catalog.Infrastructure.Services
         public Task<Place> GetPlace(int placeId)
         {
             var place = _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
+
             return place;
         }
     }

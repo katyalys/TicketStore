@@ -9,6 +9,7 @@ namespace Catalog.Domain.Specification.PlacesSpecifications
 {
 	public class PlaceSpec : BaseSpecification<Place>
 	{
+
 		public PlaceSpec(int id)
 		: base(x => x.Id == id)
 		{

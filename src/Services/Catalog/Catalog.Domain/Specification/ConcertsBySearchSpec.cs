@@ -4,6 +4,7 @@ namespace Catalog.Domain.Specification
 {
     public class ConcertsBySearchSpec : BaseSpecification<Concert>
     {
+
         public ConcertsBySearchSpec(string searchTerm) : 
                                  base(c => (c.Name.Contains(searchTerm) || c.Perfomer.Contains(searchTerm)) && !c.IsDeleted)
         {

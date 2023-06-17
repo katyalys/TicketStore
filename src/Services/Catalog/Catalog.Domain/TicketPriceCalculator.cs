@@ -6,7 +6,6 @@ namespace Catalog.Domain
     {
         public static decimal CalculatePrice(decimal basePrice, SectorName sectorName, string city)
         {
-            // Custom logic to calculate the final price based on the city and sector name
             decimal adjustedPrice = basePrice;
 
             switch (sectorName)
@@ -34,7 +33,6 @@ namespace Catalog.Domain
                     break;
             }
 
-            // Example logic: Adjust price based on the city
             if (city != null)
             {
                 switch (city)

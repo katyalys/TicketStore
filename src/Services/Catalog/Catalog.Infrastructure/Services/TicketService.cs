@@ -22,6 +22,7 @@ namespace Catalog.Infrastructure.Services
         {
             var spec = new FreeTicketsInfoFilterByPrice(ticketsSpec);
             var concerts = _unitOfWork.Repository<Ticket>().ListAsync(spec);
+
             return concerts;
         }
 
@@ -29,10 +30,10 @@ namespace Catalog.Infrastructure.Services
         {
             var spec = new TicketsInfo(concertId, isDescOredr);
             var concerts = _unitOfWork.Repository<Ticket>().ListAsync(spec);
+
             return concerts;
         }
 
-        // use map in controller
         public async Task AddTicketsAsync(List<Ticket> tickets)
         {
             foreach (var ticket in tickets)
@@ -51,8 +52,8 @@ namespace Catalog.Infrastructure.Services
             foreach (var ticket in tickets)
             {
                 _unitOfWork.Repository<Ticket>().Delete(ticket);
-                await _unitOfWork.Complete();
             }
+            await _unitOfWork.Complete();
         }
     }
 }

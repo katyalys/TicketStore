@@ -24,6 +24,7 @@ namespace Catalog.WebApi.Controllers
         {
             var place = _mapper.Map<Place>(placeModel);
             await _placeService.AddPlaceAsync(place);
+
             return Ok();
         }
 
@@ -31,6 +32,7 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> DeletePlace(int placeId)
         {
             await _placeService.DeletePlaceAsync(placeId);
+
             return Ok();
         }
 
@@ -40,6 +42,7 @@ namespace Catalog.WebApi.Controllers
             var existingPlace = await _placeService.GetPlace(placeId);
             var updatedConcert = _mapper.Map(placeModel, existingPlace);
             await _placeService.UpdatePlaceAsync(updatedConcert);
+
             return Ok();
         }
 

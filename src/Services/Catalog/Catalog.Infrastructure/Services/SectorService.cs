@@ -65,7 +65,6 @@ namespace Catalog.Infrastructure.Services
 
         public async Task AddSector(SectorFullInffoDto sectorAddDto)
         {
-            // Validate if the entered sector name is valid
             if (!Enum.IsDefined(typeof(SectorName), sectorAddDto.Name))
             {
                 throw new Exception("Invalid sector name");
@@ -91,7 +90,6 @@ namespace Catalog.Infrastructure.Services
             await _unitOfWork.Complete();
         }
 
-        //
         public async Task DeleteSector(int sectorId)
         {
             var sector = await _unitOfWork.Repository<Sector>().GetByIdAsync(sectorId);
@@ -111,7 +109,6 @@ namespace Catalog.Infrastructure.Services
             await _unitOfWork.Complete();
         }
 
-        // нельзя менять PlaceId иначе будут несогл данные в концерт и сектор (ну я его и так не могу поменять)
         public async Task UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto)
         {
             SectorName enumName = (SectorName)Enum.Parse(typeof(SectorName), sectorFullInffoDto.Name);
@@ -127,15 +124,10 @@ namespace Catalog.Infrastructure.Services
 
             if (ticketsSold.Any())
             {
-                // Retrieve the maximum row number and maximum seats in a row from the existing tickets
                 var maxRowNumber = ticketsSold.Max(t => t.Row);
                 var maxSeatsInRow = ticketsSold.Max(t => t.Seat);
 
-                // Calculate the maximum seat number in the last row
-                //var maxSeatNumber = (maxRowNumber - 1) * maxSeatsInRow + sectorFullInffoDto.RowSeatNumber;
-                // Check if the number of rows or seats in each row is being decreased
-                if (sectorFullInffoDto.RowNumber <= maxRowNumber || sectorFullInffoDto.RowSeatNumber <= maxSeatsInRow
-                    /*|| sectorFullInffoDto.RowSeatNumber < maxSeatNumber*/)
+                if (sectorFullInffoDto.RowNumber <= maxRowNumber || sectorFullInffoDto.RowSeatNumber <= maxSeatsInRow)
                 {
                     throw new Exception("Cannot decrease the number of rows or seats. Tickets have already been sold.");
                 }

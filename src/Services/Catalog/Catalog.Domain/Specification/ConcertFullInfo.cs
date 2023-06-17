@@ -4,6 +4,7 @@ namespace Catalog.Domain.Specification
 {
     public class ConcertFullInfo : BaseSpecification<Concert>
     {
+
 		public ConcertFullInfo(int id)
 		: base(x => x.Id == id)
 		{

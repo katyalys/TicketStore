@@ -8,10 +8,10 @@ namespace Catalog.Application.Dtos
 {
     public class ConcertsShortViewModel
     {
+
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Perfomer { get; set; }
-
         public PlaceModel? Place { get; set; }
     }
 }

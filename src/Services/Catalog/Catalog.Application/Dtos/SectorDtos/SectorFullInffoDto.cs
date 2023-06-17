@@ -9,6 +9,7 @@ namespace Catalog.Application.Dtos.SectorDtos
 {
     public class SectorFullInffoDto
     {
+
         public string Name { get; set; }
         public int RowNumber { get; set; }
         public int RowSeatNumber { get; set; } //kol-vo mest v ryady
