@@ -4,10 +4,14 @@ using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
 using Catalog.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.WebApi.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize(Roles = "Admin")]
     public class PlaceController : Controller
     {
         private readonly IPlaceService _placeService;

@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.WebApi.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize(Roles = "Admin")]
     public class SectorController : Controller
     {
         private readonly ISectorService _sectorService;

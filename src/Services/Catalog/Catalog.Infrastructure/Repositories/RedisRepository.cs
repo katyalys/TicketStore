@@ -15,10 +15,12 @@ namespace Catalog.Infrastructure.Repositories
     public class RedisRepository: IRedisRepository
     {
         private readonly IDatabase _db;
-        private readonly ConnectionMultiplexer _redis;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly string _keyPrefix = "basket:";
 
-        public RedisRepository()
+        public RedisRepository(IConnectionMultiplexer redis)
         {
+            _redis = redis;
             _db = _redis.GetDatabase();
         }
 
@@ -29,16 +31,7 @@ namespace Catalog.Infrastructure.Repositories
         /// <returns></returns>
         public async Task<bool> Remove(string key)
         {
-            return await _db.KeyDeleteAsync(key);
-        }
-
-        /// <summary>
-        /// Remove multiple values from redis
-        /// </summary>
-        /// <param name="keys"></param>
-        public async Task Remove(RedisKey[] keys)
-        {
-            await _db.KeyDeleteAsync(keys);
+            return await _db.KeyDeleteAsync(ApplyKeyPrefix(key));
         }
 
         /// <summary>
@@ -46,23 +39,18 @@ namespace Catalog.Infrastructure.Repositories
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public async Task<bool> Exists(string key)
+        public async Task<bool> Exists(string key, TimeSpan expiresAt)
         {
-            return await _db.KeyExistsAsync(key);
+            if (await _db.KeyExistsAsync(ApplyKeyPrefix(key)))
+            {
+                return true;
+            }
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), string.Empty, expiresAt);
         }
 
         public TimeSpan? TimeToExpire(string key)
         {
-            return _db.KeyTimeToLive(key);
-        }
-
-
-        /// <summary>
-        /// Dispose DB connection
-        /// </summary>
-        public void Stop()
-        {
-            _redis.Dispose();
+            return _db.KeyTimeToLive(ApplyKeyPrefix(key));
         }
 
         /// <summary>
@@ -76,7 +64,7 @@ namespace Catalog.Infrastructure.Repositories
         public async Task<bool> Add<T>(string key, T value, TimeSpan expiresAt) where T : class
         {
             var stringContent = SerializeContent(value);
-            return await _db.StringSetAsync(key, stringContent, expiresAt);
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), stringContent, expiresAt);
         }
 
         /// <summary>
@@ -90,20 +78,20 @@ namespace Catalog.Infrastructure.Repositories
         public async Task<bool> Add(string key, object value, TimeSpan expiresAt)
         {
             var stringContent = SerializeContent(value);
-            return await _db.StringSetAsync(key, stringContent, expiresAt);
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), stringContent, expiresAt);
         }
 
         /// <summary>
         /// Add new record in redis 
         /// </summary>
-        /// <typeparam name="T">generic refrence type</typeparam>
-        /// <param name="key">unique key of value</param>
-        /// <param name="value">value of key of type T</param>
-        /// <returns>true or false</returns>
-        public async Task<bool> Update<T>(string key, T value) where T : class
+        /// <typeparam name = "T" > generic refrence type</typeparam>
+        /// <param name = "key" > unique key of value</param>
+        //    / <param name = "value" > value of key of type T</param>
+        //    / <returns>true or false</returns>
+        public async Task<bool> Update<T>(string key, T value, TimeSpan expiresAt) where T : class
         {
             var stringContent = SerializeContent(value);
-            return await _db.StringSetAsync(key, stringContent);
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), stringContent, expiresAt);
         }
 
         /// <summary>
@@ -117,12 +105,11 @@ namespace Catalog.Infrastructure.Repositories
 
             try
             {
-                RedisValue myString = await _db.StringGetAsync(key);
+                RedisValue myString = await _db.StringGetAsync(ApplyKeyPrefix(key));
                 if (myString.HasValue && !myString.IsNullOrEmpty)
                 {
                     return DeserializeContent<T>(myString);
                 }
-
                 return null;
             }
             catch (Exception)
@@ -139,28 +126,37 @@ namespace Catalog.Infrastructure.Repositories
         ///// <typeparam name="T"></typeparam>
         ///// <param name="key"></param>
         ///// <returns></returns>
-        //public List<T> GetList<T>(string key) where T : class
-        //{
-        //    try
-        //    {
-        //        //var server = _redis.GetServer(host: RedisClientConfigurations.Url,
-        //        //                              port: RedisClientConfigurations.Port);
-        //        var keys = Connection.GetServer.Keys(_db.Database, key);
-        //        var keyValues = _db.StringGet(keys.ToArray());
+        public async Task<Dictionary<string, T>> GetList<T>() where T : class
+        {
+            try
+            {
+                var keys = _redis.GetServer("localhost", 6379).Keys(pattern: "basket:*");
 
-        //        var values = (from redisValue in keyValues
-        //                      where redisValue.HasValue && !redisValue.IsNullOrEmpty
-        //                      select DeserializeContent<T>(redisValue)).ToList();
+                var keyValues = await _db.StringGetAsync(keys.ToArray());
 
+                var result = new Dictionary<string, T>();
 
-        //        return values;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // Log Exception
-        //        return null;
-        //    }
-        //}
+                int i = 0;
+                foreach (var key in keys)
+                {
+                    var keyValue = keyValues[i];
+                    if (keyValue.HasValue && !keyValue.IsNullOrEmpty)
+                    {
+                        var keyString = key.ToString().Substring("basket:".Length);
+                        var value = DeserializeContent<T>(keyValue);
+                        result.Add(keyString, value);
+                    }
+                    i++;
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                // Log Exception
+                return null;
+            }
+        }
 
         // serialize and Deserialize content in separate functions as redis can save value as array of binary. 
         // so, any time you need to change the way of handling value, do it here.
@@ -173,6 +169,11 @@ namespace Catalog.Infrastructure.Repositories
         private T DeserializeContent<T>(RedisValue myString)
         {
             return JsonSerializer.Deserialize<T>(myString);
+        }
+
+        private RedisKey ApplyKeyPrefix(RedisKey key)
+        {
+            return _keyPrefix + key;
         }
     }
 }

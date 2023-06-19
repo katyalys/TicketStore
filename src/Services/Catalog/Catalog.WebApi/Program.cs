@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -21,16 +22,18 @@ builder.Services.AddDbContext<CatalogContext>(options =>
 builder.Services.AddAuthentificate();
 builder.Services.AddSwagger();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ICatalogService, CatalogService>();
-builder.Services.AddScoped<IPlaceService, PlaceService>();
-builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
 {
     var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
     return ConnectionMultiplexer.Connect(configuration);
 });
+builder.Services.AddScoped<IRedisRepository, RedisRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IPlaceService, PlaceService>();
+builder.Services.AddScoped<IBasketService, BasketService>();
+builder.Services.AddScoped<ISectorService, SectorService>();
 
 var app = builder.Build();
 

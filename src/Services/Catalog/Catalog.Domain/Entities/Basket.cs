@@ -11,6 +11,6 @@ namespace Catalog.Domain.Entities
 
         public List<int> TicketIds { get; set; }
         public decimal TotalPrice { get; set; }
-        public TimeSpan TimeToBuy { get; set; }
+      //  public TimeSpan TimeToBuy { get; set; }
     }
 }

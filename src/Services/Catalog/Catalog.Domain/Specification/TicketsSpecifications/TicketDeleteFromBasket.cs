@@ -14,5 +14,11 @@ namespace Catalog.Domain.Specification.TicketsSpecifications
 			AddCriteria(x  => x.CustomerId == userId);
 			AddInclude(x => x.Status);
 		}
+
+		public TicketDeleteFromBasket(string userId, int ticketId)
+		{
+			AddCriteria(x => x.CustomerId == userId && x.Id == ticketId);
+			AddInclude(x => x.Status);
+		}
 	}
 }

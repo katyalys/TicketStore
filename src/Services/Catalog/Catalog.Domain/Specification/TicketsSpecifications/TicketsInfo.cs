@@ -26,5 +26,14 @@ namespace Catalog.Domain.Specification.TicketsSpecifications
 				AddOrderBy(x => x.Sector.Price);
 			}
 		}
+
+		public TicketsInfo(int ticketId)
+			: base(x => x.Id == ticketId)
+		{
+			AddInclude(x => x.Concert);
+			AddInclude(x => x.Concert.Place);
+			AddInclude(x => x.Sector);
+			AddInclude(x => x.Status);
+		}
 	}
 }

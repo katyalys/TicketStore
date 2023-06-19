@@ -16,14 +16,18 @@ namespace Catalog.Infrastructure.Data
             if (context.Concerts.Any())
                 return;
 
-			await context.AddRangeAsync(new Status
+            await context.AddRangeAsync(new Status
 			{
 				Name = "Bought",
 			},
 			new Status
 			{
 				Name = "Free",
-			});
+			},
+            new Status
+            {
+                Name = "Book",
+            });
 			await context.SaveChangesAsync();
 
 			await context.AddRangeAsync(new Place

@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Dtos.BasketDtos;
+using Catalog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Catalog.Application.Interfaces
         Task<BasketDto> AddBasketTicketAsync(int ticketId, string userId);
         Task<BasketDto> GetBasketAsync(string userId);
         Task<BasketDto> DeleteFromBasketTicket(int ticketId, string userId);
-        Task<bool> DeleteBasketAsync(string userId);
+        Task DeleteBasketAsync(string userId);
+        Task<Dictionary<string, Basket>> GetAllBaskets();
     }
 }

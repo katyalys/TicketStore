@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.WebApi.Controllers
 {
-    //[ApiController]
-    //[Route("[controller]")]
-    //[Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;
@@ -23,7 +23,7 @@ namespace Catalog.WebApi.Controllers
             _catalogService = catalogService;
         }
 
-        [HttpGet("AllConcerts")]
+        [HttpGet("AllCurrentConcerts")]
         public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
         {
             var concerts = await _catalogService.GetCurrentConcerts(specParam, isDescOrder);
@@ -45,6 +45,7 @@ namespace Catalog.WebApi.Controllers
             return _mapper.Map<IReadOnlyList<ConcertsShortViewModel>>(concerts);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
         public async Task AddConcert(FullInfoConcertModel fullInfoConcertModel)
         {
@@ -52,6 +53,7 @@ namespace Catalog.WebApi.Controllers
             await _catalogService.AddConcertAsync(concert);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteConcert(int id)
         {
@@ -67,7 +69,8 @@ namespace Catalog.WebApi.Controllers
             return Ok();
         }
 
-        [HttpPost("EditConcert1")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("EditConcert")]
         public async Task<IActionResult> EditConcert1(FullInfoConcertModel concertFullInfo, int idConcert)
         {
             var existingConcert = await _catalogService.GetConcert(idConcert);
@@ -77,7 +80,8 @@ namespace Catalog.WebApi.Controllers
             return Ok();
         }
 
-        [HttpGet("Admin/ListAllConcerts")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet("ListAllConcerts")]
         public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts()
         {
             var concerts = await _catalogService.GetAllConcerts();
