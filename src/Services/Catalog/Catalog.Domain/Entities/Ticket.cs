@@ -37,7 +37,7 @@ namespace Catalog.Domain.Entities
                     throw new ValidationException("Invalid row number");
                 }
 
-                if (Seat < minSeatNumber || Seat > maxSeatNumber)
+                if (Seat <= minSeatNumber || Seat >= maxSeatNumber)
                 {
                     throw new ValidationException("Invalid seat number");
                 }

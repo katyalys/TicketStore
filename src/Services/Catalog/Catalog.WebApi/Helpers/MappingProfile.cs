@@ -33,6 +33,9 @@ namespace Catalog.WebApi.Helpers
 			CreateMap<Basket, BasketDto>()
 				.ReverseMap();
 
+			CreateMap<Ticket, TicketAddDto>()
+				.ReverseMap();
+
 			CreateMap<Ticket, TicketDto>()
 				.ForMember(dest => dest.Concert, opt => opt.MapFrom(src => src.Concert))
 			    .ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Sector.Name.ToString()))

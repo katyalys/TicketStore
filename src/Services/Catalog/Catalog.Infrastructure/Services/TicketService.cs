@@ -1,4 +1,6 @@
-﻿using Catalog.Application.Dtos.TicketDtos;
+﻿using AutoMapper;
+using Catalog.Application.Dtos.TicketDtos;
+using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
@@ -11,31 +13,36 @@ using System.Threading.Tasks;
 
 namespace Catalog.Infrastructure.Services
 {
-    public class TicketService
+    public class TicketService : ITicketService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public TicketService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public TicketService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
-        public Task<IReadOnlyList<Ticket>> GetFreeTickets(TicketSpecParam ticketsSpec)
+        public async Task<IReadOnlyList<TicketDto>?> GetFreeTickets(TicketSpecParam ticketsSpec)
         {
             var spec = new FreeTicketsInfoFilterByPrice(ticketsSpec);
-            var concerts = _unitOfWork.Repository<Ticket>().ListAsync(spec);
+            var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
+            var ticketDto = _mapper.Map<IReadOnlyList<TicketDto>>(tickets);
 
-            return concerts;
+            return ticketDto;
         }
 
-        public Task<IReadOnlyList<Ticket>> GetAllTickets(int concertId, bool isDescOredr)
+        public async Task<IReadOnlyList<TicketDto>?> GetAllTickets(int concertId, bool isDescOredr)
         {
             var spec = new TicketsInfo(concertId, isDescOredr);
-            var concerts = _unitOfWork.Repository<Ticket>().ListAsync(spec);
+            var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
+            var ticketDto = _mapper.Map<IReadOnlyList<TicketDto>>(tickets);
 
-            return concerts;
+            return ticketDto;
         }
 
-        public async Task AddTicketsAsync(List<Ticket> tickets)
+        public async Task AddTicketsAsync(List<TicketAddDto> ticketsDto)
         {
+            var tickets = _mapper.Map<IReadOnlyList<Ticket>>(ticketsDto);
             foreach (var ticket in tickets)
             {
                 ticket.Validate();

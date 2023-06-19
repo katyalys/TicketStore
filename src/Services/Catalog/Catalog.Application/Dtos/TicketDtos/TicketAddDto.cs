@@ -17,7 +17,7 @@ namespace Catalog.Application.Dtos.TicketDtos
 
         public TicketAddDto()
         {
-            StatusId = (int)StatusTypes.Free;
+            StatusId = (int)StatusTypes.Free + 1;
         }
 
     }
