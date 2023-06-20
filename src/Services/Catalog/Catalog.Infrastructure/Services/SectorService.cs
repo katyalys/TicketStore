@@ -3,6 +3,7 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.SectorsSpecifications;
 using System;
@@ -25,10 +26,15 @@ namespace Catalog.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<List<SectorInfoDto>> ListAllPossibleSeats(int placeId)
+        public async Task<Result<List<SectorInfoDto>>> ListAllPossibleSeats(int placeId)
         {
             var spec = new SectorsByPlaceSpec(placeId);
             var sectors = await _unitOfWork.Repository<Sector>().ListAsync(spec);
+
+            if (!sectors.Any())
+            {
+                return ResultReturnService.CreateErrorResult<List<SectorInfoDto>>(ErrorStatusCode.NotFound, "No sectors with such placeId");
+            }
 
             var sectorsDto = _mapper.Map<IReadOnlyList<SectorInfoDto>>(sectors);
 
@@ -60,20 +66,23 @@ namespace Catalog.Infrastructure.Services
                 modifiedSectorsDto.Add(sectorInfo);
             }
 
-            return modifiedSectorsDto;
+            return new Result<List<SectorInfoDto>> ()
+            {
+                Value = modifiedSectorsDto
+            };
         }
 
-        public async Task AddSector(SectorFullInffoDto sectorAddDto)
+        public async Task<Result> AddSector(SectorFullInffoDto sectorAddDto)
         {
             if (!Enum.IsDefined(typeof(SectorName), sectorAddDto.Name))
             {
-                throw new Exception("Invalid sector name");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Invalid sector name");
             }
 
             var place = await _unitOfWork.Repository<Place>().GetByIdAsync(sectorAddDto.PlaceId);
             if (place == null)
             {
-                throw new Exception("No place with such Id");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No place with such id");
             }
 
             SectorName enumName = (SectorName)Enum.Parse(typeof(SectorName), sectorAddDto.Name);
@@ -81,42 +90,60 @@ namespace Catalog.Infrastructure.Services
             var sector = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
             if (sector != null)
             {
-                throw new Exception("Already place has such sector");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Already place has such sector");
             }
 
             sectorAddDto.Price = TicketPriceCalculator.CalculatePrice(sectorAddDto.Price, enumName, place.City);
             var sectorsDto = _mapper.Map<Sector>(sectorAddDto);
             await _unitOfWork.Repository<Sector>().Add(sectorsDto);
-            await _unitOfWork.Complete();
+            var added = await _unitOfWork.Complete();
+            if (added < 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be added to db");
+            }
+
+            return ResultReturnService.CreateSuccessResult();
         }
 
-        public async Task DeleteSector(int sectorId)
+        public async Task<Result> DeleteSector(int sectorId)
         {
             var sector = await _unitOfWork.Repository<Sector>().GetByIdAsync(sectorId);
-            if (sector.PlaceId == null)
+            if (sector == null)
             {
-                throw new Exception("No place with such Id");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No sector with such id");
             }
 
             var spec = new SectorsToDeleteSpec(sectorId, sector.PlaceId);
             var sectorWithTickets = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
             if (sectorWithTickets != null)
             {
-                throw new Exception("Cant delete sector because of existing tickets");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Cant delete sector because of existing tickets");
             }
 
-            _unitOfWork.Repository<Sector>().Delete(sector); 
-            await _unitOfWork.Complete();
+            _unitOfWork.Repository<Sector>().Delete(sector);
+            var deleted = await _unitOfWork.Complete();
+            if (deleted < 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be deletd from db");
+            }
+
+            return ResultReturnService.CreateSuccessResult();
         }
 
-        public async Task UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto)
+        public async Task<Result> UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto)
         {
+            if (!Enum.IsDefined(typeof(SectorName), sectorFullInffoDto.Name))
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Invalid sector name");
+            }
+
             SectorName enumName = (SectorName)Enum.Parse(typeof(SectorName), sectorFullInffoDto.Name);
             var spec = new SectorsByPlaceSpec(sectorFullInffoDto.PlaceId, enumName);
             var sector = await _unitOfWork.Repository<Sector>().GetEntityWithSpec(spec);
+
             if (sector == null)
             {
-                throw new Exception("No sector with such placeId or name");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No sector with such placeId");
             }
 
             var ticketSpec = new TicketsSoldForSectorSpec(sector.Id);
@@ -129,13 +156,21 @@ namespace Catalog.Infrastructure.Services
 
                 if (sectorFullInffoDto.RowNumber <= maxRowNumber || sectorFullInffoDto.RowSeatNumber <= maxSeatsInRow)
                 {
-                    throw new Exception("Cannot decrease the number of rows or seats. Tickets have already been sold.");
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, 
+                        "Cannot decrease the number of rows or seats. Tickets have already been sold.");
                 }
             }
 
             var updatedSector = _mapper.Map(sectorFullInffoDto, sector);
             _unitOfWork.Repository<Sector>().Update(updatedSector);
-            await _unitOfWork.Complete();
+            var updated = await _unitOfWork.Complete();
+
+            if (updated < 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be updated in db");
+            }
+
+            return ResultReturnService.CreateSuccessResult();
         }
     }
 }

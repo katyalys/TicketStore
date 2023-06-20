@@ -10,10 +10,10 @@ namespace Catalog.Domain.Specification.TicketsSpecifications
     public class TicketDelete : BaseSpecification<Ticket>
 	{
 		public TicketDelete(List<int> ticketsIds, int concertId)
-			: base(x => x.ConcertId == concertId)
 		{
 			AddInclude(x => x.Status);
-			AddCriteria(x => ticketsIds.Contains(x.Id) && x.Status != null && x.StatusId == (int)StatusTypes.Free);
+			AddCriteria(x => ticketsIds.Contains(x.Id) && x.Status != null && x.StatusId == (int)StatusTypes.Free + 1 
+							&& x.ConcertId == concertId);
 		}
 	}
 }

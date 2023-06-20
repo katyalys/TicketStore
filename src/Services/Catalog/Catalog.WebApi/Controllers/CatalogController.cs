@@ -2,8 +2,10 @@
 using Catalog.Application.Dtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
+using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +13,6 @@ namespace Catalog.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;
@@ -23,70 +24,79 @@ namespace Catalog.WebApi.Controllers
             _catalogService = catalogService;
         }
 
-        [HttpGet("AllCurrentConcerts")]
-        public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
+        [HttpGet("GetCurrentConcerts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCurrentConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
         {
             var concerts = await _catalogService.GetCurrentConcerts(specParam, isDescOrder);
+            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
 
-            return _mapper.Map<IReadOnlyList<ConcertsShortViewModel>>(concerts);
+            return ErrorHandle.HandleResult(mappedConcerts);
         }
 
         [HttpGet("GetConcertById/{id}")]
-        public async Task<FullInfoConcertModel> ConcertById(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ConcertById(int id)
         {
             var concert = await _catalogService.GetConcert(id);
-            return _mapper.Map<FullInfoConcertModel>(concert);
+            var mappedConcert = _mapper.Map<Result<FullInfoConcertModel>>(concert);
+
+            return ErrorHandle.HandleResult(mappedConcert);
         }
 
         [HttpGet("SearchConcerts")]
-        public async Task<IReadOnlyList<ConcertsShortViewModel>> SearchConcerts([FromQuery] string searchTerm)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SearchConcerts([FromQuery] string searchTerm)
         {
             var concerts = await _catalogService.GetSearchedConcerts(searchTerm);
-            return _mapper.Map<IReadOnlyList<ConcertsShortViewModel>>(concerts);
+            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
+
+            return ErrorHandle.HandleResult(mappedConcerts);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("Add")]
-        public async Task AddConcert(FullInfoConcertModel fullInfoConcertModel)
+        [HttpPost("AddConcert")]
+        public async Task<IActionResult> AddConcert(FullInfoConcertModel fullInfoConcertModel)
         {
             var concert = _mapper.Map<Concert>(fullInfoConcertModel);
-            await _catalogService.AddConcertAsync(concert);
+            var result = await _catalogService.AddConcertAsync(concert);
+
+            return ErrorHandle.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteConcert/{id}")]
         public async Task<IActionResult> DeleteConcert(int id)
         {
-            try
-            {
-                await _catalogService.DeleteConcertAsync(id);
-            }
-            catch (NullReferenceException)
-            {
-                return NotFound();
-            }
+            var result = await _catalogService.DeleteConcertAsync(id);
 
-            return Ok();
+            return ErrorHandle.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("EditConcert")]
-        public async Task<IActionResult> EditConcert1(FullInfoConcertModel concertFullInfo, int idConcert)
+        public async Task<IActionResult> EditConcert(FullInfoConcertModel concertFullInfo, int idConcert)
         {
             var existingConcert = await _catalogService.GetConcert(idConcert);
-            var updatedConcert = _mapper.Map(concertFullInfo, existingConcert);
-            await _catalogService.UpdateConcertAsync(updatedConcert);
+            var updatedConcert = _mapper.Map(concertFullInfo, existingConcert.Value);
+            var result = await _catalogService.UpdateConcertAsync(updatedConcert);
 
-            return Ok();
+            return ErrorHandle.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("ListAllConcerts")]
-        public async Task<IReadOnlyList<ConcertsShortViewModel>> GetAllConcerts()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAllConcerts()
         {
             var concerts = await _catalogService.GetAllConcerts();
+            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
 
-            return _mapper.Map<IReadOnlyList<ConcertsShortViewModel>>(concerts);
+            return ErrorHandle.HandleResult(mappedConcerts);
         }
     }
 }

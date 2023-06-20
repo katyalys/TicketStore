@@ -5,6 +5,8 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Domain;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
+using System.Collections.Generic;
 
 namespace Catalog.WebApi.Helpers
 {
@@ -21,6 +23,12 @@ namespace Catalog.WebApi.Helpers
 			CreateMap<Concert, FullInfoConcertModel>()
 				.ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place))
 				.ReverseMap();
+
+			CreateMap(typeof(Result<>), typeof(Result<>));
+
+			//CreateMap<Result<Concert>, Result<ConcertsShortViewModel>>()
+			//	.ForPath(dest => dest.Value.Place, opt => opt.MapFrom(src => src.Value.Place))
+			//	.ReverseMap();
 
 			CreateMap<Sector, SectorInfoDto>()
 				.ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Name.ToString()))

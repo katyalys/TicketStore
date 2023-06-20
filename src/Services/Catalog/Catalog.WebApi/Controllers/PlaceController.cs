@@ -2,8 +2,10 @@
 using Catalog.Application.Dtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Infrastructure.Services;
+using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,27 +29,36 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> AddPlace(PlaceModel placeModel)
         {
             var place = _mapper.Map<Place>(placeModel);
-            await _placeService.AddPlaceAsync(place);
+            var addedPlace = await _placeService.AddPlaceAsync(place);
 
-            return Ok();
+            return ErrorHandle.HandleResult(addedPlace);
         }
 
         [HttpDelete("DeletePlace")]
         public async Task<IActionResult> DeletePlace(int placeId)
         {
-            await _placeService.DeletePlaceAsync(placeId);
+            var deletedPlace = await _placeService.DeletePlaceAsync(placeId);
 
-            return Ok();
+            return ErrorHandle.HandleResult(deletedPlace);
         }
 
         [HttpPost("UpdatePlace")]
         public async Task<IActionResult> UpdatePlace(PlaceModel placeModel, int placeId)
         {
             var existingPlace = await _placeService.GetPlace(placeId);
-            var updatedConcert = _mapper.Map(placeModel, existingPlace);
-            await _placeService.UpdatePlaceAsync(updatedConcert);
+            var place = _mapper.Map(placeModel, existingPlace.Value);
+            var updatedPlace = await _placeService.UpdatePlaceAsync(place);
 
-            return Ok();
+            return ErrorHandle.HandleResult(updatedPlace);
+        }
+
+        [HttpGet("GetPlace")]
+        public async Task<IActionResult> GetPlace(int placeId)
+        {
+            var place = await _placeService.GetPlace(placeId);
+            var placeModel = _mapper.Map<Result<PlaceModel>>(place);
+
+            return ErrorHandle.HandleResult(placeModel);
         }
 
     }

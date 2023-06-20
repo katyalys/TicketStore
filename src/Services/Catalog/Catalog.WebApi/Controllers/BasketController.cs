@@ -2,6 +2,7 @@
 using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,64 +10,63 @@ using System.Security.Claims;
 
 namespace Catalog.WebApi.Controllers
 {
-    // [Authorize]
+    [ApiController]
+    [Route("[controller]")]
     public class BasketController : Controller
     {
         private readonly IBasketService _basketService;
-        private readonly IMapper _mapper;
-        public BasketController(IMapper mapper, IBasketService basketService)
+        public BasketController(IBasketService basketService)
         {
-            _mapper = mapper;
             _basketService = basketService;
         }
 
         [Authorize]
         [HttpGet("ViewBasket")]
-        public async Task<ActionResult<BasketDto>> GetBasketById()
+        public async Task<IActionResult> GetBasketById()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var basket = await _basketService.GetBasketAsync(userId);
 
-            return Ok(basket);
+            return ErrorHandle.HandleResult(basket);
         }
 
         [Authorize]
-        [HttpGet("AddTicket")]
-        public async Task<ActionResult<BasketDto>> AddTicketToBasket(int ticketId)
+        [HttpPost("AddTicket")]
+        public async Task<IActionResult> AddTicketToBasket(int ticketId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var basket = await _basketService.AddBasketTicketAsync(ticketId, userId);
 
-            return Ok(basket);
+            return ErrorHandle.HandleResult(basket);
         }
 
         [Authorize]
         [HttpDelete("DeleteBasket")]
-        public async Task<ActionResult<BasketDto>> DeleteBasketById()
+        public async Task<IActionResult> DeleteBasketById()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _basketService.DeleteBasketAsync(userId);
+            var basket = await _basketService.DeleteBasketAsync(userId);
 
-            return Ok();
+            return ErrorHandle.HandleResult(basket);
         }
 
         [Authorize]
         [HttpDelete("DeleteTicketFromBasket")]
-        public async Task<ActionResult<BasketDto>> DeleteTicketFromBasketById(int ticketId)
+        public async Task<IActionResult> DeleteTicketFromBasketById(int ticketId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var updatedBasket = await _basketService.DeleteFromBasketTicket(ticketId, userId);
 
-            return Ok(updatedBasket);
+            return ErrorHandle.HandleResult(updatedBasket);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("ListAllBaskets")]
-        public async Task<ActionResult<Dictionary<string, Basket>>> ListAllBaskets()
+        public async Task<IActionResult> ListAllBaskets()
         {
             var baskets = await _basketService.GetAllBaskets();
 
-            return Ok(baskets);
+            return ErrorHandle.HandleResult(baskets);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
 using Microsoft.AspNetCore.Authorization;
@@ -20,60 +21,115 @@ namespace Catalog.Infrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Task<IReadOnlyList<Concert>> GetCurrentConcerts(ConcertsSpecParam concertsSpec, bool isDescOrder)
+        public async Task<Result<IReadOnlyList<Concert>>> GetCurrentConcerts(ConcertsSpecParam concertsSpec, bool isDescOrder)
         {
             var spec = new ConcertsFilterAndSort(concertsSpec, isDescOrder);
-            var concerts = _unitOfWork.Repository<Concert>().ListAsync(spec);
-            return concerts;
+            var concerts = await _unitOfWork.Repository<Concert>().ListAsync(spec);
+
+            if (concerts == null)
+            {
+                return ResultReturnService.CreateErrorResult<IReadOnlyList<Concert>>(ErrorStatusCode.NotFound, "No concerts");
+            }
+
+            return new Result<IReadOnlyList<Concert>>()
+            {
+                Value = concerts
+            };
         }
 
-        public Task<Concert> GetConcert(int id)
+        public async Task<Result<Concert>> GetConcert(int id)
         {
             var spec = new ConcertFullInfo(id);
-            var concert = _unitOfWork.Repository<Concert>().GetEntityWithSpec(spec);
+            var concert = await _unitOfWork.Repository<Concert>().GetEntityWithSpec(spec);
 
-            return concert;
+            if (concert == null)
+            {
+                return ResultReturnService.CreateErrorResult<Concert>(ErrorStatusCode.NotFound, "No concert with such id");
+            }
+
+            return new Result<Concert>()
+            {
+                Value = concert
+            };
         }
 
-        public Task<IReadOnlyList<Concert>> GetSearchedConcerts(string searchTerm)
+        public async Task<Result<IReadOnlyList<Concert>>> GetSearchedConcerts(string searchTerm)
         {
             var spec = new ConcertsBySearchSpec(searchTerm);
-            var concerts = _unitOfWork.Repository<Concert>().ListAsync(spec);
+            var concerts = await _unitOfWork.Repository<Concert>().ListAsync(spec);
 
-            return concerts;
+            if (concerts == null)
+            {
+                return ResultReturnService.CreateErrorResult<IReadOnlyList<Concert>>(ErrorStatusCode.NotFound, "No concerts");
+            }
+
+            return new Result<IReadOnlyList<Concert>>()
+            {
+                Value = concerts
+            };
         }
 
-        public async Task AddConcertAsync(Concert concert)
+        public async Task<Result> AddConcertAsync(Concert concert)
         {
             await _unitOfWork.Repository<Concert>().Add(concert);
-            await _unitOfWork.Complete();
-        }
-
-        public async Task DeleteConcertAsync(int concertId)
-        {
-            var concert = await _unitOfWork.Repository<Concert>().GetByIdAsync(concertId);
-
-            if (concert.Tickets != null && concert.Tickets.Any(t => !t.IsDeleted))
+            var added = await _unitOfWork.Complete();
+            if (added < 0)
             {
-                throw new Exception("Cant delete because of exsisting tickets");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be added to db");
             }
-            _unitOfWork.Repository<Concert>().Delete(concert);
-            await _unitOfWork.Complete();
+
+            return ResultReturnService.CreateSuccessResult();
         }
 
-        public async Task UpdateConcertAsync(Concert concert)
+        public async Task<Result> DeleteConcertAsync(int concertId)
+        {
+            var spec = new ConcertWithValidTickets(concertId);
+            var concert = await _unitOfWork.Repository<Concert>().GetEntityWithSpec(spec);
+
+            if (concert != null)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Cant delete because of exsisting tickets");
+            }
+
+            var concertToDelete = await _unitOfWork.Repository<Concert>().GetByIdAsync(concertId);
+            _unitOfWork.Repository<Concert>().Delete(concertToDelete);
+            var deleted = await _unitOfWork.Complete();
+
+            if (deleted < 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be deletd from db");
+            }
+
+            return ResultReturnService.CreateSuccessResult();
+        }
+
+        public async Task<Result> UpdateConcertAsync(Concert concert)
         {
             _unitOfWork.Repository<Concert>().Update(concert);
-            await _unitOfWork.Complete();
+            var updated = await _unitOfWork.Complete();
+
+            if (updated < 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be updated in db");
+            }
+
+            return ResultReturnService.CreateSuccessResult();
         }
 
-        public async Task<IReadOnlyList<Concert>> GetAllConcerts()
+        public async Task<Result<IReadOnlyList<Concert>>> GetAllConcerts()
         {
             var spec = new ConcertFullInfo();
             var allConcerts = await _unitOfWork.Repository<Concert>().ListAsync(spec);
 
-            return allConcerts;
-        }
+            if (allConcerts == null)
+            {
+                return ResultReturnService.CreateErrorResult<IReadOnlyList<Concert>>(ErrorStatusCode.NotFound, "No concerts");
+            }
 
+            return new Result<IReadOnlyList<Concert>>()
+            {
+                Value = allConcerts
+            };
+        }
     }
 }

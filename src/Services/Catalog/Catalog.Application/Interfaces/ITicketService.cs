@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Specification.TicketsSpecifications;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,9 @@ namespace Catalog.Application.Interfaces
 {
     public interface ITicketService
     {
-        Task<IReadOnlyList<TicketDto>?> GetFreeTickets(TicketSpecParam ticketsSpec);
-        Task<IReadOnlyList<TicketDto>?> GetAllTickets(int concertId, bool isDescOredr);
-        Task AddTicketsAsync(List<TicketAddDto> ticketsDto);
-        Task DeleteTickets(List<int> ticketsIds, int concertId);
+        Task<Result<IReadOnlyList<TicketDto>?>> GetFreeTickets(TicketSpecParam ticketsSpec);
+        Task<Result<IReadOnlyList<TicketDto>?>> GetAllTickets(int concertId, bool isDescOredr);
+        Task<Result> AddTicketsAsync(List<TicketAddDto> ticketsDto);
+        Task<Result> DeleteTickets(List<int> ticketsIds, int concertId);
     }
 }

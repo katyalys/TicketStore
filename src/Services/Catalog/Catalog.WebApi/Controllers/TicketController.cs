@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
+using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,29 +17,38 @@ namespace Catalog.WebApi.Controllers
         }
 
         [HttpGet("ListFreeTickets")]
-        public async Task<ActionResult<IReadOnlyList<TicketDto>?>> ListFreeTickets(TicketSpecParam ticketsSpec)
+        public async Task<IActionResult> ListFreeTickets(TicketSpecParam ticketsSpec)
         {
             var freeTickets = await _ticketService.GetFreeTickets(ticketsSpec);
 
-            return Ok(freeTickets);
+            return ErrorHandle.HandleResult(freeTickets);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("ListAllTickets")]
-        public async Task<ActionResult<IReadOnlyList<TicketDto>?>> ListAllTickets(int concertId, bool isDescOredr)
+        public async Task<IActionResult> ListAllTickets(int concertId, bool isDescOredr)
         {
             var allTickets = await _ticketService.GetAllTickets(concertId, isDescOredr);
 
-            return Ok(allTickets);
+            return ErrorHandle.HandleResult(allTickets);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("AddTickets")]
-        public async Task<ActionResult<IReadOnlyList<TicketDto>?>> AddTickets(List<TicketAddDto> ticketsDto)
+        [HttpPost("AddTickets")]
+        public async Task<IActionResult> AddTickets([FromBody] List<TicketAddDto> ticketsDto)
         {
-            await _ticketService.AddTicketsAsync(ticketsDto);
+            var result = await _ticketService.AddTicketsAsync(ticketsDto);
 
-            return Ok();
+            return ErrorHandle.HandleResult(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("DeleteTickets")]
+        public async Task<IActionResult> DeleteTickets(List<int> ticketsIds, int concertId)
+        {
+            var result = await _ticketService.DeleteTickets(ticketsIds, concertId);
+
+            return ErrorHandle.HandleResult(result);
         }
     }
 }

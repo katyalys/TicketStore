@@ -1,4 +1,5 @@
 ﻿using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Catalog.Application.Interfaces
 {
     public interface IPlaceService
     {
-        Task AddPlaceAsync(Place place);
-        Task DeletePlaceAsync(int placeId);
-        Task UpdatePlaceAsync(Place updatedPlace);
-        Task<Place> GetPlace(int placeId);
+        Task<Result> AddPlaceAsync(Place place);
+        Task<Result> DeletePlaceAsync(int placeId);
+        Task<Result> UpdatePlaceAsync(Place updatedPlace);
+        Task<Result<Place>> GetPlace(int placeId);
     }
 }

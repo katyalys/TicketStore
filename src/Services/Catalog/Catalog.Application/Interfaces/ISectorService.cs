@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Dtos.SectorDtos;
+using Catalog.Domain.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Catalog.Application.Interfaces
 {
     public interface ISectorService
     {
-        Task<List<SectorInfoDto>> ListAllPossibleSeats(int placeId);
-        Task AddSector(SectorFullInffoDto sectorAddDto);
-        Task DeleteSector(int sectorId);
-        Task UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto);
+        Task<Result<List<SectorInfoDto>>> ListAllPossibleSeats(int placeId);
+        Task<Result> AddSector(SectorFullInffoDto sectorAddDto);
+        Task<Result> DeleteSector(int sectorId);
+        Task<Result> UpdateSectorAsync(SectorFullInffoDto sectorFullInffoDto);
     }
 }

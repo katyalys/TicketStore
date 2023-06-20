@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Catalog.Domain.ErrorModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,26 +23,5 @@ namespace Catalog.Domain.Entities
         public int Seat { get; set; }
 
         public string? CustomerId { get; set; }
-
-        public void Validate()
-        {
-            if (Sector != null)
-            {
-                int maxSeatsInRow = Sector.RowSeatNumber;
-
-                int minSeatNumber = (Row - 1) * maxSeatsInRow + 1;
-                int maxSeatNumber = Row * maxSeatsInRow;
-
-                if (Row < 1 || Row > Sector.RowNumber)
-                {
-                    throw new ValidationException("Invalid row number");
-                }
-
-                if (Seat <= minSeatNumber || Seat >= maxSeatNumber)
-                {
-                    throw new ValidationException("Invalid seat number");
-                }
-            }
-        }
     }
 }

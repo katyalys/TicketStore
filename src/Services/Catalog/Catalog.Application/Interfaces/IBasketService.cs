@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,10 @@ namespace Catalog.Application.Interfaces
 {
     public interface IBasketService
     {
-        Task<BasketDto> AddBasketTicketAsync(int ticketId, string userId);
-        Task<BasketDto> GetBasketAsync(string userId);
-        Task<BasketDto> DeleteFromBasketTicket(int ticketId, string userId);
-        Task DeleteBasketAsync(string userId);
-        Task<Dictionary<string, Basket>> GetAllBaskets();
+        Task<Result<BasketDto>> AddBasketTicketAsync(int ticketId, string userId);
+        Task<Result<BasketDto>> GetBasketAsync(string userId);
+        Task<Result<BasketDto>> DeleteFromBasketTicket(int ticketId, string userId);
+        Task<Result> DeleteBasketAsync(string userId);
+        Task<Result<Dictionary<string, Basket>>> GetAllBaskets();
     }
 }

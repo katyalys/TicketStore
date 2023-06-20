@@ -12,6 +12,7 @@ namespace Catalog.Application.Dtos
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Perfomer { get; set; }
+        public string GenreName { get; set; }
         public PlaceModel? Place { get; set; }
     }
 }

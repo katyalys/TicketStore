@@ -11,14 +11,14 @@ namespace Catalog.Application.Dtos.TicketDtos
     {
         public int ConcertId { get; set; }
         public int SectorId { get; set; }
-        public int StatusId { get; private set; } 
+        public int StatusId { get; set; } 
         public int Row { get; set; }
         public int Seat { get; set; }
 
-        public TicketAddDto()
-        {
-            StatusId = (int)StatusTypes.Free + 1;
-        }
+        //public TicketAddDto()
+        //{
+        //    StatusId = (int)StatusTypes.Free + 1;
+        //}
 
     }
 }

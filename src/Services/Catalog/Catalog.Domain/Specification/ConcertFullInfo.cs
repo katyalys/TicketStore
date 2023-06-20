@@ -10,11 +10,11 @@ namespace Catalog.Domain.Specification
 		{
 			AddInclude(x => x.Place);
 		}
+
 		public ConcertFullInfo()
 		: base()
 		{
 			AddInclude(x => x.Place);
 		}
-
 	}
 }

@@ -13,7 +13,6 @@ namespace Catalog.Domain.Interfaces
         Task<bool> Remove(string key);
         Task<bool> Exists(string key, TimeSpan expiresAt);
         Task<bool> Add<T>(string key, T value, TimeSpan expiresAt) where T : class;
-        Task<bool> Add(string key, object value, TimeSpan expiresAt);
         Task<bool> Update<T>(string key, T value, TimeSpan expiresAt) where T : class;
         Task<T> Get<T>(string key) where T : class;
         TimeSpan? TimeToExpire(string key);
