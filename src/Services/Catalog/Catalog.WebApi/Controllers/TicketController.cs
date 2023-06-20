@@ -9,6 +9,7 @@ namespace Catalog.WebApi.Controllers
 {
     public class TicketController : Controller
     {
+
         private readonly ITicketService _ticketService;
 
         public TicketController(ITicketService ticketService)

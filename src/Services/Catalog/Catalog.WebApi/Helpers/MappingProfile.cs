@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos;
 using Catalog.Application.Dtos.BasketDtos;
+using Catalog.Application.Dtos.ConcertDtos;
+using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Domain;
@@ -26,10 +28,6 @@ namespace Catalog.WebApi.Helpers
 
 			CreateMap(typeof(Result<>), typeof(Result<>));
 
-			//CreateMap<Result<Concert>, Result<ConcertsShortViewModel>>()
-			//	.ForPath(dest => dest.Value.Place, opt => opt.MapFrom(src => src.Value.Place))
-			//	.ReverseMap();
-
 			CreateMap<Sector, SectorInfoDto>()
 				.ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Name.ToString()))
 				.ReverseMap();
@@ -50,6 +48,5 @@ namespace Catalog.WebApi.Helpers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Sector.Price))
 				.ReverseMap();
 		}
-
 	}
 }

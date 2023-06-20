@@ -7,15 +7,26 @@ using Catalog.WebApi.Extensions;
 using Catalog.WebApi.Helpers;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using Catalog.Application.FluentValidation;
+using Catalog.Application.Dtos;
+using Catalog.Application.Dtos.SectorDtos;
+using Catalog.Application.Dtos.TicketDtos;
+using Catalog.Application.Dtos.PlaceDtos;
+using Catalog.Application.Dtos.ConcertDtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
 
-// Add services to the container.
-
-builder.Services.AddControllers();
+builder.Services.AddControllers(); 
+ builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddScoped<IValidator<FullInfoConcertModel>, FullInfoConcertModelValidator>();
+builder.Services.AddScoped<IValidator<PlaceModel>, PlaceModelValidator>();
+builder.Services.AddScoped<IValidator<SectorFullInffoDto>, SectorFullInfoValidator>();
+builder.Services.AddScoped<IValidator<TicketAddDto>, TicketAddDtoValidator>();
 builder.Services.AddDbContext<CatalogContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -40,7 +51,6 @@ var app = builder.Build();
 
 await app.UseDatabaseSeed();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

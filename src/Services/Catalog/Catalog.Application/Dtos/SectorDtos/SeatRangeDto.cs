@@ -8,7 +8,6 @@ namespace Catalog.Application.Dtos.SectorDtos
 {
     public class SeatRangeDto
     {
-
         public int Row { get; set; }
         public string SeatRange { get; set; }
     }

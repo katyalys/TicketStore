@@ -14,11 +14,5 @@ namespace Catalog.Application.Dtos.TicketDtos
         public int StatusId { get; set; } 
         public int Row { get; set; }
         public int Seat { get; set; }
-
-        //public TicketAddDto()
-        //{
-        //    StatusId = (int)StatusTypes.Free + 1;
-        //}
-
     }
 }

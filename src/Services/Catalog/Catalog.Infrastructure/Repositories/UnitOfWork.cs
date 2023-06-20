@@ -12,6 +12,7 @@ namespace Catalog.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
+
         private readonly CatalogContext _context;
         private Hashtable _repositories;
         public UnitOfWork(CatalogContext context)

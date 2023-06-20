@@ -8,7 +8,6 @@ namespace Catalog.Domain.Entities
 {
     public class Concert: BaseEntity
     {
-
         public DateTime Date { get; set; }
         public string? PosterLink { get; set; }
         public string Description { get; set; }

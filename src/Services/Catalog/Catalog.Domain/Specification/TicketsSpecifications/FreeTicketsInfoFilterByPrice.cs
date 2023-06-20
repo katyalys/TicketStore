@@ -17,7 +17,6 @@ namespace Catalog.Domain.Specification.TicketsSpecifications
 			AddInclude(x => x.Status);
 			AddCriteria(x => x.StatusId == (int)StatusTypes.Free + 1 && x.Concert.IsDeleted == false && 
 						x.ConcertId == ticketSpecParam.ConcertId);
-		//	AddCriteria(x => x.Concert.IsDeleted == false);
 
 			if (ticketSpecParam.MinPrice != null || ticketSpecParam.MaxPrice != null)
 			{

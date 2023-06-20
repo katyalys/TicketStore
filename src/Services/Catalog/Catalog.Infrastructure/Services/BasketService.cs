@@ -15,6 +15,7 @@ namespace Catalog.Infrastructure.Services
 {
     public class BasketService : IBasketService
     {
+
         private readonly IRedisRepository _redisRepository;
         private readonly CatalogContext _context;
         private readonly IMapper _mapper;
@@ -35,7 +36,7 @@ namespace Catalog.Infrastructure.Services
 
             if (ticket == null)
             {
-                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "cant add ticket");
+                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
             }
 
             ticket.StatusId = (int)StatusTypes.Book + 1;

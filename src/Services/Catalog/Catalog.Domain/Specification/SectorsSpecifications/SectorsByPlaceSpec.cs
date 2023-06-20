@@ -9,7 +9,6 @@ namespace Catalog.Domain.Specification.SectorsSpecifications
 {
     public class SectorsByPlaceSpec : BaseSpecification<Sector>
     {
-
         public SectorsByPlaceSpec(int placeId)
         {
             AddCriteria(s => s.PlaceId == placeId);

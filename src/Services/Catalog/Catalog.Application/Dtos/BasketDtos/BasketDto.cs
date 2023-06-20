@@ -10,7 +10,6 @@ namespace Catalog.Application.Dtos.BasketDtos
 {
     public class BasketDto
     {
-
         public List<TicketDto> Tickets { get; set; }
         public decimal TotalPrice { get; set; }
         public TimeSpan TimeToBuy { get; set; }

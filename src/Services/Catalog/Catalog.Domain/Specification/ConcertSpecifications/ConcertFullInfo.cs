@@ -1,10 +1,9 @@
 ﻿using Catalog.Domain.Entities;
 
-namespace Catalog.Domain.Specification
+namespace Catalog.Domain.Specification.ConcertSpecifications
 {
     public class ConcertFullInfo : BaseSpecification<Concert>
     {
-
 		public ConcertFullInfo(int id)
 		: base(x => x.Id == id)
 		{

@@ -1,10 +1,6 @@
-﻿using AutoMapper;
-using Catalog.Application.Dtos.BasketDtos;
-using Catalog.Application.Interfaces;
-using Catalog.Domain.Entities;
+﻿using Catalog.Application.Interfaces;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -14,7 +10,9 @@ namespace Catalog.WebApi.Controllers
     [Route("[controller]")]
     public class BasketController : Controller
     {
+
         private readonly IBasketService _basketService;
+
         public BasketController(IBasketService basketService)
         {
             _basketService = basketService;

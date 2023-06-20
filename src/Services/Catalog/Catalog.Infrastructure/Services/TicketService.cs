@@ -17,15 +17,14 @@ namespace Catalog.Infrastructure.Services
 {
     public class TicketService : ITicketService
     {
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly CatalogContext _context;
 
-        public TicketService(IUnitOfWork unitOfWork, IMapper mapper, CatalogContext context)
+        public TicketService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _context = context;
         }
         public async Task<Result<IReadOnlyList<TicketDto>>> GetFreeTickets(TicketSpecParam ticketsSpec)
         {

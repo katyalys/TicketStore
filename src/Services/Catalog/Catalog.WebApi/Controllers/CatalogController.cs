@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos;
+using Catalog.Application.Dtos.ConcertDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
+using Catalog.Domain.Specification.ConcertSpecifications;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,7 @@ namespace Catalog.WebApi.Controllers
     [Route("[controller]")]
     public class CatalogController : Controller
     {
+
         private readonly ICatalogService _catalogService;
         private readonly IMapper _mapper;
 

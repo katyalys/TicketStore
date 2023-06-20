@@ -8,6 +8,7 @@ namespace Catalog.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
+
         private readonly CatalogContext _context;
         public GenericRepository(CatalogContext context)
         {
@@ -21,7 +22,6 @@ namespace Catalog.Infrastructure.Repositories
 
         public void Delete(T entity)
         {
-            // _context.Set<T>().Remove(entity);
             entity.IsDeleted = true;
             _context.Entry(entity).State = EntityState.Modified;
         }

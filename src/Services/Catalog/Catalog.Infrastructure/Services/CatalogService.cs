@@ -3,6 +3,7 @@ using Catalog.Domain.Entities;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification;
+using Catalog.Domain.Specification.ConcertSpecifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,6 +16,7 @@ namespace Catalog.Infrastructure.Services
 {
     public class CatalogService: ICatalogService
     {
+
         private readonly IUnitOfWork _unitOfWork;
         public CatalogService(IUnitOfWork unitOfWork)
         {

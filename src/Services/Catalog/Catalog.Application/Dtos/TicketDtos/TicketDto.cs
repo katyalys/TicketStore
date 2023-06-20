@@ -1,4 +1,5 @@
-﻿using Catalog.Domain.Entities;
+﻿using Catalog.Application.Dtos.ConcertDtos;
+using Catalog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,5 @@ namespace Catalog.Application.Dtos.TicketDtos
         public string SectorName { get; set; }
         public int Row { get; set; }
         public int Seat { get; set; }
-
     }
 }

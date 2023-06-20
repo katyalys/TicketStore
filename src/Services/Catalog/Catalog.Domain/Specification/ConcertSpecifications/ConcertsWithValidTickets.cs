@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Catalog.Domain.Specification
+namespace Catalog.Domain.Specification.ConcertSpecifications
 {
     public class ConcertWithValidTickets : BaseSpecification<Concert>
     {
@@ -16,5 +16,4 @@ namespace Catalog.Domain.Specification
             AddCriteria(c => c.Tickets != null && c.Tickets.Any(t => !t.IsDeleted) && c.Id == concertId);
         }
     }
-
 }

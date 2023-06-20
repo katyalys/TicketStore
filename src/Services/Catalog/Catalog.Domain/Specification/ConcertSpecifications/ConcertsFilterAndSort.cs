@@ -1,10 +1,9 @@
 ﻿using Catalog.Domain.Entities;
 
-namespace Catalog.Domain.Specification
+namespace Catalog.Domain.Specification.ConcertSpecifications
 {
     public class ConcertsFilterAndSort: BaseSpecification<Concert>
     {
-
         public ConcertsFilterAndSort(ConcertsSpecParam specParam, bool isDescOrder)
         {
             AddInclude(c => c.Place);

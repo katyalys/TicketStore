@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos;
+using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Catalog.Domain.ErrorModels;
@@ -16,6 +17,7 @@ namespace Catalog.WebApi.Controllers
     [Authorize(Roles = "Admin")]
     public class PlaceController : Controller
     {
+
         private readonly IPlaceService _placeService;
         private readonly IMapper _mapper;
 

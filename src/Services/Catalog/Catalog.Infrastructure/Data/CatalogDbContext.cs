@@ -9,6 +9,7 @@ namespace Catalog.Infrastructure.Data
 		public CatalogContext(DbContextOptions<CatalogContext> options) : base(options)
 		{
 		}
+
 		public DbSet<Concert> Concerts { get; set; }
 		public DbSet<Place> Places { get; set; }
 		public DbSet<Sector> Sectors { get; set; }
