@@ -15,14 +15,32 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Dtos.ConcertDtos;
+using Hangfire;
+using Hangfire.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
 
-builder.Services.AddControllers(); 
- builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddControllers();
+//builder.Services.AddHangfire(x => x.UseSqlServerStorage(connectionHangfireString));
+builder.Services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(connectionHangfireString, new SqlServerStorageOptions
+        {
+            PrepareSchemaIfNecessary = true,
+            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+            QueuePollInterval = TimeSpan.Zero,
+            UseRecommendedIsolationLevel = true,
+            DisableGlobalLocks = true
+        })); ;
+builder.Services.AddHangfireServer();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<FullInfoConcertModel>, FullInfoConcertModelValidator>();
 builder.Services.AddScoped<IValidator<PlaceModel>, PlaceModelValidator>();
 builder.Services.AddScoped<IValidator<SectorFullInffoDto>, SectorFullInfoValidator>();
@@ -43,6 +61,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IPlaceService, PlaceService>();
+builder.Services.AddScoped<IBackgroundJobsService, BackgroundJobsService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
@@ -57,6 +76,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHangfireDashboard("/mydashboard");
 app.UseAuthentication();
 app.UseAuthorization();
 

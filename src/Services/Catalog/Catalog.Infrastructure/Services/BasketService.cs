@@ -6,6 +6,7 @@ using Catalog.Domain.Entities;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
+using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -31,23 +32,24 @@ namespace Catalog.Infrastructure.Services
 
         public async Task<Result<BasketDto>> AddBasketTicketAsync(int ticketId, string userId)
         {
-            var spec = new TicketAddToBasket(ticketId);
-            var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+            UpdateCatalogDbJob.Start(ticketId, userId);
+            //var spec = new TicketAddToBasket(ticketId);
+            //var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
 
-            if (ticket == null)
-            {
-                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
-            }
+            //if (ticket == null)
+            //{
+            //    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
+            //}
 
-            ticket.StatusId = (int)StatusTypes.Book + 1;
-            ticket.CustomerId = userId;
-            _unitOfWork.Repository<Ticket>().Update(ticket);
-            var updated = await _unitOfWork.Complete();
+            //ticket.StatusId = (int)StatusTypes.Book + 1;
+            //ticket.CustomerId = userId;
+            //_unitOfWork.Repository<Ticket>().Update(ticket);
+            //var updated = await _unitOfWork.Complete();
 
-            if (updated < 0)
-            {
-                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.WrongAction, "Value cant be updated in db");
-            }
+            //if (updated < 0)
+            //{
+            //    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.WrongAction, "Value cant be updated in db");
+            //}
 
             Basket? basket = await _redisRepository.Get<Basket>(userId);
             if (basket == null)
