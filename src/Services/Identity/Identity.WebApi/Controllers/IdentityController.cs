@@ -7,6 +7,8 @@ using AutoMapper;
 using Identity.Application.Interfaces;
 using Identity.Infrastructure.Attributes;
 using Identity.WebApi.Helpers;
+using Identity.Application.Services;
+using Identity.Domain.ErrorModels;
 
 namespace Identity.WebApi.Controllers
 {
@@ -14,7 +16,6 @@ namespace Identity.WebApi.Controllers
     [Route("[controller]")]
     public class IdentityController : ControllerBase
     {
-
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
 

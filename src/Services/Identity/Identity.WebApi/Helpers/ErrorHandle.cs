@@ -7,11 +7,11 @@ namespace Identity.WebApi.Helpers
 
     public static class ErrorHandle
     {
-        public static IActionResult HandleResult<T>(Result<T> result)
+        public static IActionResult HandleResult(Result result)
         {
             if (result.Succeeded)
             {
-                return new OkObjectResult(result.Value);
+                return new OkObjectResult(result);
             }
 
             var error = result.Errors[0];

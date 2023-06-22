@@ -14,6 +14,21 @@ namespace Identity.Application.Services
                 }
             };
         }
+        public static Result CreateSuccessResult()
+        {
+            return new Result();
+        }
+
+        public static Result CreateErrorResult(ErrorStatusCode statusCode, string errorMessage)
+        {
+            return new Result()
+            {
+                Errors = new List<ErrorClass>
+                {
+                    new ErrorClass(statusCode, errorMessage)
+                }
+            };
+        }
 
     }
 }
