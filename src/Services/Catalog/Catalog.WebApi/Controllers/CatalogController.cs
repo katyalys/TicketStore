@@ -19,11 +19,9 @@ namespace Catalog.WebApi.Controllers
     {
 
         private readonly ICatalogService _catalogService;
-        private readonly IMapper _mapper;
 
-        public CatalogController(ICatalogService catalogService, IMapper mapper)
+        public CatalogController(ICatalogService catalogService)
         {
-            _mapper = mapper;
             _catalogService = catalogService;
         }
 
@@ -33,9 +31,8 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> GetCurrentConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
         {
             var concerts = await _catalogService.GetCurrentConcerts(specParam, isDescOrder);
-            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
 
-            return ErrorHandle.HandleResult(mappedConcerts);
+            return ErrorHandle.HandleResult(concerts);
         }
 
         [HttpGet("GetConcertById/{id}")]
@@ -44,9 +41,8 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> ConcertById(int id)
         {
             var concert = await _catalogService.GetConcert(id);
-            var mappedConcert = _mapper.Map<Result<FullInfoConcertModel>>(concert);
 
-            return ErrorHandle.HandleResult(mappedConcert);
+            return ErrorHandle.HandleResult(concert);
         }
 
         [HttpGet("SearchConcerts")]
@@ -55,17 +51,15 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> SearchConcerts([FromQuery] string searchTerm)
         {
             var concerts = await _catalogService.GetSearchedConcerts(searchTerm);
-            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
 
-            return ErrorHandle.HandleResult(mappedConcerts);
+            return ErrorHandle.HandleResult(concerts);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("AddConcert")]
-        public async Task<IActionResult> AddConcert(FullInfoConcertModel fullInfoConcertModel)
+        public async Task<IActionResult> AddConcert(FullInfoConcertDto fullInfoConcertModel)
         {
-            var concert = _mapper.Map<Concert>(fullInfoConcertModel);
-            var result = await _catalogService.AddConcertAsync(concert);
+            var result = await _catalogService.AddConcertAsync(fullInfoConcertModel);
 
             return ErrorHandle.HandleResult(result);
         }
@@ -81,11 +75,9 @@ namespace Catalog.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("EditConcert")]
-        public async Task<IActionResult> EditConcert(FullInfoConcertModel concertFullInfo, int idConcert)
+        public async Task<IActionResult> EditConcert(FullInfoConcertDto concertFullInfo, int idConcert)
         {
-            var existingConcert = await _catalogService.GetConcert(idConcert);
-            var updatedConcert = _mapper.Map(concertFullInfo, existingConcert.Value);
-            var result = await _catalogService.UpdateConcertAsync(updatedConcert);
+            var result = await _catalogService.UpdateConcertAsync(concertFullInfo, idConcert);
 
             return ErrorHandle.HandleResult(result);
         }
@@ -97,9 +89,8 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> GetAllConcerts()
         {
             var concerts = await _catalogService.GetAllConcerts();
-            var mappedConcerts = _mapper.Map<Result<IReadOnlyList<ConcertsShortViewModel>>>(concerts);
 
-            return ErrorHandle.HandleResult(mappedConcerts);
+            return ErrorHandle.HandleResult(concerts);
         }
     }
 }

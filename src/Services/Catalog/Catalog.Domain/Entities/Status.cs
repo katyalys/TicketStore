@@ -11,11 +11,4 @@ namespace Catalog.Domain.Entities
         public string Name { get; set; }
         public List<Ticket>? Tickets { get; set; } = new();
     }
-
-    public enum StatusTypes { 
-        Bought,
-        Free,
-        Book,
-    }
-
 }

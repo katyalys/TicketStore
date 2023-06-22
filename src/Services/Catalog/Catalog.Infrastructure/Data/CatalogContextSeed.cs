@@ -1,5 +1,6 @@
 ﻿using Catalog.Domain;
 using Catalog.Domain.Entities;
+using Catalog.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

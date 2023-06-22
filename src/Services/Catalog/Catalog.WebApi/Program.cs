@@ -15,16 +15,20 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Dtos.ConcertDtos;
+using System.Reflection;
+using System.Security.Principal;
+using Microsoft.Web.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var assembly = Assembly.GetExecutingAssembly(); 
 
 builder.Services.AddControllers(); 
  builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddScoped<IValidator<FullInfoConcertModel>, FullInfoConcertModelValidator>();
-builder.Services.AddScoped<IValidator<PlaceModel>, PlaceModelValidator>();
+builder.Services.AddScoped<IValidator<FullInfoConcertDto>, FullInfoConcertDtoValidator>();
+builder.Services.AddScoped<IValidator<PlaceDto>, PlaceDtoValidator>();
 builder.Services.AddScoped<IValidator<SectorFullInffoDto>, SectorFullInfoValidator>();
 builder.Services.AddScoped<IValidator<TicketAddDto>, TicketAddDtoValidator>();
 builder.Services.AddDbContext<CatalogContext>(options =>
@@ -32,7 +36,7 @@ builder.Services.AddDbContext<CatalogContext>(options =>
 
 builder.Services.AddAuthentificate();
 builder.Services.AddSwagger();
-builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddAutoMapper(assembly);
 builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
 {
     var configuration = ConfigurationOptions.Parse(redisConnectionString, true);

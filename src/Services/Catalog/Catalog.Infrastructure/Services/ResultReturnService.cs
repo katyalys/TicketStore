@@ -19,6 +19,7 @@ namespace Catalog.Infrastructure.Services
                 }
             };
         }
+
         public static Result CreateSuccessResult()
         {
             return new Result();

@@ -19,19 +19,16 @@ namespace Catalog.WebApi.Controllers
     {
 
         private readonly IPlaceService _placeService;
-        private readonly IMapper _mapper;
 
-        public PlaceController(IPlaceService placeService, IMapper mapper)
+        public PlaceController(IPlaceService placeService)
         {
-            _mapper = mapper;
             _placeService = placeService;
         }
 
         [HttpPost("AddPlace")]
-        public async Task<IActionResult> AddPlace(PlaceModel placeModel)
+        public async Task<IActionResult> AddPlace(PlaceDto placeDto)
         {
-            var place = _mapper.Map<Place>(placeModel);
-            var addedPlace = await _placeService.AddPlaceAsync(place);
+            var addedPlace = await _placeService.AddPlaceAsync(placeDto);
 
             return ErrorHandle.HandleResult(addedPlace);
         }
@@ -45,11 +42,9 @@ namespace Catalog.WebApi.Controllers
         }
 
         [HttpPost("UpdatePlace")]
-        public async Task<IActionResult> UpdatePlace(PlaceModel placeModel, int placeId)
+        public async Task<IActionResult> UpdatePlace(PlaceDto placeDto, int placeId)
         {
-            var existingPlace = await _placeService.GetPlace(placeId);
-            var place = _mapper.Map(placeModel, existingPlace.Value);
-            var updatedPlace = await _placeService.UpdatePlaceAsync(place);
+            var updatedPlace = await _placeService.UpdatePlaceAsync(placeDto, placeId);
 
             return ErrorHandle.HandleResult(updatedPlace);
         }
@@ -58,9 +53,8 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> GetPlace(int placeId)
         {
             var place = await _placeService.GetPlace(placeId);
-            var placeModel = _mapper.Map<Result<PlaceModel>>(place);
 
-            return ErrorHandle.HandleResult(placeModel);
+            return ErrorHandle.HandleResult(place);
         }
 
     }

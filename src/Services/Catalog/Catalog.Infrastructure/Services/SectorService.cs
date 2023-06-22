@@ -3,6 +3,7 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain;
 using Catalog.Domain.Entities;
+using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.SectorsSpecifications;

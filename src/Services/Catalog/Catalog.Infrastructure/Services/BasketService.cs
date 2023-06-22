@@ -3,6 +3,7 @@ using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
@@ -81,19 +82,22 @@ namespace Catalog.Infrastructure.Services
             basketDto.TimeToBuy = (TimeSpan)expire.Value;
             basketDto.Tickets = new List<TicketDto>();
 
-            foreach (var ticketId in basket.TicketIds) 
+            var ticketIds = basket.TicketIds.ToList();
+            var ticketTasks = basket.TicketIds.Select(ticketId =>
             {
                 var spec = new TicketsInfo(ticketId);
-                var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+                return _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+            });
 
-                if (ticket == null)
-                {
-                    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
-                }
+            var tickets = await Task.WhenAll(ticketTasks);
 
-                var ticketDto = _mapper.Map<TicketDto>(ticket);
-                basketDto.Tickets.Add(ticketDto);
+            if (tickets.Any(ticket => ticket == null))
+            {
+                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
             }
+
+            basketDto.Tickets = tickets.Select(ticket => _mapper.Map<TicketDto>(ticket)).ToList();
+
 
             return new Result<BasketDto>()
             {

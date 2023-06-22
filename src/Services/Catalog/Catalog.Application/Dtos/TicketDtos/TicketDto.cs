@@ -10,7 +10,7 @@ namespace Catalog.Application.Dtos.TicketDtos
 {
     public class TicketDto
     {
-        public ConcertsShortViewModel Concert { get; set; }
+        public ConcertsShortViewDto Concert { get; set; }
         public decimal Price { get; set; }
         public string SectorName { get; set; }
         public int Row { get; set; }
