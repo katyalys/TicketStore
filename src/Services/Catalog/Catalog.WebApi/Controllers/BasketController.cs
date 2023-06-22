@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Interfaces;
+﻿using Catalog.Application.Dtos;
+using Catalog.Application.Interfaces;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,20 +11,21 @@ namespace Catalog.WebApi.Controllers
     [Route("[controller]")]
     public class BasketController : Controller
     {
-
         private readonly IBasketService _basketService;
+        private readonly AuthUserDto _authUserDto;
 
-        public BasketController(IBasketService basketService)
+        public BasketController(IBasketService basketService, AuthUserDto authUserDto)
         {
             _basketService = basketService;
+            _authUserDto = authUserDto;
         }
 
         [Authorize]
         [HttpGet("ViewBasket")]
         public async Task<IActionResult> GetBasketById()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var basket = await _basketService.GetBasketAsync(userId);
+            _authUserDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var basket = await _basketService.GetBasketAsync(_authUserDto.UserId);
 
             return ErrorHandle.HandleResult(basket);
         }
@@ -32,8 +34,8 @@ namespace Catalog.WebApi.Controllers
         [HttpPost("AddTicket")]
         public async Task<IActionResult> AddTicketToBasket(int ticketId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var basket = await _basketService.AddBasketTicketAsync(ticketId, userId);
+            _authUserDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var basket = await _basketService.AddBasketTicketAsync(ticketId, _authUserDto.UserId);
 
             return ErrorHandle.HandleResult(basket);
         }
@@ -42,8 +44,8 @@ namespace Catalog.WebApi.Controllers
         [HttpDelete("DeleteBasket")]
         public async Task<IActionResult> DeleteBasketById()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var basket = await _basketService.DeleteBasketAsync(userId);
+            _authUserDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var basket = await _basketService.DeleteBasketAsync(_authUserDto.UserId);
 
             return ErrorHandle.HandleResult(basket);
         }
@@ -52,8 +54,8 @@ namespace Catalog.WebApi.Controllers
         [HttpDelete("DeleteTicketFromBasket")]
         public async Task<IActionResult> DeleteTicketFromBasketById(int ticketId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var updatedBasket = await _basketService.DeleteFromBasketTicket(ticketId, userId);
+            _authUserDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var updatedBasket = await _basketService.DeleteFromBasketTicket(ticketId, _authUserDto.UserId);
 
             return ErrorHandle.HandleResult(updatedBasket);
         }

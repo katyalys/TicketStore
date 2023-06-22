@@ -31,6 +31,7 @@ builder.Services.AddScoped<IValidator<FullInfoConcertDto>, FullInfoConcertDtoVal
 builder.Services.AddScoped<IValidator<PlaceDto>, PlaceDtoValidator>();
 builder.Services.AddScoped<IValidator<SectorFullInffoDto>, SectorFullInfoValidator>();
 builder.Services.AddScoped<IValidator<TicketAddDto>, TicketAddDtoValidator>();
+builder.Services.AddScoped<AuthUserDto>();
 builder.Services.AddDbContext<CatalogContext>(options =>
     options.UseSqlServer(connectionString));
 

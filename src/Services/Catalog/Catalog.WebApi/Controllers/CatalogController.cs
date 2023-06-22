@@ -17,7 +17,6 @@ namespace Catalog.WebApi.Controllers
     [Route("[controller]")]
     public class CatalogController : Controller
     {
-
         private readonly ICatalogService _catalogService;
 
         public CatalogController(ICatalogService catalogService)

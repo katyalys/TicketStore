@@ -16,7 +16,6 @@ namespace Catalog.Infrastructure.Services
 {
     public class BasketService : IBasketService
     {
-
         private readonly IRedisRepository _redisRepository;
         private readonly CatalogContext _context;
         private readonly IMapper _mapper;
@@ -82,7 +81,6 @@ namespace Catalog.Infrastructure.Services
             basketDto.TimeToBuy = (TimeSpan)expire.Value;
             basketDto.Tickets = new List<TicketDto>();
 
-            var ticketIds = basket.TicketIds.ToList();
             var ticketTasks = basket.TicketIds.Select(ticketId =>
             {
                 var spec = new TicketsInfo(ticketId);
@@ -149,6 +147,8 @@ namespace Catalog.Infrastructure.Services
             var spec = new TicketDeleteFromBasket(userId);
             var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
 
+
+            //TODO
             foreach (var ticket in tickets)
             {
                 ticket.StatusId = (int)StatusTypes.Free + 1;
@@ -195,7 +195,8 @@ namespace Catalog.Infrastructure.Services
                 var spec = new TicketDeleteFromBasket(userId);
                 var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
 
-                foreach (var ticket in tickets) 
+                //TODO
+                foreach (var ticket in tickets)
                 {
                     ticket.StatusId = (int)StatusTypes.Free + 1;
                     ticket.CustomerId = null;
@@ -221,6 +222,7 @@ namespace Catalog.Infrastructure.Services
 
             if (ticketIds != null && ticketIds.Count > 0)
             {
+                //TODO
                 foreach (var ticketId in ticketIds)
                 {
                     var ticket = _context.Tickets.Include(s => s.Sector).FirstOrDefault(t => t.Id == ticketId);

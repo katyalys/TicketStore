@@ -17,7 +17,6 @@ namespace Catalog.WebApi.Controllers
     [Authorize(Roles = "Admin")]
     public class PlaceController : Controller
     {
-
         private readonly IPlaceService _placeService;
 
         public PlaceController(IPlaceService placeService)

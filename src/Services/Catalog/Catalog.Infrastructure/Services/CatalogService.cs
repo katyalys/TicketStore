@@ -8,15 +8,14 @@ using Catalog.Domain.Specification.ConcertSpecifications;
 
 namespace Catalog.Infrastructure.Services
 {
-    public class CatalogService: ICatalogService
+    public class CatalogService : ICatalogService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         public CatalogService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;   
+            _mapper = mapper;
         }
 
         public async Task<Result<IReadOnlyList<ConcertsShortViewDto>>> GetCurrentConcerts(ConcertsSpecParam concertsSpec, bool isDescOrder)

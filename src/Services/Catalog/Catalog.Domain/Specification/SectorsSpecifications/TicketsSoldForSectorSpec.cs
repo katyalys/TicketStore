@@ -12,7 +12,7 @@ namespace Catalog.Domain.Specification.SectorsSpecifications
     {
         public TicketsSoldForSectorSpec(int sectorId)
         {
-            AddCriteria(t => (t.StatusId == ((int)StatusTypes.Bought + 1) || t.StatusId == ((int)StatusTypes.Book + 1)) 
+            AddCriteria(t => (t.StatusId == ((int)StatusTypes.Bought + 1) || t.StatusId == ((int)StatusTypes.Book + 1))
                                 && t.SectorId == sectorId);
         }
     }

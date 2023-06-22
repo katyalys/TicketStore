@@ -17,7 +17,6 @@ namespace Catalog.Infrastructure.Services
 {
     public class PlaceService : IPlaceService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -29,8 +28,8 @@ namespace Catalog.Infrastructure.Services
 
         public async Task<Result> AddPlaceAsync(PlaceDto placeDto)
         {
-            var place = _mapper.Map<Place>(placeDto); 
-            var spec = new PlaceSpec(place); 
+            var place = _mapper.Map<Place>(placeDto);
+            var spec = new PlaceSpec(place);
             var placeExists = await _unitOfWork.Repository<Place>().GetEntityWithSpec(spec);
             if (placeExists != null)
             {
@@ -71,7 +70,7 @@ namespace Catalog.Infrastructure.Services
             var placeToDelete = new SectorsByPlaceSpec(place.Id);
             var placesToDelete = await _unitOfWork.Repository<Sector>().ListAsync(placeToDelete);
 
-            if (placesToDelete.Any()) 
+            if (placesToDelete.Any())
             {
                 _unitOfWork.Repository<Sector>().DeleteRange(placesToDelete);
             }

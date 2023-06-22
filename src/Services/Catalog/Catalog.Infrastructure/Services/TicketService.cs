@@ -17,7 +17,6 @@ namespace Catalog.Infrastructure.Services
 {
     public class TicketService : ITicketService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -65,6 +64,8 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result> AddTicketsAsync(List<TicketAddDto> ticketsDto)
         {
             var tickets = _mapper.Map<List<Ticket>>(ticketsDto);
+
+            //TODO
             foreach (var ticket in tickets)
             {
                 await _unitOfWork.Repository<Ticket>().Add(ticket);
@@ -88,6 +89,7 @@ namespace Catalog.Infrastructure.Services
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No tickets found");
             }
 
+            //TODO
             foreach (var ticket in tickets)
             {
                 _unitOfWork.Repository<Ticket>().Delete(ticket);
