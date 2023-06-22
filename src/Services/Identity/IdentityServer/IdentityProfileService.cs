@@ -7,7 +7,6 @@ namespace IdentityServer
 {
     public class IdentityProfileService : IProfileService
     {
-
         private UserManager<IdentityUser> _userManager;
         public IdentityProfileService(UserManager<IdentityUser> userManager)
         {

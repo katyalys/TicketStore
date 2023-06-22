@@ -12,11 +12,10 @@ namespace Identity.Application.Services
 {
     public class UserService: IUserService
     {
-
         private readonly IMapper _mapper;
-        private readonly IUserStorageProvider _identityUser;
+        private readonly IUserAccessService _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserService(IUserStorageProvider identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
+        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _identityUser = identityUser;
             _mapper = mapper;

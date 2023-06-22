@@ -16,7 +16,6 @@ namespace Identity.WebApi.Controllers
     [Route("[controller]")]
     public class IdentityController : ControllerBase
     {
-
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
 

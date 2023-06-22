@@ -7,13 +7,12 @@ using System.Security.Claims;
 
 namespace Identity.Application.Services
 {
-    public class UserStorageProvider : IUserStorageProvider
+    public class UserAccessService : IUserAccessService
     {
-
         private readonly UserManager<IdentityUser> _identityUser;
         private readonly IMapper _mapper;
 
-        public UserStorageProvider(UserManager<IdentityUser> identityUser, IMapper mapper)
+        public UserAccessService(UserManager<IdentityUser> identityUser, IMapper mapper)
         {
             _identityUser = identityUser;
             _mapper = mapper;
@@ -61,22 +60,15 @@ namespace Identity.Application.Services
 
         public async Task<List<UserWithRoles>> GetAllUsersWithRolesAsync()
         {
-            var users = await _identityUser.Users.Where(activeUsers => activeUsers.LockoutEnabled == false).ToListAsync();
+            var users = await _identityUser.Users
+                .Where(activeUsers => activeUsers.LockoutEnabled == false)
+                .ToListAsync();
 
-            var usersWithRoles = new List<UserWithRoles>();
-
-            foreach (var user in users)
+            var usersWithRoles = users.Select(user => new UserWithRoles
             {
-                var roles = await _identityUser.GetRolesAsync(user);
-
-                UserViewModel? tmpUser = _mapper.Map<UserViewModel>(user);
-                var userWithRoles = new UserWithRoles
-                {
-                    User = _mapper.Map<UserViewModel>(user),
-                    Roles = roles.ToList()
-                };
-                usersWithRoles.Add(userWithRoles);
-            }
+                User = _mapper.Map<UserViewModel>(user),
+                Roles = _identityUser.GetRolesAsync(user).Result.ToList()
+            }).ToList();
 
             return usersWithRoles;
         }

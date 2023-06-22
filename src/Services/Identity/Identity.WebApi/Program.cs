@@ -29,7 +29,7 @@ builder.Services.AddScoped<IValidator<RegisterUser>, RegisterUserValidator>();
 builder.Services.AddScoped<IValidator<LoginUser>, LoginUserValidator>();
 builder.Services.AddIdentityServerConfig(configuration, environment);
 builder.Services.AddSwagger();
-builder.Services.AddScoped(typeof(IUserStorageProvider), typeof(UserStorageProvider));
+builder.Services.AddScoped(typeof(IUserAccessService), typeof(UserAccessService));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));
