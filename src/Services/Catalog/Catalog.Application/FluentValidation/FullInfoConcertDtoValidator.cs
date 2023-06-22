@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Catalog.Application.FluentValidation
 {
-    public class FullInfoConcertModelValidator : AbstractValidator<FullInfoConcertModel>
+    public class FullInfoConcertDtoValidator : AbstractValidator<FullInfoConcertDto>
     {
-        public FullInfoConcertModelValidator()
+        public FullInfoConcertDtoValidator()
         {
             RuleFor(x => x.Date)
                 .NotEmpty().WithMessage("Date is required.")
@@ -31,7 +31,7 @@ namespace Catalog.Application.FluentValidation
 
             RuleFor(x => x.Place)
                 .NotNull().WithMessage("Place is required.")
-                .SetValidator(new PlaceModelValidator()); 
+                .SetValidator(new PlaceDtoValidator()); 
         }
 
         private bool BeAValidDateTime(DateTime date)

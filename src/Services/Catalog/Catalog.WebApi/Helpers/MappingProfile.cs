@@ -16,37 +16,37 @@ namespace Catalog.WebApi.Helpers
 	{
 		public MappingProfiles()
 		{
-			CreateMap<Concert, ConcertsShortViewModel>()
-				.ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place))
-				.ReverseMap();
+			//CreateMap<Concert, ConcertsShortViewDto>()
+			//	.ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place))
+			//	.ReverseMap();
 
-			CreateMap<Place, PlaceModel>().ReverseMap();
+			//CreateMap<Place, PlaceDto>().ReverseMap();
 
-			CreateMap<Concert, FullInfoConcertModel>()
-				.ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place))
-				.ReverseMap();
+			//CreateMap<Concert, FullInfoConcertDto>()
+			//	.ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place))
+			//	.ReverseMap();
 
-			CreateMap(typeof(Result<>), typeof(Result<>));
+			//CreateMap(typeof(Result<>), typeof(Result<>));
 
-			CreateMap<Sector, SectorInfoDto>()
-				.ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Name.ToString()))
-				.ReverseMap();
+			//CreateMap<Sector, SectorInfoDto>()
+			//	.ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Name.ToString()))
+			//	.ReverseMap();
 
-			CreateMap<Sector, SectorFullInffoDto>()
-				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
-				.ReverseMap();
+			//CreateMap<Sector, SectorFullInffoDto>()
+			//	.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
+			//	.ReverseMap();
 
-			CreateMap<Basket, BasketDto>()
-				.ReverseMap();
+			//CreateMap<Basket, BasketDto>()
+			//	.ReverseMap();
 
-			CreateMap<Ticket, TicketAddDto>()
-				.ReverseMap();
+			//CreateMap<Ticket, TicketAddDto>()
+			//	.ReverseMap();
 
-			CreateMap<Ticket, TicketDto>()
-				.ForMember(dest => dest.Concert, opt => opt.MapFrom(src => src.Concert))
-			    .ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Sector.Name.ToString()))
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Sector.Price))
-				.ReverseMap();
+			//CreateMap<Ticket, TicketDto>()
+			//	.ForMember(dest => dest.Concert, opt => opt.MapFrom(src => src.Concert))
+			//    .ForMember(dest => dest.SectorName, opt => opt.MapFrom(src => src.Sector.Name.ToString()))
+			//	.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Sector.Price))
+			//	.ReverseMap();
 		}
 	}
 }

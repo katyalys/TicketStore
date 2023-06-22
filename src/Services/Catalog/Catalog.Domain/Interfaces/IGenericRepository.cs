@@ -18,6 +18,6 @@ namespace Catalog.Domain.Interfaces
         Task<T> GetEntityWithSpec(ISpecification<T> spec);
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
         void Update(T entity);
-
+        void DeleteRange(IReadOnlyList<T> entities);
     }
 }

@@ -3,6 +3,7 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain;
 using Catalog.Domain.Entities;
+using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.SectorsSpecifications;
@@ -11,7 +12,6 @@ namespace Catalog.Infrastructure.Services
 {
     public class SectorService : ISectorService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -35,6 +35,7 @@ namespace Catalog.Infrastructure.Services
 
             var modifiedSectorsDto = new List<SectorInfoDto>();
 
+            //TODO
             foreach (var sectorInfo in sectorsDto)
             {
                 var seatRanges = new List<SeatRangeDto>();
@@ -61,7 +62,7 @@ namespace Catalog.Infrastructure.Services
                 modifiedSectorsDto.Add(sectorInfo);
             }
 
-            return new Result<List<SectorInfoDto>> ()
+            return new Result<List<SectorInfoDto>>()
             {
                 Value = modifiedSectorsDto
             };
@@ -151,7 +152,7 @@ namespace Catalog.Infrastructure.Services
 
                 if (sectorFullInffoDto.RowNumber <= maxRowNumber || sectorFullInffoDto.RowSeatNumber <= maxSeatsInRow)
                 {
-                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, 
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
                         "Cannot decrease the number of rows or seats. Tickets have already been sold.");
                 }
             }

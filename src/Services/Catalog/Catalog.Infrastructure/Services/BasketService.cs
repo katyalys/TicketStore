@@ -3,6 +3,7 @@ using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
+using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
@@ -16,7 +17,6 @@ namespace Catalog.Infrastructure.Services
 {
     public class BasketService : IBasketService
     {
-
         private readonly IRedisRepository _redisRepository;
         private readonly CatalogContext _context;
         private readonly IMapper _mapper;
@@ -83,19 +83,21 @@ namespace Catalog.Infrastructure.Services
             basketDto.TimeToBuy = (TimeSpan)expire.Value;
             basketDto.Tickets = new List<TicketDto>();
 
-            foreach (var ticketId in basket.TicketIds) 
+            var ticketTasks = basket.TicketIds.Select(ticketId =>
             {
                 var spec = new TicketsInfo(ticketId);
-                var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+                return _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+            });
 
-                if (ticket == null)
-                {
-                    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
-                }
+            var tickets = await Task.WhenAll(ticketTasks);
 
-                var ticketDto = _mapper.Map<TicketDto>(ticket);
-                basketDto.Tickets.Add(ticketDto);
+            if (tickets.Any(ticket => ticket == null))
+            {
+                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
             }
+
+            basketDto.Tickets = tickets.Select(ticket => _mapper.Map<TicketDto>(ticket)).ToList();
+
 
             return new Result<BasketDto>()
             {
@@ -147,6 +149,8 @@ namespace Catalog.Infrastructure.Services
             var spec = new TicketDeleteFromBasket(userId);
             var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
 
+
+            //TODO
             foreach (var ticket in tickets)
             {
                 ticket.StatusId = (int)StatusTypes.Free + 1;
@@ -193,7 +197,8 @@ namespace Catalog.Infrastructure.Services
                 var spec = new TicketDeleteFromBasket(userId);
                 var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
 
-                foreach (var ticket in tickets) 
+                //TODO
+                foreach (var ticket in tickets)
                 {
                     ticket.StatusId = (int)StatusTypes.Free + 1;
                     ticket.CustomerId = null;
@@ -219,6 +224,7 @@ namespace Catalog.Infrastructure.Services
 
             if (ticketIds != null && ticketIds.Count > 0)
             {
+                //TODO
                 foreach (var ticketId in ticketIds)
                 {
                     var ticket = _context.Tickets.Include(s => s.Sector).FirstOrDefault(t => t.Id == ticketId);

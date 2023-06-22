@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Catalog.Application.Dtos.ConcertDtos
 {
-    public class ConcertsShortViewModel
+    public class ConcertsShortViewDto
     {
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Perfomer { get; set; }
         public string GenreName { get; set; }
-        public PlaceModel? Place { get; set; }
+        public PlaceDto? Place { get; set; }
     }
 }

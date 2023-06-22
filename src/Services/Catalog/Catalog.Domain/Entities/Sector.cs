@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Catalog.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,14 +22,14 @@ namespace Catalog.Domain.Entities
         public List<Ticket>? Tickets { get; set; } = new();
     }
 
-    public enum SectorName
-    {
-        DanceFloor,
-        A,
-        B,
-        C,
-        D,
-        E,
-        F,
-    }
+    //public enum SectorName
+    //{
+    //    DanceFloor,
+    //    A,
+    //    B,
+    //    C,
+    //    D,
+    //    E,
+    //    F,
+    //}
 }

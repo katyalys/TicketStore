@@ -13,7 +13,6 @@ namespace Catalog.WebApi.Controllers
     [Authorize(Roles = "Admin")]
     public class SectorController : Controller
     {
-
         private readonly ISectorService _sectorService;
 
         public SectorController(ISectorService sectorService)

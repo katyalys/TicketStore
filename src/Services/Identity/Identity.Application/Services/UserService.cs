@@ -12,34 +12,24 @@ namespace Identity.Application.Services
 {
     public class UserService: IUserService
     {
-
         private readonly IMapper _mapper;
-        private readonly IUserStorageProvider _identityUser;
+        private readonly IUserAccessService _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private IValidator<RegisterUser> _validator;
-        public UserService(IUserStorageProvider identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager,
-            IValidator<RegisterUser> validator)
+        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _identityUser = identityUser;
             _mapper = mapper;
             _roleManager = roleManager;
-            _validator = validator;
         }
 
-        public async Task<Result<string>> RegisterCustomer(RegisterUser registerUser)
+        public async Task<Result> RegisterCustomer(RegisterUser registerUser)
         {
-            ValidationResult result = await _validator.ValidateAsync(registerUser);
-            if (!result.IsValid)
-            {
-                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Invalid values");
-            }
-
             var user = _mapper.Map<IdentityUser>(registerUser);
             var isExist = await _identityUser.CheckIfExists(user);
 
             if (isExist)
             {
-                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "User already registered");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "User already registered");
             };
 
             try
@@ -47,33 +37,30 @@ namespace Identity.Application.Services
                 var resultList = await _identityUser.AddAsync(user, registerUser.Password);
                 if (resultList.Any(res => !res.Succeeded))
                 {
-                    return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Something went wrong");
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Something went wrong");
                 }
             }
             catch
             {
-                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.WrongAction, "Length of username max 15 symblos");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Length of username max 15 symblos");
             }
 
             await _identityUser.AddClaimssAsync(user);
 
-            return new Result<string>()
-            {
-                Value = "Success",
-            };
+            return ResultReturnService.CreateSuccessResult();
         }
 
-        public async Task<Result<string>> DeleteUser(string id) 
+        public async Task<Result> DeleteUser(string id) 
         {
             var user = await _identityUser.GetByIdAsync(id);
 
             if (user == null) 
             {
-                return ResultReturnService.CreateErrorResult<string>(ErrorStatusCode.NotFound, "There is no user with such id found");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
             await _identityUser.DeleteAsync(user);
 
-            return new Result<string>(){ Value = "Success"};
+            return ResultReturnService.CreateSuccessResult();
         }
 
         public async Task<Result<UserWithRoles>> ChangeRole(string id, string role)

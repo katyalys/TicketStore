@@ -2,7 +2,7 @@
 
 namespace Catalog.Domain.Specification.ConcertSpecifications
 {
-    public class ConcertsFilterAndSort: BaseSpecification<Concert>
+    public class ConcertsFilterAndSort : BaseSpecification<Concert>
     {
         public ConcertsFilterAndSort(ConcertsSpecParam specParam, bool isDescOrder)
         {
@@ -13,7 +13,7 @@ namespace Catalog.Domain.Specification.ConcertSpecifications
             {
                 AddCriteria(x =>
                     (specParam.City == null || x.Place.City == specParam.City) &&
-                    (specParam.GenreName == null || x.GenreName == specParam.GenreName) && 
+                    (specParam.GenreName == null || x.GenreName == specParam.GenreName) &&
                     (x.IsDeleted == false)
                 );
             }
@@ -27,5 +27,5 @@ namespace Catalog.Domain.Specification.ConcertSpecifications
                 AddOrderBy(c => c.Date);
             }
         }
-	}
+    }
 }

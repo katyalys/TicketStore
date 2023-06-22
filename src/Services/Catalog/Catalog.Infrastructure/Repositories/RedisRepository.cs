@@ -14,11 +14,9 @@ namespace Catalog.Infrastructure.Repositories
 {
     public class RedisRepository: IRedisRepository
     {
-
         private readonly IDatabase _db;
         private readonly IConnectionMultiplexer _redis;
         private readonly string _keyPrefix = "basket:";
-
         public RedisRepository(IConnectionMultiplexer redis)
         {
             _redis = redis;

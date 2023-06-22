@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Catalog.Application.Dtos.PlaceDtos
 {
-    public class PlaceModel
+    public class PlaceDto
     {
         public string City { get; set; }
         public string Street { get; set; }

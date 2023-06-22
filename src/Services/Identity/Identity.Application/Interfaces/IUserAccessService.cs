@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Identity.Infrastructure.Interfaces
 {
-    public interface IUserStorageProvider
+    public interface IUserAccessService
     {
 		Task<IdentityUser> GetByIdAsync(string id);
 		Task<List<UserWithRoles>> GetAllUsersWithRolesAsync();

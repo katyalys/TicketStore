@@ -41,6 +41,15 @@ namespace Catalog.Infrastructure.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
+        public void DeleteRange(IReadOnlyList<T> entities)
+        {
+            _context.Set<T>().UpdateRange(entities.Select(e =>
+            {
+                e.IsDeleted = true;
+                return e;
+            }));
+        }
+
         public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
         {
             var query = ApplySpecification(spec);

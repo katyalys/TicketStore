@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Catalog.Application.FluentValidation
 {
-    public class PlaceModelValidator : AbstractValidator<PlaceModel>
+    public class PlaceDtoValidator : AbstractValidator<PlaceDto>
     {
-        public PlaceModelValidator()
+        public PlaceDtoValidator()
         {
             RuleFor(x => x.City)
                 .NotEmpty().WithMessage("City is required.");
