@@ -10,6 +10,7 @@ namespace Catalog.Domain.Interfaces
 {
     public interface IRedisRepository
     {
+        void ExpiredKeyNotification();
         Task<bool> Remove(string key);
         Task<bool> Exists(string key, TimeSpan expiresAt);
         Task<bool> Add<T>(string key, T value, TimeSpan expiresAt) where T : class;

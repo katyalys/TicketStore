@@ -89,13 +89,9 @@ namespace Catalog.Infrastructure.Services
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No tickets found");
             }
 
-            //TODO
-            foreach (var ticket in tickets)
-            {
-                _unitOfWork.Repository<Ticket>().Delete(ticket);
-            }
-
+            _unitOfWork.Repository<Ticket>().DeleteRange(tickets);
             var deleted = await _unitOfWork.Complete();
+
             if (deleted < 0)
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be deletd from db");

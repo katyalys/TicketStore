@@ -7,11 +7,9 @@ using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
-using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Data;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using System.Text.Json;
 
 namespace Catalog.Infrastructure.Services
 {
@@ -32,24 +30,16 @@ namespace Catalog.Infrastructure.Services
 
         public async Task<Result<BasketDto>> AddBasketTicketAsync(int ticketId, string userId)
         {
-            UpdateCatalogDbJob.Start(ticketId, userId);
-            //var spec = new TicketAddToBasket(ticketId);
-            //var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
+            var spec = new TicketAddToBasket(ticketId);
+            var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
 
-            //if (ticket == null)
-            //{
-            //    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
-            //}
+            if (ticket == null)
+            {
+                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
+            }
 
-            //ticket.StatusId = (int)StatusTypes.Book + 1;
-            //ticket.CustomerId = userId;
-            //_unitOfWork.Repository<Ticket>().Update(ticket);
-            //var updated = await _unitOfWork.Complete();
-
-            //if (updated < 0)
-            //{
-            //    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.WrongAction, "Value cant be updated in db");
-            //}
+            BackgroundJob.Enqueue<IBackgroundJobsService>(
+                            x => x.AddBasketUpdate(ticket, userId));
 
             Basket? basket = await _redisRepository.Get<Basket>(userId);
             if (basket == null)
@@ -64,7 +54,8 @@ namespace Catalog.Infrastructure.Services
 
             if (result == false)
             {
-                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.WrongAction, "Value cant be added to redis");
+                return ResultReturnService.CreateErrorResult<BasketDto>
+                    (ErrorStatusCode.WrongAction, "Value cant be added to redis");
             }
 
             return await GetBasketAsync(userId);
@@ -72,32 +63,31 @@ namespace Catalog.Infrastructure.Services
 
         public async Task<Result<BasketDto>> GetBasketAsync(string userId)
         {
-            var expire = await GetExpiredTicketKeys(userId);
-            if (expire.Value == null)
+
+            Basket basket = await _redisRepository.Get<Basket>(userId);
+            if (basket == null)
             {
                 return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "No itmes in basket");
             }
-
-            Basket basket = await _redisRepository.Get<Basket>(userId);
             var basketDto = _mapper.Map<BasketDto>(basket);
+            var expire = _redisRepository.TimeToExpire(userId);
             basketDto.TimeToBuy = (TimeSpan)expire.Value;
             basketDto.Tickets = new List<TicketDto>();
 
-            var ticketTasks = basket.TicketIds.Select(ticketId =>
+            //TODO
+            foreach (var ticketId in basket.TicketIds)
             {
                 var spec = new TicketsInfo(ticketId);
-                return _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
-            });
+                var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
 
-            var tickets = await Task.WhenAll(ticketTasks);
+                if (ticket == null)
+                {
+                    return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
+                }
 
-            if (tickets.Any(ticket => ticket == null))
-            {
-                return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, "Ticket not found");
+                var ticketDto = _mapper.Map<TicketDto>(ticket);
+                basketDto.Tickets.Add(ticketDto);
             }
-
-            basketDto.Tickets = tickets.Select(ticket => _mapper.Map<TicketDto>(ticket)).ToList();
-
 
             return new Result<BasketDto>()
             {
@@ -146,24 +136,6 @@ namespace Catalog.Infrastructure.Services
 
         public async Task<Result> DeleteBasketAsync(string userId)
         {
-            var spec = new TicketDeleteFromBasket(userId);
-            var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
-
-
-            //TODO
-            foreach (var ticket in tickets)
-            {
-                ticket.StatusId = (int)StatusTypes.Free + 1;
-                ticket.CustomerId = null;
-                _unitOfWork.Repository<Ticket>().Update(ticket);
-            }
-
-            var updated = await _unitOfWork.Complete();
-            if (updated < 0)
-            {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be updated in db");
-            }
-
             var removed = await _redisRepository.Remove(userId);
             if (!removed)
             {
@@ -185,36 +157,6 @@ namespace Catalog.Infrastructure.Services
             return new Result<Dictionary<string, Basket>>()
             {
                 Value = basketList
-            };
-        }
-
-        private async Task<Result<TimeSpan?>> GetExpiredTicketKeys(string userId)
-        {
-            var timeToLive = _redisRepository.TimeToExpire(userId);
-
-            if (timeToLive == null)
-            {
-                var spec = new TicketDeleteFromBasket(userId);
-                var tickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
-
-                //TODO
-                foreach (var ticket in tickets)
-                {
-                    ticket.StatusId = (int)StatusTypes.Free + 1;
-                    ticket.CustomerId = null;
-                    _unitOfWork.Repository<Ticket>().Update(ticket);
-                }
-                var updated = await _unitOfWork.Complete();
-
-                if (updated < 0)
-                {
-                    return ResultReturnService.CreateErrorResult<TimeSpan?>(ErrorStatusCode.WrongAction, "Value cant be updated in db");
-                }
-            }
-
-            return new Result<TimeSpan?>()
-            {
-                Value = timeToLive
             };
         }
 

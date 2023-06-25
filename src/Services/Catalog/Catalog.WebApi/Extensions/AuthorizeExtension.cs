@@ -4,7 +4,7 @@ namespace Catalog.WebApi.Extensions
 {
     public static class AuthorizeExtension
     {
-        public static IServiceCollection AddAuthentificate(this IServiceCollection services)
+        public static IServiceCollection AddAuthentification(this IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

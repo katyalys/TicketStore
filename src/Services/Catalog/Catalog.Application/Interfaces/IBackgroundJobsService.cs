@@ -1,4 +1,5 @@
-﻿using Catalog.Domain.ErrorModels;
+﻿using Catalog.Domain.Entities;
+using Catalog.Domain.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace Catalog.Application.Interfaces
 {
     public interface IBackgroundJobsService
     {
-        Task<Result> AddBasketUpdate(int ticketId, string userId);
+        Task AddBasketUpdate(Ticket ticket, string userId);
+        Task DeleteBasket(string userId);
         Task UpdateDeletedConcerts();
     }
 }

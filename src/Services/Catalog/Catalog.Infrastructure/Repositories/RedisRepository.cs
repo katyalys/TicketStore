@@ -1,14 +1,8 @@
 ﻿using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
 using Catalog.Domain.Interfaces;
-using Catalog.Infrastructure.Data;
-using Catalog.Domain.Entities;
-using Catalog.Domain.Specification.TicketsSpecifications;
+using Hangfire;
+using Catalog.Application.Interfaces;
 
 namespace Catalog.Infrastructure.Repositories
 {
@@ -17,10 +11,28 @@ namespace Catalog.Infrastructure.Repositories
         private readonly IDatabase _db;
         private readonly IConnectionMultiplexer _redis;
         private readonly string _keyPrefix = "basket:";
+
         public RedisRepository(IConnectionMultiplexer redis)
         {
             _redis = redis;
             _db = _redis.GetDatabase();
+        }
+
+        public void ExpiredKeyNotification()
+        {
+            var subscriber = _redis.GetSubscriber();
+            string notificationChannel = "__keyevent@0__:del"; 
+            string expiredKey = string.Empty;
+
+            subscriber.Subscribe(notificationChannel, (channel, key) =>
+            {
+                if (key.StartsWith(_keyPrefix))
+                {
+                    string keyStr = key.ToString();
+                    expiredKey = keyStr.Substring(_keyPrefix.Length);
+                    BackgroundJob.Enqueue<IBackgroundJobsService>(x => x.DeleteBasket(expiredKey));
+                }
+            });
         }
 
         public async Task<bool> Remove(string key)

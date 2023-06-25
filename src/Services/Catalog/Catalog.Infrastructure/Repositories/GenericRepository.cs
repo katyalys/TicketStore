@@ -8,8 +8,8 @@ namespace Catalog.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-
         private readonly CatalogContext _context;
+
         public GenericRepository(CatalogContext context)
         {
             _context = context;
