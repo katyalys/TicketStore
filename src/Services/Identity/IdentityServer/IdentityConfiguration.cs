@@ -69,7 +69,10 @@ namespace Identity.IdentityServer
                     DisplayName ="Identity WebApi",
                     Description = "Identity WebApi Access",
                     ApiSecrets = new List<Secret> {new Secret("IdentityWebApiSecret".Sha256())},
-                    UserClaims = { "role", },
+                    // include the following using claims in access token (in addition to subject id)
+                    UserClaims = {
+                        "role",
+                     },
                     Scopes = new List<string>{ "Identity", "offline_access", "IdentityServerApi"},
                 }
             };

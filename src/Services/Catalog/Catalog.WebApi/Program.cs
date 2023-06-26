@@ -1,23 +1,44 @@
+using Catalog.Domain.Interfaces;
+using Catalog.WebApi.Extensions;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using Hangfire;
+using Catalog.Infrastructure.BackgroundJobs;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var assembly = Assembly.GetExecutingAssembly();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddHangfire(connectionHangfireString);
+builder.Services.AddAuthentification();
+builder.Services.AddSwagger();
+builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly);
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var redisRepository = serviceProvider.GetRequiredService<IRedisRepository>();
+    redisRepository.ExpiredKeyNotification();
+}
 
-// Configure the HTTP request pipeline.
+await app.UseDatabaseSeed();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseHangfireDashboard("/mydashboard");
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
+HangfireUpdateConcert.HangfireUpdateConcerts();
 app.Run();

@@ -1,0 +1,123 @@
+﻿using StackExchange.Redis;
+using System.Text.Json;
+using Catalog.Domain.Interfaces;
+using Hangfire;
+using Catalog.Application.Interfaces;
+using Catalog.Infrastructure.BackgroundJobs;
+
+namespace Catalog.Infrastructure.Repositories
+{
+    public class RedisRepository: IRedisRepository
+    {
+        private readonly IDatabase _db;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly string _keyPrefix = "basket:";
+
+        public RedisRepository(IConnectionMultiplexer redis)
+        {
+            _redis = redis;
+            _db = _redis.GetDatabase();
+        }
+
+        public void ExpiredKeyNotification()
+        {
+            var subscriber = _redis.GetSubscriber();
+            string notificationChannel = "__keyevent@0__:del"; 
+            string expiredKey = string.Empty;
+
+            subscriber.Subscribe(notificationChannel, (channel, key) =>
+            {
+                if (key.StartsWith(_keyPrefix))
+                {
+                    string keyStr = key.ToString();
+                    expiredKey = keyStr.Substring(_keyPrefix.Length);
+                    HangfireDeleteBasket.DeleteBasket(expiredKey);
+                }
+            });
+        }
+
+        public async Task<bool> Remove(string key)
+        {
+            return await _db.KeyDeleteAsync(ApplyKeyPrefix(key));
+        }
+
+        public async Task<bool> Exists(string key, TimeSpan expiresAt)
+        {
+            if (await _db.KeyExistsAsync(ApplyKeyPrefix(key)))
+            {
+                return true;
+            }
+
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), string.Empty, expiresAt);
+        }
+
+        public TimeSpan? TimeToExpire(string key)
+        {
+            return _db.KeyTimeToLive(ApplyKeyPrefix(key));
+        }
+
+        public async Task<bool> Add<T>(string key, T value, TimeSpan expiresAt) where T : class
+        {
+            var stringContent = SerializeContent(value);
+
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), stringContent, expiresAt);
+        }
+
+        public async Task<bool> Update<T>(string key, T value, TimeSpan expiresAt) where T : class
+        {
+            var stringContent = SerializeContent(value);
+
+            return await _db.StringSetAsync(ApplyKeyPrefix(key), stringContent, expiresAt);
+        }
+
+        public async Task<T> Get<T>(string key) where T : class
+        {
+            RedisValue myString = await _db.StringGetAsync(ApplyKeyPrefix(key));
+            if (myString.HasValue && !myString.IsNullOrEmpty)
+            {
+                return DeserializeContent<T>(myString);
+            }
+
+            return null;
+        }
+
+        public async Task<Dictionary<string, T>> GetList<T>() where T : class
+        {
+            var keys = _redis.GetServer("localhost", 6379).Keys(pattern: "basket:*");
+
+            var keyValues = await _db.StringGetAsync(keys.ToArray());
+
+            var result = new Dictionary<string, T>();
+
+            int i = 0;
+            foreach (var key in keys)
+            {
+                var keyValue = keyValues[i];
+                if (keyValue.HasValue && !keyValue.IsNullOrEmpty)
+                {
+                    var keyString = key.ToString().Substring("basket:".Length);
+                    var value = DeserializeContent<T>(keyValue);
+                    result.Add(keyString, value);
+                }
+                i++;
+            }
+
+            return result;
+        }
+
+        private string SerializeContent(object value)
+        {
+            return JsonSerializer.Serialize(value);
+        }
+
+        private T DeserializeContent<T>(RedisValue myString)
+        {
+            return JsonSerializer.Deserialize<T>(myString);
+        }
+
+        private RedisKey ApplyKeyPrefix(RedisKey key)
+        {
+            return _keyPrefix + key;
+        }
+    }
+}
