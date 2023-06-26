@@ -3,7 +3,7 @@ using Hangfire;
 
 namespace Catalog.Infrastructure.BackgroundJobs
 {
-    public static class HangfireUpdate
+    public static class HangfireUpdateConcert
     {
         public static void HangfireUpdateConcerts()
         {

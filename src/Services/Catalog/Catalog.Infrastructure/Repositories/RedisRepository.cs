@@ -3,6 +3,7 @@ using System.Text.Json;
 using Catalog.Domain.Interfaces;
 using Hangfire;
 using Catalog.Application.Interfaces;
+using Catalog.Infrastructure.BackgroundJobs;
 
 namespace Catalog.Infrastructure.Repositories
 {
@@ -30,7 +31,7 @@ namespace Catalog.Infrastructure.Repositories
                 {
                     string keyStr = key.ToString();
                     expiredKey = keyStr.Substring(_keyPrefix.Length);
-                    BackgroundJob.Enqueue<IBackgroundJobsService>(x => x.DeleteBasket(expiredKey));
+                    HangfireDeleteBasket.DeleteBasket(expiredKey);
                 }
             });
         }

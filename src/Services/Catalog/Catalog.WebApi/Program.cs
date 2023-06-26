@@ -40,5 +40,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-HangfireUpdate.HangfireUpdateConcerts();
+HangfireUpdateConcert.HangfireUpdateConcerts();
 app.Run();

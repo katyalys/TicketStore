@@ -7,6 +7,7 @@ using Catalog.Domain.Enums;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
+using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Data;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
@@ -38,9 +39,7 @@ namespace Catalog.Infrastructure.Services
                 return ResultReturnService.CreateErrorResult<BasketDto>(ErrorStatusCode.NotFound, " Сant add ticket");
             }
 
-            BackgroundJob.Enqueue<IBackgroundJobsService>(
-                            x => x.AddBasketUpdate(ticket, userId));
-
+            HangfireUpdateBasket.UpdateBasket(ticket, userId);
             Basket? basket = await _redisRepository.Get<Basket>(userId);
             if (basket == null)
             {
