@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Protobuf Include="Protos\order.proto" GrpcServices="Client" />
+	</ItemGroup>
+	
     <ItemGroup>
         <PackageReference Include="Google.Protobuf" Version="3.23.3" />
         <PackageReference Include="Grpc.Net.Client" Version="2.54.0" />
@@ -14,8 +18,4 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     </ItemGroup>
-
-	<ItemGroup>
-		<Protobuf Include="Protos\order.proto" GrpcServices="Client" />
-	</ItemGroup>
 </Project>

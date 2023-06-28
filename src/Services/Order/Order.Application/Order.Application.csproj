@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="Grpc.Net.Client" Version="2.54.0" />
     <PackageReference Include="MediatR" Version="12.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Catalog\Catalog.Domain\Catalog.Domain.csproj" />
     <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
   </ItemGroup>
 

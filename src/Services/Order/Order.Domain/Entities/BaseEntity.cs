@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Order.Domain.Enums
+namespace Order.Domain.Entities
 {
-    public enum Status
+    public class BaseEntity
     {
-        Paid,
-        Canceled,
+        public int Id { get; set; }
     }
 }

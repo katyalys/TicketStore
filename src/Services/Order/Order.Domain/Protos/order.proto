@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "OrderClientGrpc.Protos";
+option csharp_namespace = "OrderClientGrpc";
 
 service OrderProtoService {
 
