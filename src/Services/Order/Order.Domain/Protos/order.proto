@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "OrderClientGrpc.Protos";
+
+service OrderProtoService {
+
+  rpc GetTicketsToOrder (GetTicketsRequest) returns (TicketOrderDto);
+}
+
+message GetTicketsRequest{
+  string userId = 1;
+}
+
+message TicketOrderDto{
+  string userId = 1;
+  repeated int32 ticketIds = 2;
+  float totalPrice = 3;
+}
