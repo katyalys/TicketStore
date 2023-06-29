@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Catalog.Application.Dtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Domain.Entities;
 

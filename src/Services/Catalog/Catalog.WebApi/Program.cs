@@ -5,8 +5,18 @@ using System.Reflection;
 using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Services;
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 5046, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
