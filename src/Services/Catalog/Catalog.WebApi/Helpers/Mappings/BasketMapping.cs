@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Catalog.Application.Dtos;
 using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Domain.Entities;
+using OrderServerGrpc;
 
 namespace Catalog.WebApi.Helpers.Mappings
 {

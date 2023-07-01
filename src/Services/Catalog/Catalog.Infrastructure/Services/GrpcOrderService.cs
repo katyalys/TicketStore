@@ -28,6 +28,7 @@ namespace Catalog.Infrastructure.Services
         {
             var basket = await _redisRepository.Get<Basket>(ticketsRequest.UserId);
 
+            // удалять билеты из редиса после
             if (basket == null)
             {
                 throw new RpcException(new Grpc.Core.Status(StatusCode.NotFound, $"Product with ID={ticketsRequest.UserId} is not found."));
@@ -45,6 +46,10 @@ namespace Catalog.Infrastructure.Services
                 var spec = new TicketsInfo(ticketId);
                 var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
                 var ticketDto = _mapper.Map<TicketDto>(ticket);
+                ticketDto.Concert.Date = _mapper.Map<Timestamp>(ticket.Concert.Date);
+                //DateTime concertDate = ticket.Concert.Date;
+                //DateTime utcConcertDate = concertDate.ToUniversalTime().AddHours(3);
+                //ticketDto.Concert.Date = Timestamp.FromDateTime(utcConcertDate);
                 ticketList.TicketDto.Add(ticketDto);
             }
 
@@ -59,11 +64,18 @@ namespace Catalog.Infrastructure.Services
                 var spec = new TicketsInfo(ticketId);
                 var ticket = await _unitOfWork.Repository<Ticket>().GetEntityWithSpec(spec);
 
-                var ticketDate = new Application.Dtos.TicketDate();
-                ticketDate.Date = ticket.Concert.Date;
+                //if (ticket.CustomerId != ticketRequest.UserId)
+                //{
+                //    throw new Exception("Unauthorized access");
+                //}
+
+                var ticketDate = new TicketDate();
+                DateTime concertDate = ticket.Concert.Date;
+                DateTime utcConcertDate = concertDate.ToUniversalTime().AddHours(3);
+                ticketDate.Date = Timestamp.FromDateTime(utcConcertDate);
                 ticketDate.TicketId = ticketId;
 
-                ticketList.TicketDate.Add((IEnumerable<TicketDate>)ticketDate);
+                ticketList.TicketDate.Add(ticketDate);
             }
 
             return ticketList;

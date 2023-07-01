@@ -1,4 +1,5 @@
 ﻿using Order.Domain.Entities;
+using Order.Domain.Specification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace Order.Domain.Interfaces
         Task<IReadOnlyList<T>> ListAllAsync();
         void Update(T entity);
         Task SaveAsync();
+        Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
     }
 }

@@ -21,7 +21,8 @@ message GetTicketInfoRequest{
 }
 
 message GetTicketDateRequest{
-	repeated int32 ticketId = 1;
+	string userId = 1;
+	repeated int32 ticketId = 2;
 }
 
 message TicketOrderDto{

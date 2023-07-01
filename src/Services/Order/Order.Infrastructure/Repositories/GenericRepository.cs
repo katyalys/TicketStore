@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Order.Domain.Entities;
 using Order.Domain.Interfaces;
+using Order.Domain.Specification;
 using Order.Infrastructure.Data;
 
 namespace Order.Infrastructure.Repositories
@@ -38,6 +39,18 @@ namespace Order.Infrastructure.Repositories
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
+        {
+            var query = ApplySpecification(spec);
+
+            return await query.ToListAsync();
+        }
+
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
         }
     }
 }
