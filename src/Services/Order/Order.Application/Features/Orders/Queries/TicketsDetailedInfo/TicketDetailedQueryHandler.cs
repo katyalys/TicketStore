@@ -1,48 +1,40 @@
 ﻿using AutoMapper;
 using MediatR;
 using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
-using Order.Domain.Entities;
 using OrderClientGrpc;
-using Order.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Grpc.Net.Client;
 using Order.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Order.Domain.Enums;
 using Order.Application.Dtos;
+using Order.Domain.ErrorModels;
+using Order.Infrastructure.Services;
 
 namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
 {
-    public class TicketDetailedQueryHandler : IRequestHandler<TicketsDetailedQuery, List<TicketDetailInfo>>
+    public class TicketDetailedQueryHandler : IRequestHandler<TicketsDetailedQuery, Result<List<TicketDetailInfo>>>
     {
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderContext _orderContext;
 
-        public TicketDetailedQueryHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, OrderContext orderContext)
+        public TicketDetailedQueryHandler(IMapper mapper, OrderContext orderContext)
         {
             _mapper = mapper;
-            _orderRepository = orderRepository;
             _orderContext = orderContext;
         }
 
-        public async Task<List<TicketDetailInfo>> Handle(TicketsDetailedQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<TicketDetailInfo>>> Handle(TicketsDetailedQuery request, CancellationToken cancellationToken)
         {
-            var ticketIds = _orderContext.Orders.Where(u => u.Id == request.OrderId 
-                                                    && u.CustomerId == u.CustomerId 
+            var ticketIds = _orderContext.Orders.Where(u => u.Id == request.OrderId
+                                                    && u.CustomerId == request.CustomerId
                                                     && u.OrderStatus != Status.Canceled)
                                             .SelectMany(u => u.Tickets)
                                             .Where(t => t.TicketStatus == Status.Paid)
                                             .Select(t => t.TicketBasketId)
                                             .ToList();
-           
-            if (ticketIds == null)
+
+            if (ticketIds.Count() == 0)
             {
-                throw new Exception("Check input data");
+                return ResultReturnService.CreateErrorResult<List<TicketDetailInfo>>(ErrorStatusCode.NotFound, "No tickets were found");
             }
 
             var grpcRequest = new GetTicketInfoRequest();
@@ -52,6 +44,11 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
             var client = new OrderProtoService.OrderProtoServiceClient(channel);
             var ticketOrderDto = await client.GetTicketInfoAsync(grpcRequest);
 
+            if (ticketOrderDto == null || ticketOrderDto.TicketDto.Count() == 0)
+            {
+                return ResultReturnService.CreateErrorResult<List<TicketDetailInfo>>(ErrorStatusCode.NotFound, "No tickets were found");
+            }
+
             List<TicketDetailInfo> ticketInfoList = new List<TicketDetailInfo>();
             foreach (var ticketDto in ticketOrderDto.TicketDto)
             {
@@ -59,7 +56,11 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
                 ticketInfo.Date = _mapper.Map<DateTime>(ticketDto.Concert.Date);
                 ticketInfoList.Add(ticketInfo);
             }
-            return ticketInfoList;
+
+            return new Result<List<TicketDetailInfo>>()
+            {
+                Value = ticketInfoList
+            };
         }
     }
 }

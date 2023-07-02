@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Order.Domain.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace Order.Application.Features.Orders.Commands.CancelTicket
 {
-    public class CancelTicketCommand : IRequest<bool>
+    public class CancelTicketCommand : IRequest<Result>
     {
-        //fluent validation
         [JsonIgnore]
         public string? CustomerId { get; set; }
         public int OrderId { get; set; }

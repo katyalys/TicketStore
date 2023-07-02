@@ -8,11 +8,11 @@ namespace Order.Application.Dtos
 {
     public class TicketDetailInfo
     {
-        public string Concert {get; set; }
+        public string Concert { get; set; }
         public string Performer { get; set; }
         public string Genre { get; set; }
         public DateTime Date { get; set; }
-        public string Place { get; set;  }
+        public string Place { get; set; }
         public decimal Price { get; set; }
         public string Sector { get; set; }
         public int Row { get; set; }

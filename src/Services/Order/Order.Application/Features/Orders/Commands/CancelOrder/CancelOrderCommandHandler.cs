@@ -1,45 +1,43 @@
-﻿using AutoMapper;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
+using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Data;
+using Order.Infrastructure.Services;
 using OrderClientGrpc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
-    public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, bool>
+    public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result>
     {
-        private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderContext _orderContext;
 
-        public CancelOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository, OrderContext orderContext)
+        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository, OrderContext orderContext)
         {
-            _mapper = mapper;
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
             _orderContext = orderContext;
         }
 
-        public async Task<bool> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(request.OrderId);
 
-            if (order.CustomerId != request.CustomerId)
+            if (order.CustomerId != request.CustomerId || order == null)
             {
-                throw new Exception("Unauthorized access");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Invalid input values");
             }
 
             var ticketIds = _orderContext.Tickets.Where(u => u.OrderTicketId == request.OrderId).Select(ticket => ticket.TicketBasketId).ToList();
+            if (ticketIds.Count() == 0)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No tickets to checkout");
+            }
+
             var grpcRequest = new GetTicketDateRequest();
             grpcRequest.TicketId.AddRange(ticketIds);
 
@@ -53,18 +51,24 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
                 if (concertDate > DateTime.Today.AddDays(10))
                 {
-                    var ticketId = _orderContext.Tickets.Where(u => u.TicketBasketId == ticketDto.TicketId 
-                                                            && u.TicketStatus != Status.Canceled 
+                    var ticketId = _orderContext.Tickets.Where(u => u.TicketBasketId == ticketDto.TicketId
+                                                            && u.TicketStatus != Status.Canceled
                                                             && u.OrderTicketId == request.OrderId)
-                                                        .Select(id => id.Id).FirstOrDefault(); //else exception
+                                                        .Select(id => id.Id).FirstOrDefault();
                     var ticket = await _ticketRepository.GetByIdAsync(ticketId);
+
+                    if (ticket == null)
+                    {
+                        return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Cant cancel ticket or tickets have been already canceled");
+                    }
+
                     ticket.TicketStatus = Status.Canceled;
                     _ticketRepository.Update(ticket);
                     await _ticketRepository.SaveAsync();
                 }
                 else
                 {
-                    return false;
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Tickets are canceled 10 days before the show max");
                 }
             }
 
@@ -72,8 +76,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             _orderRepository.Update(order);
             await _orderRepository.SaveAsync();
 
-            return true;
-
+            return ResultReturnService.CreateSuccessResult();
         }
     }
 }

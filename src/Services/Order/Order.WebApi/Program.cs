@@ -1,13 +1,18 @@
-using Grpc.Net.Client;
 using Microsoft.EntityFrameworkCore;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Data;
 using Order.Infrastructure.Repositories;
 using Order.WebApi.Extensions;
 using System.Reflection;
-using Order.Application;
+using FluentValidation.AspNetCore;
 using OrderClientGrpc;
 using System.Net;
+using FluentValidation;
+using Order.Application.Features.Orders.Commands.CancelOrder;
+using Order.Application.FluentValidation;
+using Order.Application.Features.Orders.Commands.CancelTicket;
+using Order.Application.Features.Orders.Commands.CheckoutOrder;
+using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +28,11 @@ HttpClient myHttpClient = new HttpClient
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddScoped<IValidator<CancelOrderCommand>, CancelOrderValidator>();
+builder.Services.AddScoped<IValidator<CancelTicketCommand>, CancelTicketValidator>();
+builder.Services.AddScoped<IValidator<CheckoutOrderCommand>, CheckoutOrderValidator>();
+builder.Services.AddScoped<IValidator<TicketsDetailedQuery>, TicketDetailedValidator>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly(), Order.Application.AssemblyReference.Assembly));
 builder.Services.AddDbContext<OrderContext>(options =>
@@ -34,9 +44,6 @@ builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
 {
     o.Address = new Uri("http://localhost:5046");
 });
-//// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

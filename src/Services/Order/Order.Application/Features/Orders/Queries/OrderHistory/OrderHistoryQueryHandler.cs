@@ -2,44 +2,43 @@
 using Grpc.Net.Client;
 using MediatR;
 using Order.Application.Dtos;
-using Order.Domain.Entities;
-using Order.Domain.Interfaces;
+using Order.Domain.ErrorModels;
 using Order.Infrastructure.Data;
+using Order.Infrastructure.Services;
 using OrderClientGrpc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Order.Application.Features.Orders.Queries.OrderHistory
 {
-    public class OrderHistoryQueryHandler : IRequestHandler<OrderHistoryQuery, List<FullOrderDto>>
+    public class OrderHistoryQueryHandler : IRequestHandler<OrderHistoryQuery, Result<List<FullOrderDto>>>
     {
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderContext _orderContext;
 
-        public OrderHistoryQueryHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, OrderContext orderContext)
+        public OrderHistoryQueryHandler(IMapper mapper, OrderContext orderContext)
         {
             _mapper = mapper;
-            _orderRepository = orderRepository;
             _orderContext = orderContext;
         }
 
-        public async Task<List<FullOrderDto>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<FullOrderDto>>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)
         {
             var fullOrderDtoList = new List<FullOrderDto>();
             var orderInfoList = _orderContext.Orders.Where(u => u.CustomerId == request.CustomerId);
+
+            if (orderInfoList.Count() == 0)
+            {
+                return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.ForbiddenAction, "Unauthorized access");
+            }
+
             foreach (var orderInfo in orderInfoList)
             {
                 var ticketIds = orderInfoList.SelectMany(u => u.Tickets)
                                          .Select(t => t.TicketBasketId)
                                          .ToList();
 
-                if (ticketIds == null)
+                if (ticketIds.Count() == 0)
                 {
-                    throw new Exception("Check input data");
+                    return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets in orders");
                 }
 
                 var grpcRequest = new GetTicketInfoRequest();
@@ -48,6 +47,11 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                 using var channel = GrpcChannel.ForAddress("https://localhost:5046");
                 var client = new OrderProtoService.OrderProtoServiceClient(channel);
                 var ticketOrderDto = await client.GetTicketInfoAsync(grpcRequest);
+
+                if (ticketOrderDto == null)
+                {
+                    return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets were found");
+                }
 
                 List<TicketDetailInfo> ticketInfoList = new List<TicketDetailInfo>();
                 foreach (var ticketDto in ticketOrderDto.TicketDto)
@@ -62,7 +66,10 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                 fullOrderDtoList.Add(fullOrderDto);
             }
 
-            return fullOrderDtoList;
+            return new Result<List<FullOrderDto>>()
+            {
+                Value = fullOrderDtoList
+            };
         }
     }
 }

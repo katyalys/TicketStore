@@ -1,45 +1,37 @@
-﻿using AutoMapper;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using MediatR;
 using Order.Application.Features.Orders.Commands.CancelTicket;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
+using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Data;
+using Order.Infrastructure.Services;
 using OrderClientGrpc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
-    public class CancelTicketCommandHandler : IRequestHandler<CancelTicketCommand, bool>
+    public class CancelTicketCommandHandler : IRequestHandler<CancelTicketCommand, Result>
     {
-        private readonly IMapper _mapper;
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderContext _orderContext;
 
-        public CancelTicketCommandHandler(IMapper mapper, IGenericRepository<Ticket> ticketRepository,
-                        IGenericRepository<OrderTicket> orderRepository, OrderContext orderContext)
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, OrderContext orderContext)
         {
-            _mapper = mapper;
             _ticketRepository = ticketRepository;
-            _orderRepository = orderRepository;
             _orderContext = orderContext;
         }
 
-        public async Task<bool> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
         {
             var ticketExists = _orderContext.Tickets.Where(u => u.OrderTicketId == request.OrderId
-                                                           && u.Id == request.TicketId 
+                                                           && u.Id == request.TicketId
+                                                           && u.TicketStatus == Status.Paid
                                                            && request.CustomerId == request.CustomerId);
 
-            if (ticketExists == null)
+            if (ticketExists.Count() == 0)
             {
-                throw new Exception("Check input data");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Check input data or tickets already canceled");
             }
 
             var ticketIds = ticketExists.Select(ticket => ticket.TicketBasketId).FirstOrDefault();
@@ -49,26 +41,30 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             using var channel = GrpcChannel.ForAddress("https://localhost:5046");
             var client = new OrderProtoService.OrderProtoServiceClient(channel);
             var ticketOrderDto = await client.GetTicketDateAsync(grpcRequest);
+
+            if (ticketOrderDto == null)
+            {
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Ticket info not found");
+            }
+
             var ticketDto = ticketOrderDto.TicketDate.FirstOrDefault();
-           // var date = DateTimeOffset.FromUnixTimeSeconds(ticketDto.Date.Seconds).DateTime;
-
             var concertDate = DateTimeOffset.FromUnixTimeSeconds(ticketDto.Date.Seconds).DateTime;
-
             if (concertDate > DateTime.Today.AddDays(10))
             {
-            //    if (date < DateTime.Today.AddDays(10))
-            //{
                 var ticket = await _ticketRepository.GetByIdAsync(request.TicketId);
+
+                if (ticket == null)
+                {
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Cant find ticket");
+                }
+
                 ticket.TicketStatus = Status.Canceled;
                 _ticketRepository.Update(ticket);
                 await _ticketRepository.SaveAsync();
-
-                return true;
             }
 
-            return false;
-
+            return ResultReturnService.CreateSuccessResult();
         }
     }
-    
+
 }

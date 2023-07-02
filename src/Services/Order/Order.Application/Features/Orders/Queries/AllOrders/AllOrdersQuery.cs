@@ -1,14 +1,10 @@
 ﻿using MediatR;
 using Order.Application.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Order.Domain.ErrorModels;
 
 namespace Order.Application.Features.Orders.Queries.AllOrders
 {
-    public class AllOrdersQuery : IRequest<List<OrderDto>>
+    public class AllOrdersQuery : IRequest<Result<List<OrderDto>>>
     {
     }
 }
