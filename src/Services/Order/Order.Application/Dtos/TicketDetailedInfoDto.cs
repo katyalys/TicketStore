@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Order.Application.Dtos
 {
-    public class TicketDetailInfo
+    public class TicketDetailInfoDto
     {
         public string Concert { get; set; }
         public string Performer { get; set; }

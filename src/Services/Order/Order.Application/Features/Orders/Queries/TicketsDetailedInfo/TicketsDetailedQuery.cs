@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Order.Application.Features.Orders.Queries.TicketDetailedInfo
 {
-    public class TicketsDetailedQuery : IRequest<Result<List<TicketDetailInfo>>>
+    public class TicketsDetailedQuery : IRequest<Result<List<TicketDetailInfoDto>>>
     {
         [JsonIgnore]
         public string? CustomerId { get; set; }

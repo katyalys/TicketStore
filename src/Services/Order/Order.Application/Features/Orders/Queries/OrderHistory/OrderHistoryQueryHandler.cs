@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Grpc.Net.Client;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Order.Application.Dtos;
 using Order.Domain.ErrorModels;
 using Order.Infrastructure.Data;
@@ -13,11 +14,13 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
     {
         private readonly IMapper _mapper;
         private readonly OrderContext _orderContext;
+        private readonly string _url;
 
-        public OrderHistoryQueryHandler(IMapper mapper, OrderContext orderContext)
+        public OrderHistoryQueryHandler(IMapper mapper, OrderContext orderContext, IConfiguration configuration)
         {
             _mapper = mapper;
             _orderContext = orderContext;
+            _url = configuration["GrpcServer:Address"];
         }
 
         public async Task<Result<List<FullOrderDto>>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)
@@ -44,7 +47,7 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                 var grpcRequest = new GetTicketInfoRequest();
                 grpcRequest.TicketId.Add(ticketIds);
 
-                using var channel = GrpcChannel.ForAddress("https://localhost:5046");
+                using var channel = GrpcChannel.ForAddress(_url);
                 var client = new OrderProtoService.OrderProtoServiceClient(channel);
                 var ticketOrderDto = await client.GetTicketInfoAsync(grpcRequest);
 
@@ -53,10 +56,10 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                     return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets were found");
                 }
 
-                List<TicketDetailInfo> ticketInfoList = new List<TicketDetailInfo>();
+                List<TicketDetailInfoDto> ticketInfoList = new List<TicketDetailInfoDto>();
                 foreach (var ticketDto in ticketOrderDto.TicketDto)
                 {
-                    var ticketInfo = _mapper.Map<TicketDetailInfo>(ticketDto);
+                    var ticketInfo = _mapper.Map<TicketDetailInfoDto>(ticketDto);
                     ticketInfo.Date = _mapper.Map<DateTime>(ticketDto.Concert.Date);
                     ticketInfoList.Add(ticketInfo);
                 }

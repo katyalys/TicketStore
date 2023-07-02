@@ -8,7 +8,7 @@ namespace Order.WebApi.Helpers.Mappings
     {
         public TicketMapping()
         {
-            CreateMap<OrderClientGrpc.TicketDto, TicketDetailInfo>()
+            CreateMap<OrderClientGrpc.TicketDto, TicketDetailInfoDto>()
                     .ForMember(dest => dest.Concert, opt => opt.MapFrom(src => src.Concert.Name))
                     .ForMember(dest => dest.Performer, opt => opt.MapFrom(src => src.Concert.Perfomer))
                     .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Concert.GenreName))

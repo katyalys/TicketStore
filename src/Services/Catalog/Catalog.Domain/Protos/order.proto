@@ -7,9 +7,9 @@ import "google/protobuf/timestamp.proto";
 
 service OrderProtoService {
 
-  rpc GetTicketsToOrder (GetTicketsRequest) returns (TicketOrderDto);
-  rpc GetTicketInfo (GetTicketInfoRequest) returns (TicketList);
-  rpc GetTicketDate (GetTicketDateRequest) returns (TicketDateList);
+	rpc GetTicketsToOrder (GetTicketsRequest) returns (TicketOrderDto);
+	rpc GetTicketInfo (GetTicketInfoRequest) returns (TicketList);
+	rpc GetTicketDate (GetTicketDateRequest) returns (TicketDateList);
 }
 
 message GetTicketsRequest{
@@ -45,11 +45,11 @@ message TicketDto{
 }
 
 message ConcertsShortViewDto{
-  google.protobuf.Timestamp date = 1;
-  string name = 2;
-  string perfomer = 3;
-  string genreName = 4;
-  PlaceDto place = 5;
+	google.protobuf.Timestamp date = 1;
+	string name = 2;
+	string perfomer = 3;
+	string genreName = 4;
+	PlaceDto place = 5;
 }
 
 message PlaceDto{
