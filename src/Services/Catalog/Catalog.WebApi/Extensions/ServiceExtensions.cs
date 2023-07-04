@@ -11,7 +11,11 @@ using Catalog.Infrastructure.Repositories;
 using Catalog.Infrastructure.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using MassTransit;
+using MassTransit.MultiBus;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBus.Messages.Constants;
+using Shared.EventBus.Messages.Events;
 using StackExchange.Redis;
 using System.Reflection;
 
@@ -20,7 +24,7 @@ namespace Catalog.WebApi.Extensions
     public static class ServiceExtensions
     {
         public static IServiceCollection AddOtherExtensions(this IServiceCollection services, string connectionString,
-            string redisConnectionString, Assembly assembly)
+            string redisConnectionString, Assembly assembly, ConfigurationManager config)
         {
             services.AddControllers();
             services.AddFluentValidationAutoValidation();
@@ -53,6 +57,32 @@ namespace Catalog.WebApi.Extensions
             services.AddGrpc(opt =>
             {
                 opt.EnableDetailedErrors = true;
+            });
+
+            services.AddMassTransit(x => 
+            {
+                var assembly = Assembly.GetAssembly(typeof(UserCreatedMessageConsumer));
+                x.AddConsumers(assembly);
+
+                string host = config["RabbitMQ:Host"];
+                var virtualHost = config["RabbitMQ:VirtualHost"];
+                var username = config["RabbitMQ:Username"];
+                var password = config["RabbitMQ:Password"];
+
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(host, virtualHost, h =>
+                    {
+                        h.Username(username);
+                        h.Password(password);
+                    });
+
+                    cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, x =>
+                    {
+                        //x.Bind<GetTicketStatusEvent>();
+                        x.ConfigureConsumer<UserCreatedMessageConsumer>(context);
+                    });
+                });
             });
 
             return services;

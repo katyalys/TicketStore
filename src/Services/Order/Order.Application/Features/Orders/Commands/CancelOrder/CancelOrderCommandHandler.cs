@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using AutoMapper;
+using Grpc.Net.Client;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Order.Domain.Entities;
@@ -8,6 +10,7 @@ using Order.Domain.Interfaces;
 using Order.Infrastructure.Data;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
+using Shared.EventBus.Messages.Events;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -17,14 +20,18 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderContext _orderContext;
         private readonly string _url;
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository, 
-                                            OrderContext orderContext, IConfiguration configuration)
+                                            OrderContext orderContext, IConfiguration configuration, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
             _orderContext = orderContext;
             _url = configuration["GrpcServer:Address"];
+            _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -79,6 +86,11 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             order.OrderStatus = Status.Canceled;
             _orderRepository.Update(order);
             await _orderRepository.SaveAsync();
+
+            // send checkout event to rabbitmq
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest.TicketId);
+            eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
+            await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();
         }

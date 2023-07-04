@@ -16,7 +16,7 @@ var assembly = Assembly.GetExecutingAssembly();
 builder.Services.AddHangfire(connectionHangfireString);
 builder.Services.AddAuthentification();
 builder.Services.AddSwagger();
-builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly);
+builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly, builder.Configuration);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
