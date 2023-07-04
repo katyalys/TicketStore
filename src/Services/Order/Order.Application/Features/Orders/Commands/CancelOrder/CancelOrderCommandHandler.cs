@@ -88,7 +88,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             await _orderRepository.SaveAsync();
 
             // send checkout event to rabbitmq
-            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest.TicketId);
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
             eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
             await _publishEndpoint.Publish(eventMessage);
 

@@ -30,6 +30,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             _orderContext = orderContext;
             _url = configuration["GrpcServer:Address"];
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
@@ -74,7 +75,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             }
 
             // send checkout event to rabbitmq
-            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest.TicketId);
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
             eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
             await _publishEndpoint.Publish(eventMessage);
 

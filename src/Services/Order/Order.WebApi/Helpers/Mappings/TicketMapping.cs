@@ -26,11 +26,12 @@ namespace Order.WebApi.Helpers.Mappings
             CreateMap<DateTime, Timestamp>().ConvertUsing(src => Timestamp.FromDateTime(DateTime.SpecifyKind(src, DateTimeKind.Utc)));
             CreateMap<Timestamp, DateTime>().ConvertUsing(src => src.ToDateTime());
 
-            CreateMap<TicketOrderDto, GetticketStatusEvent>()
+            CreateMap<TicketOrderDto, GetTicketStatusEvent>()
                     .ForMember(dest => dest.TicketBasketId, opt => opt.MapFrom(src => src.TicketIds))
+                    .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                     .ReverseMap();
 
-            CreateMap<GetTicketDateRequest, GetticketStatusEvent>()
+            CreateMap<GetTicketDateRequest, GetTicketStatusEvent>()
                    .ForMember(dest => dest.TicketBasketId, opt => opt.MapFrom(src => src.TicketId))
                    .ReverseMap();
         }

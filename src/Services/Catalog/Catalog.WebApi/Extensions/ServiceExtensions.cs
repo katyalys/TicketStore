@@ -5,6 +5,7 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.FluentValidation;
 using Catalog.Application.Interfaces;
+using Catalog.Application.MassTransit.Consumers;
 using Catalog.Domain.Interfaces;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
@@ -61,7 +62,7 @@ namespace Catalog.WebApi.Extensions
 
             services.AddMassTransit(x => 
             {
-                var assembly = Assembly.GetAssembly(typeof(UserCreatedMessageConsumer));
+                var assembly = Assembly.GetAssembly(typeof(TicketStatusConsumer));
                 x.AddConsumers(assembly);
 
                 string host = config["RabbitMQ:Host"];
@@ -80,7 +81,7 @@ namespace Catalog.WebApi.Extensions
                     cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, x =>
                     {
                         //x.Bind<GetTicketStatusEvent>();
-                        x.ConfigureConsumer<UserCreatedMessageConsumer>(context);
+                        x.ConfigureConsumer<TicketStatusConsumer>(context);
                     });
                 });
             });
