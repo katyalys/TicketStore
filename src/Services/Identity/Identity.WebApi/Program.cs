@@ -12,11 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Identity.Application.Dtos;
 using Identity.Application.Dtos.MailDto;
-using MassTransit;
-using System.Reflection;
-using Identity.Application.MassTransit.Consumers;
-using Shared.EventBus.Messages.Constants;
-using Shared.MassTransit.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,32 +38,7 @@ builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
 builder.Services.Configure<MailSettingsDto>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddMassTransit(x =>
-{
-    var assembly = Assembly.GetAssembly(typeof(EmailUpdatedInfoConsumer));
-    x.AddConsumers(assembly);
-
-    string host = configuration["RabbitMQ:Host"];
-    var virtualHost = configuration["RabbitMQ:VirtualHost"];
-    var username = configuration["RabbitMQ:Username"];
-    var password = configuration["RabbitMQ:Password"];
-
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host(host, virtualHost, h =>
-        {
-            h.Username(username);
-            h.Password(password);
-        });
-
-        cfg.UseConsumeFilter(typeof(ConsumeLoggingFilter<>), context);
-
-        cfg.ReceiveEndpoint(EventBusConstants.EmailWithChangesQueue, x =>
-        {
-            x.ConfigureConsumer<EmailUpdatedInfoConsumer>(context);
-        });
-    });
-});
+builder.Services.AddMassTransitConfig(configuration);
 
 var app = builder.Build();
 

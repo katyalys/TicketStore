@@ -53,10 +53,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
             await _orderRepository.Add(order);
             await _orderRepository.SaveAsync();
 
-            // send checkout event to rabbitmq
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(ticketOrderDto);
             eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Paid;
-           // eventMessage.UserId = request.CustomerId;
             await _publishEndpoint.Publish(eventMessage);
 
             return new Result<int>()

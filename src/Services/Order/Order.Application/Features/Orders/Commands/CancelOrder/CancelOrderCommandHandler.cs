@@ -23,7 +23,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository, 
+        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository,
                                             OrderContext orderContext, IConfiguration configuration, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
@@ -87,7 +87,6 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             _orderRepository.Update(order);
             await _orderRepository.SaveAsync();
 
-            // send checkout event to rabbitmq
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
             eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
             await _publishEndpoint.Publish(eventMessage);

@@ -152,6 +152,7 @@ namespace Catalog.Infrastructure.Services
             {
                 eventMessage.UpdatedProperties.Add("Date", concertFullInfo.Date.ToString());
             }
+
             await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();

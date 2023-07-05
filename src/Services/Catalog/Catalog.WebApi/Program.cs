@@ -5,16 +5,17 @@ using System.Reflection;
 using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Services;
-using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
-var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var configuration = builder.Configuration;
+var connectionString = configuration.GetConnectionString("ConnectionString");
+var connectionHangfireString = configuration.GetConnectionString("HangfireConnectionString");
+var redisConnectionString = configuration.GetConnectionString("Redis");
 var assembly = Assembly.GetExecutingAssembly();
 
 builder.Services.AddHangfire(connectionHangfireString);
+builder.Services.AddMassTransitConfig(configuration);
 builder.Services.AddAuthentification();
 builder.Services.AddSwagger();
 builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly, builder.Configuration);

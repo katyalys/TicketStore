@@ -3,11 +3,7 @@ using Identity.Application.Interfaces;
 using Identity.Infrastructure.Interfaces;
 using MassTransit;
 using Shared.EventBus.Messages.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Identity.Application.MassTransit.Consumers
 {
@@ -25,6 +21,7 @@ namespace Identity.Application.MassTransit.Consumers
         public async Task Consume(ConsumeContext<UpdatedInfoEvent> context)
         {
             var emailList = new List<string>();
+
             foreach (var userId in context.Message.UserIds)
             {
                 var user = await _userService.GetByIdAsync(userId);
@@ -36,6 +33,7 @@ namespace Identity.Application.MassTransit.Consumers
             mailData.Body = "The following changes have been made:\n";
 
             var messageBody = new StringBuilder();
+
             foreach (var kvp in context.Message.UpdatedProperties)
             {
                 messageBody.Append($"{kvp.Key}: {kvp.Value} ");

@@ -13,12 +13,11 @@ using Order.Application.FluentValidation;
 using Order.Application.Features.Orders.Commands.CancelTicket;
 using Order.Application.Features.Orders.Commands.CheckoutOrder;
 using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
-using MassTransit;
-using Shared.MassTransit.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+var configuration = builder.Configuration;
+var connectionString = configuration.GetConnectionString("ConnectionString");
 var assembly = Assembly.GetExecutingAssembly();
 
 HttpClient myHttpClient = new HttpClient
@@ -28,7 +27,6 @@ HttpClient myHttpClient = new HttpClient
 };
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<CancelOrderCommand>, CancelOrderValidator>();
@@ -46,35 +44,7 @@ builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
 {
     o.Address = new Uri("http://localhost:5046");
 });
-
-// MassTransit-RabbitMQ Configuration
-builder.Services.AddMassTransit(x =>
-{
-    var host = builder.Configuration["RabbitMQ:Host"];
-    var virtualHost = builder.Configuration["RabbitMQ:VirtualHost"];
-    var username = builder.Configuration["RabbitMQ:Username"];
-    var password = builder.Configuration["RabbitMQ:Password"];
-
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host(host, virtualHost, h =>
-        {
-            h.Username(username);
-            h.Password(password);
-        });
-
-        cfg.UsePublishFilter(typeof(PublishLoggingFilter<>), context);
-    });
-});
-
-//MassTransit - RabbitMQ Configuration
-// builder.Services.AddMassTransit(config => {
-//    config.UsingRabbitMq((ctx, cfg) =>
-//    {
-//        cfg.Host(builder.Configuration["RabbitMQ:Host"]);
-//    });
-//});
-//builder.Services.AddMassTransitHostedService();
+builder.Services.AddMassTransitConfig(configuration);
 
 var app = builder.Build();
 
