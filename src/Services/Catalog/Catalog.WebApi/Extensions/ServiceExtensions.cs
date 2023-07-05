@@ -21,7 +21,7 @@ namespace Catalog.WebApi.Extensions
     public static class ServiceExtensions
     {
         public static IServiceCollection AddOtherExtensions(this IServiceCollection services, string connectionString,
-            string redisConnectionString, Assembly assembly, ConfigurationManager config)
+            string redisConnectionString, Assembly assembly)
         {
             services.AddControllers();
             services.AddFluentValidationAutoValidation();
