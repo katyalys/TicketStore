@@ -137,7 +137,7 @@ namespace Catalog.Infrastructure.Services
 
             var spec = new TicketsWithStatus(concert.Id);
             var boughtTickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
-            UpdatedInfoEvent eventMessage = new UpdatedInfoEvent();
+            var eventMessage = new UpdatedInfoEvent();
             eventMessage.UserIds = boughtTickets.Select(ticket => ticket.CustomerId).ToList();
             eventMessage.UpdatedProperties = new Dictionary<string, string>();
 
