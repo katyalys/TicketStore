@@ -12,7 +12,6 @@ using Catalog.Infrastructure.Repositories;
 using Catalog.Infrastructure.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using MassTransit.MultiBus;
 using Microsoft.EntityFrameworkCore;
 using Shared.EventBus.Messages.Constants;
 using Shared.MassTransit.Filters;

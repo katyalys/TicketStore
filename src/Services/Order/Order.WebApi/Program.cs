@@ -14,6 +14,7 @@ using Order.Application.Features.Orders.Commands.CancelTicket;
 using Order.Application.Features.Orders.Commands.CheckoutOrder;
 using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
 using MassTransit;
+using Shared.MassTransit.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,8 @@ builder.Services.AddMassTransit(x =>
             h.Username(username);
             h.Password(password);
         });
+
+        cfg.UsePublishFilter(typeof(PublishLoggingFilter<>), context);
     });
 });
 

@@ -61,7 +61,7 @@ builder.Services.AddMassTransit(x =>
             h.Password(password);
         });
 
-       // cfg.UseConsumeFilter(typeof(ConsumeLoggingFilter<>), context);
+        cfg.UseConsumeFilter(typeof(ConsumeLoggingFilter<>), context);
 
         cfg.ReceiveEndpoint(EventBusConstants.EmailWithChangesQueue, x =>
         {
