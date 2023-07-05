@@ -5,6 +5,7 @@ using System.Reflection;
 using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Services;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 

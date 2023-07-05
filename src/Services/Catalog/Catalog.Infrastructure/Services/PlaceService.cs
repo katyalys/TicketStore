@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Catalog.Application.Dtos;
 using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
@@ -7,11 +6,6 @@ using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.PlacesSpecifications;
 using Catalog.Domain.Specification.SectorsSpecifications;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Catalog.Infrastructure.Services
 {

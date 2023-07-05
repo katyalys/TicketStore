@@ -12,13 +12,13 @@ using Catalog.Infrastructure.Repositories;
 using Catalog.Infrastructure.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using MassTransit;
 using MassTransit.MultiBus;
 using Microsoft.EntityFrameworkCore;
 using Shared.EventBus.Messages.Constants;
-using Shared.EventBus.Messages.Events;
+using Shared.MassTransit.Filters;
 using StackExchange.Redis;
 using System.Reflection;
+using MassTransit;
 
 namespace Catalog.WebApi.Extensions
 {
@@ -77,6 +77,9 @@ namespace Catalog.WebApi.Extensions
                         h.Username(username);
                         h.Password(password);
                     });
+
+                    cfg.UseConsumeFilter(typeof(ConsumeLoggingFilter<>), context);
+                    cfg.UsePublishFilter(typeof(PublishLoggingFilter<>), context);
 
                     cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, x =>
                     {
