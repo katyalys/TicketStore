@@ -41,7 +41,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Order.Infrastructure", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Order.WebApi", "src\Services\Order\Order.WebApi\Order.WebApi.csproj", "{07F93300-F7E5-4EEE-9520-A4B76C925FCA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer", "src\Services\Identity\IdentityServer\IdentityServer.csproj", "{403B5A24-2CC9-49D1-B822-D6884A476E3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "src\Services\Identity\IdentityServer\IdentityServer.csproj", "{403B5A24-2CC9-49D1-B822-D6884A476E3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{5D8914ED-D461-4E32-805C-F3DF4B506F17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,10 @@ Global
 		{403B5A24-2CC9-49D1-B822-D6884A476E3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{403B5A24-2CC9-49D1-B822-D6884A476E3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{403B5A24-2CC9-49D1-B822-D6884A476E3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D8914ED-D461-4E32-805C-F3DF4B506F17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D8914ED-D461-4E32-805C-F3DF4B506F17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D8914ED-D461-4E32-805C-F3DF4B506F17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D8914ED-D461-4E32-805C-F3DF4B506F17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,6 +134,7 @@ Global
 		{36FB0C33-CD1A-402E-ACBF-5271B3D759DA} = {BCA75661-CFA3-44E7-8EDB-76EB1CC20E66}
 		{07F93300-F7E5-4EEE-9520-A4B76C925FCA} = {BCA75661-CFA3-44E7-8EDB-76EB1CC20E66}
 		{403B5A24-2CC9-49D1-B822-D6884A476E3C} = {916220E6-7C13-49AE-A825-E82007651E39}
+		{5D8914ED-D461-4E32-805C-F3DF4B506F17} = {519F6A39-AA09-4C91-B56E-892AB08B1ACB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21B98443-3034-4CD0-BCF9-85C7D1627D53}

@@ -47,9 +47,12 @@ namespace Catalog.Infrastructure.Services
             //TODO
             foreach (var ticket in tickets)
             {
-                ticket.StatusId = (int)StatusTypes.Free + 1;
-                ticket.CustomerId = null;
-                _unitOfWork.Repository<Ticket>().Update(ticket);
+                if (ticket.StatusId != (int)StatusTypes.Bought + 1)
+                {
+                    ticket.StatusId = (int)StatusTypes.Free + 1;
+                    ticket.CustomerId = null;
+                    _unitOfWork.Repository<Ticket>().Update(ticket);
+                }
             }
 
             await _unitOfWork.Complete();

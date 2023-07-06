@@ -16,7 +16,8 @@ using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+var configuration = builder.Configuration;
+var connectionString = configuration.GetConnectionString("ConnectionString");
 var assembly = Assembly.GetExecutingAssembly();
 
 HttpClient myHttpClient = new HttpClient
@@ -26,7 +27,6 @@ HttpClient myHttpClient = new HttpClient
 };
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<CancelOrderCommand>, CancelOrderValidator>();
@@ -44,6 +44,7 @@ builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
 {
     o.Address = new Uri("http://localhost:5046");
 });
+builder.Services.AddMassTransitConfig(configuration);
 
 var app = builder.Build();
 

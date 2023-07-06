@@ -5,18 +5,23 @@ using Catalog.Domain.Entities;
 using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.ConcertSpecifications;
+using Catalog.Domain.Specification.TicketsSpecifications;
+using MassTransit;
+using Shared.EventBus.Messages.Events;
 
 namespace Catalog.Infrastructure.Services
 {
     public class CatalogService : ICatalogService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly IMapper _mapper;
 
-        public CatalogService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CatalogService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<IReadOnlyList<ConcertsShortViewDto>>> GetCurrentConcerts(ConcertsSpecParam concertsSpec, bool isDescOrder)
@@ -118,6 +123,8 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result> UpdateConcertAsync(FullInfoConcertDto concertFullInfo, int idConcert)
         {
             var concert = await _unitOfWork.Repository<Concert>().GetByIdAsync(idConcert);
+            var previousDateConcert = concert.Date;
+            var previousPlaceId = concert.PlaceId;
             var updatedConcert = _mapper.Map(concertFullInfo, concert);
             _unitOfWork.Repository<Concert>().Update(updatedConcert);
             var updated = await _unitOfWork.Complete();
@@ -127,6 +134,26 @@ namespace Catalog.Infrastructure.Services
                 return ResultReturnService.CreateErrorResult
                     (ErrorStatusCode.WrongAction, "Value cant be updated in db");
             }
+
+            var spec = new TicketsWithStatus(concert.Id);
+            var boughtTickets = await _unitOfWork.Repository<Ticket>().ListAsync(spec);
+            var eventMessage = new UpdatedInfoEvent();
+            eventMessage.UserIds = boughtTickets.Select(ticket => ticket.CustomerId).ToList();
+            eventMessage.UpdatedProperties = new Dictionary<string, string>();
+
+            if (previousPlaceId != updatedConcert.PlaceId)
+            {
+                eventMessage.UpdatedProperties.Add("City", concertFullInfo.Place.City);
+                eventMessage.UpdatedProperties.Add("Street", concertFullInfo.Place.Street);
+                eventMessage.UpdatedProperties.Add("PlaceNumber", concertFullInfo.Place.PlaceNumber.ToString());
+            }
+
+            if (previousDateConcert != updatedConcert.Date)
+            {
+                eventMessage.UpdatedProperties.Add("Date", concertFullInfo.Date.ToString());
+            }
+
+            await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();
         }
