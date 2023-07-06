@@ -5,8 +5,9 @@ using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
-using Order.Infrastructure.Data;
+using Order.Domain.Specification.TicketSpecifications;
 using Order.Infrastructure.Services;
+using static Order.Application.Constants.Constants;
 using OrderClientGrpc;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
@@ -15,16 +16,18 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     {
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly OrderContext _orderContext;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly string _url;
 
-        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository, 
-                                            OrderContext orderContext, IConfiguration configuration)
+        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, 
+                                IGenericRepository<Ticket> ticketRepository, IConfiguration configuration)
         {
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
-            _orderContext = orderContext;
             _url = configuration["GrpcServer:Address"];
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -36,30 +39,27 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Invalid input values");
             }
 
-            var ticketIds = _orderContext.Tickets.Where(u => u.OrderTicketId == request.OrderId).Select(ticket => ticket.TicketBasketId).ToList();
-            if (ticketIds.Count() == 0)
+            var ticketByOrderSpec = new TicketsByOrderSpec(request.OrderId);
+            var tickets = await _ticketRepository.ListAsync(ticketByOrderSpec);
+
+            if (!tickets.Any())
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "No tickets to checkout");
             }
 
             var grpcRequest = new GetTicketDateRequest();
+            var ticketIds = tickets.Select(ticket => ticket.TicketBasketId).ToList();
             grpcRequest.TicketId.AddRange(ticketIds);
-
-            using var channel = GrpcChannel.ForAddress(_url);
-            var client = new OrderProtoService.OrderProtoServiceClient(channel);
-            var ticketOrderDto = await client.GetTicketDateAsync(grpcRequest);
+            var ticketOrderDto = await _client.GetTicketDateAsync(grpcRequest);
 
             foreach (var ticketDto in ticketOrderDto.TicketDate)
             {
                 var concertDate = DateTimeOffset.FromUnixTimeSeconds(ticketDto.Date.Seconds).DateTime;
 
-                if (concertDate > DateTime.Today.AddDays(10))
+                if (concertDate > DateTime.Today.AddDays(DaysAheadTicketReturn))
                 {
-                    var ticketId = _orderContext.Tickets.Where(u => u.TicketBasketId == ticketDto.TicketId
-                                                            && u.TicketStatus != Status.Canceled
-                                                            && u.OrderTicketId == request.OrderId)
-                                                        .Select(id => id.Id).FirstOrDefault();
-                    var ticket = await _ticketRepository.GetByIdAsync(ticketId);
+                    var ticketSpec = new TicketSpec(ticketDto.TicketId, request.OrderId);
+                    var ticket = await _ticketRepository.GetEntityWithSpec(ticketSpec);
 
                     if (ticket == null)
                     {

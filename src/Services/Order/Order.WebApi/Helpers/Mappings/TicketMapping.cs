@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Order.Application.Dtos;
+using Order.Domain.Entities;
 
 namespace Order.WebApi.Helpers.Mappings
 {

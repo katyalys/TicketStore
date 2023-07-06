@@ -3,8 +3,10 @@ using Grpc.Net.Client;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Order.Application.Dtos;
+using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
-using Order.Infrastructure.Data;
+using Order.Domain.Interfaces;
+using Order.Domain.Specification.OrderSpecifications;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
 
@@ -13,50 +15,47 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
     public class OrderHistoryQueryHandler : IRequestHandler<OrderHistoryQuery, Result<List<FullOrderDto>>>
     {
         private readonly IMapper _mapper;
-        private readonly OrderContext _orderContext;
+        private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly string _url;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public OrderHistoryQueryHandler(IMapper mapper, OrderContext orderContext, IConfiguration configuration)
+        public OrderHistoryQueryHandler(IMapper mapper, IConfiguration configuration,
+                        IGenericRepository<OrderTicket> orderRepository)
         {
             _mapper = mapper;
-            _orderContext = orderContext;
             _url = configuration["GrpcServer:Address"];
+            _orderRepository = orderRepository;
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result<List<FullOrderDto>>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)
         {
             var fullOrderDtoList = new List<FullOrderDto>();
-            var orderInfoList = _orderContext.Orders.Where(u => u.CustomerId == request.CustomerId);
+            var spec = new OrderByCustomerSpec(request.CustomerId);
+            var orderInfoList = await _orderRepository.ListAsync(spec);
 
-            if (orderInfoList.Count() == 0)
+            if (!orderInfoList.Any())
             {
                 return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.ForbiddenAction, "Unauthorized access");
             }
 
             foreach (var orderInfo in orderInfoList)
             {
-                var ticketIds = orderInfoList.SelectMany(u => u.Tickets)
-                                         .Select(t => t.TicketBasketId)
-                                         .ToList();
-
-                if (ticketIds.Count() == 0)
-                {
-                    return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets in orders");
-                }
+                var ticketIds = orderInfo.Tickets.Select(t => t.TicketBasketId).ToList();
 
                 var grpcRequest = new GetTicketInfoRequest();
                 grpcRequest.TicketId.Add(ticketIds);
-
-                using var channel = GrpcChannel.ForAddress(_url);
-                var client = new OrderProtoService.OrderProtoServiceClient(channel);
-                var ticketOrderDto = await client.GetTicketInfoAsync(grpcRequest);
+                var ticketOrderDto = await _client.GetTicketInfoAsync(grpcRequest);
 
                 if (ticketOrderDto == null)
                 {
                     return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets were found");
                 }
 
-                List<TicketDetailInfoDto> ticketInfoList = new List<TicketDetailInfoDto>();
+                var ticketInfoList = new List<TicketDetailInfoDto>();
+
                 foreach (var ticketDto in ticketOrderDto.TicketDto)
                 {
                     var ticketInfo = _mapper.Map<TicketDetailInfoDto>(ticketDto);
@@ -64,7 +63,7 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                     ticketInfoList.Add(ticketInfo);
                 }
 
-                var fullOrderDto = _mapper.Map<FullOrderDto>(orderInfo);
+                var fullOrderDto = _mapper.Map<OrderTicket, FullOrderDto>(orderInfo);
                 fullOrderDto.TicketDetails = ticketInfoList;
                 fullOrderDtoList.Add(fullOrderDto);
             }

@@ -16,19 +16,21 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly string _url;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
 
         public CheckoutOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _url = configuration["GrpcServer:Address"];
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
-            using var channel = GrpcChannel.ForAddress(_url);
-            var client = new OrderProtoService.OrderProtoServiceClient(channel);
-            var ticketOrderDto = await client.GetTicketsToOrderAsync(new GetTicketsRequest { UserId = request.CustomerId });
+            var ticketOrderDto = await _client.GetTicketsToOrderAsync(new GetTicketsRequest { UserId = request.CustomerId });
 
             if (ticketOrderDto == null)
             {
@@ -46,7 +48,7 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
                 TicketStatus = Status.Paid,
             }).ToList();
 
-            await _orderRepository.Add(order);
+            await _orderRepository.AddAsync(order);
             await _orderRepository.SaveAsync();
 
             return new Result<int>()

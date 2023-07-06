@@ -13,6 +13,7 @@ namespace Order.WebApi.Helpers
             }
 
             var error = result.Errors[0];
+
             switch (error.StatusCode)
             {
                 case ErrorStatusCode.NotFound:

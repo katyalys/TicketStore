@@ -2,7 +2,6 @@
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.TicketsSpecifications;
-using Catalog.Infrastructure.Data;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using OrderServerGrpc;
@@ -32,12 +31,14 @@ namespace Catalog.Infrastructure.Services
             }
 
             var ticketOrderModel = _mapper.Map<TicketOrderDto>(basket);
+
             return ticketOrderModel;
         }
 
         public override async Task<TicketList> GetTicketInfo(GetTicketInfoRequest ticketRequest, ServerCallContext context)
         {
             var ticketList = new TicketList();
+
             foreach (var ticketId in ticketRequest.TicketId)
             {
                 var spec = new TicketsInfo(ticketId);
@@ -58,8 +59,8 @@ namespace Catalog.Infrastructure.Services
 
         public override async Task<TicketDateList> GetTicketDate(GetTicketDateRequest ticketRequest, ServerCallContext context)
         {
-
             var ticketList = new TicketDateList();
+
             foreach (var ticketId in ticketRequest.TicketId)
             {
                 var spec = new TicketsInfo(ticketId);
@@ -71,8 +72,8 @@ namespace Catalog.Infrastructure.Services
                 }
 
                 var ticketDate = new TicketDate();
-                DateTime concertDate = ticket.Concert.Date;
-                DateTime utcConcertDate = concertDate.ToUniversalTime().AddHours(3);
+                var concertDate = ticket.Concert.Date;
+                var utcConcertDate = concertDate.ToUniversalTime().AddHours(3);
                 ticketDate.Date = Timestamp.FromDateTime(utcConcertDate);
                 ticketDate.TicketId = ticketId;
 

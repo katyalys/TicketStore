@@ -11,6 +11,7 @@ using Order.WebApi.Helpers;
 
 namespace Order.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class OrderController : BaseController
@@ -22,50 +23,50 @@ namespace Order.WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
-        [HttpPost("CheckoutOrder")]
+        [HttpPost("Checkout")]
         public async Task<IActionResult> CheckoutOrder()
         {
-            CheckoutOrderCommand command = new CheckoutOrderCommand();
-            command.CustomerId = UserId;
+            var command = new CheckoutOrderCommand();
+            command.CustomerId = User.Id;
             var result = await _mediator.Send(command);
+
             return ErrorHandle.HandleResult(result);
         }
 
-        [Authorize]
-        [HttpPost("CancelOrder")]
+        [HttpPost("Cancel")]
         public async Task<IActionResult> CancelOrder(CancelOrderCommand command)
         {
-            command.CustomerId = UserId;
+            command.CustomerId = User.Id;
             var result = await _mediator.Send(command);
+
             return ErrorHandle.HandleResult(result);
         }
 
-        [Authorize]
         [HttpPost("CancelTicket")]
         public async Task<IActionResult> CancelTicket(CancelTicketCommand command)
         {
-            command.CustomerId = UserId;
+            command.CustomerId = User.Id;
             var result = await _mediator.Send(command);
+
             return ErrorHandle.HandleResult(result);
         }
 
-        [Authorize]
         [HttpGet("TicketDetails")]
         public async Task<ActionResult> TicketDetails([FromQuery] TicketsDetailedQuery query)
         {
-            query.CustomerId = UserId;
+            query.CustomerId = User.Id;
             var result = await _mediator.Send(query);
+
             return ErrorHandle.HandleResult(result);
         }
 
-        [Authorize]
         [HttpGet("OrdersHistory")]
         public async Task<ActionResult> OrdersHistory()
         {
-            OrderHistoryQuery query = new OrderHistoryQuery();
-            query.CustomerId = UserId;
+            var query = new OrderHistoryQuery();
+            query.CustomerId = User.Id;
             var result = await _mediator.Send(query);
+
             return ErrorHandle.HandleResult(result);
         }
 
@@ -73,8 +74,9 @@ namespace Order.WebApi.Controllers
         [HttpGet("AllOrders")]
         public async Task<ActionResult> AllOrders()
         {
-            AllOrdersQuery query = new AllOrdersQuery();
+            var query = new AllOrdersQuery();
             var result = await _mediator.Send(query);
+
             return ErrorHandle.HandleResult(result);
         }
     }
