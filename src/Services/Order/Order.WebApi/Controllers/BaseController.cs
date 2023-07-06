@@ -1,15 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Order.Application.Dtos;
 using System.Security.Claims;
 
 namespace Order.WebApi.Controllers
 {
-    public class BaseController : Controller
+    public class BaseController : ControllerBase
     {
-        protected string UserId
+        private UserDto _userDto;
+
+        protected UserDto User
         {
             get
             {
-                return User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (_userDto == null)
+                {
+                    _userDto = new UserDto
+                    {
+                        Id = base.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    };
+                }
+
+                return _userDto;
             }
         }
     }

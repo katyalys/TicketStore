@@ -15,7 +15,7 @@ namespace Order.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task Add(T entity)
+        public async Task AddAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
         }
@@ -46,6 +46,11 @@ namespace Order.Infrastructure.Repositories
             var query = ApplySpecification(spec);
 
             return await query.ToListAsync();
+        }
+
+        public async Task<T> GetEntityWithSpec(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).FirstOrDefaultAsync();
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)

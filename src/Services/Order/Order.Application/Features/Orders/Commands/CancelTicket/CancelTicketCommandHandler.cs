@@ -8,7 +8,8 @@ using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
-using Order.Infrastructure.Data;
+using Order.Domain.Specification.TicketSpecifications;
+using static Order.Application.Constants.Constants;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
 using Shared.EventBus.Messages.Events;
@@ -18,55 +19,52 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     public class CancelTicketCommandHandler : IRequestHandler<CancelTicketCommand, Result>
     {
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly OrderContext _orderContext;
         private readonly string _url;
-        private readonly IMapper _mapper;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, OrderContext orderContext, IConfiguration configuration,
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, IConfiguration configuration,
                                             IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             _ticketRepository = ticketRepository;
-            _orderContext = orderContext;
             _url = configuration["GrpcServer:Address"];
-            _mapper = mapper;
-            _publishEndpoint = publishEndpoint;
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
         {
-            var ticketExists = _orderContext.Tickets.Where(u => u.OrderTicketId == request.OrderId
-                                                           && u.Id == request.TicketId
-                                                           && u.TicketStatus == Status.Paid
-                                                           && request.CustomerId == request.CustomerId);
+            var spec = new CheckTicketExsistSpec(request.TicketId, request.OrderId, request.CustomerId);
+            var ticketExists = await _ticketRepository.ListAsync(spec);
 
-            if (ticketExists.Count() == 0)
+            if (!ticketExists.Any())
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Check input data or tickets already canceled");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
+                    "Check input data or tickets already canceled");
             }
 
             var ticketIds = ticketExists.Select(ticket => ticket.TicketBasketId).FirstOrDefault();
             var grpcRequest = new GetTicketDateRequest();
             grpcRequest.TicketId.Add(ticketIds);
-
-            using var channel = GrpcChannel.ForAddress(_url);
-            var client = new OrderProtoService.OrderProtoServiceClient(channel);
-            var ticketOrderDto = await client.GetTicketDateAsync(grpcRequest);
+            var ticketOrderDto = await _client.GetTicketDateAsync(grpcRequest);
 
             if (ticketOrderDto == null)
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Ticket info not found");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
+                    "Ticket info not found");
             }
 
             var ticketDto = ticketOrderDto.TicketDate.FirstOrDefault();
             var concertDate = DateTimeOffset.FromUnixTimeSeconds(ticketDto.Date.Seconds).DateTime;
-            if (concertDate > DateTime.Today.AddDays(10))
+
+            if (concertDate > DateTime.Today.AddDays(DaysAheadTicketReturn))
             {
                 var ticket = await _ticketRepository.GetByIdAsync(request.TicketId);
 
                 if (ticket == null)
                 {
-                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Cant find ticket");
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
+                        "Cant find ticket");
                 }
 
                 ticket.TicketStatus = Status.Canceled;
@@ -81,5 +79,4 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             return ResultReturnService.CreateSuccessResult();
         }
     }
-
 }

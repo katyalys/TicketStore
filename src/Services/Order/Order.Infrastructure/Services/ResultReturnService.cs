@@ -30,6 +30,5 @@ namespace Order.Infrastructure.Services
                 }
             };
         }
-
     }
 }

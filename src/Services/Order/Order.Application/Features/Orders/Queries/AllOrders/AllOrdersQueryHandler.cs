@@ -6,7 +6,7 @@ using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
-using Order.Domain.Specification;
+using Order.Domain.Specification.OrderSpecifications;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
 
@@ -17,23 +17,28 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly string _url;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
 
         public AllOrdersQueryHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _url = configuration["GrpcServer:Address"];
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result<List<OrderDto>>> Handle(AllOrdersQuery request, CancellationToken cancellationToken)
         {
             var fullOrderDtoList = new List<OrderDto>();
-            GetTicketsSpec getTicketSpec = new GetTicketsSpec();
+            var getTicketSpec = new GetTicketsSpec();
             var orderInfoList = await _orderRepository.ListAsync(getTicketSpec);
 
-            if (orderInfoList.Count == 0)
+            if (!orderInfoList.Any())
             {
-                return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "No orders");
+                return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                    "No orders");
             }
 
             var orderGroups = orderInfoList.GroupBy(u => u.CustomerId);
@@ -45,24 +50,24 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
                                          .Select(t => t.TicketBasketId)
                                          .ToList();
 
-                if (ticketIds.Count() == 0)
+                if (!ticketIds.Any())
                 {
-                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "No tickets in order");
+                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                        "No tickets in order");
                 }
 
                 var grpcRequest = new GetTicketInfoRequest();
                 grpcRequest.TicketId.Add(ticketIds);
+                var ticketOrderDto = await _client.GetTicketInfoAsync(grpcRequest);
 
-                using var channel = GrpcChannel.ForAddress(_url);
-                var client = new OrderProtoService.OrderProtoServiceClient(channel);
-                var ticketOrderDto = client.GetTicketInfo(grpcRequest);
-
-                if (ticketOrderDto == null || ticketOrderDto.TicketDto.Count == 0)
+                if (ticketOrderDto == null || !ticketOrderDto.TicketDto.Any())
                 {
-                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "Cant get ticket info");
+                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                        "Cant get ticket info");
                 }
 
-                List<TicketDetailInfoDto> ticketInfoList = new List<TicketDetailInfoDto>();
+                var ticketInfoList = new List<TicketDetailInfoDto>();
+
                 foreach (var ticketDto in ticketOrderDto.TicketDto)
                 {
                     var ticketInfo = _mapper.Map<TicketDetailInfoDto>(ticketDto);

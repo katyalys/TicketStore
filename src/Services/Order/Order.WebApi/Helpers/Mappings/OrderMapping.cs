@@ -14,9 +14,10 @@ namespace Order.WebApi.Helpers.Mappings
                     .ReverseMap();
 
             CreateMap<OrderTicket, FullOrderDto>()
-                    .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
                     .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+                    .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
                     .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalPrice))
+                    .ForMember(dest => dest.TicketDetails, opt => opt.Ignore())
                     .ReverseMap();
 
             CreateMap<OrderTicket, OrderDto>()

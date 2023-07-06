@@ -18,6 +18,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly string _url;
+        private readonly GrpcChannel _channel;
+        private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IPublishEndpoint _publishEndpoint;
 
         public CheckoutOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration, IPublishEndpoint publishEndpoint)
@@ -26,17 +28,18 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
             _orderRepository = orderRepository;
             _url = configuration["GrpcServer:Address"];
             _publishEndpoint = publishEndpoint;
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
-            using var channel = GrpcChannel.ForAddress(_url);
-            var client = new OrderProtoService.OrderProtoServiceClient(channel);
-            var ticketOrderDto = await client.GetTicketsToOrderAsync(new GetTicketsRequest { UserId = request.CustomerId });
+            var ticketOrderDto = await _client.GetTicketsToOrderAsync(new GetTicketsRequest { UserId = request.CustomerId });
 
             if (ticketOrderDto == null)
             {
-                return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound, "No tickets to checkout");
+                return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound,
+                    "No tickets to checkout");
             }
 
             var order = _mapper.Map<OrderTicket>(ticketOrderDto);
@@ -50,7 +53,7 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
                 TicketStatus = Status.Paid,
             }).ToList();
 
-            await _orderRepository.Add(order);
+            await _orderRepository.AddAsync(order);
             await _orderRepository.SaveAsync();
 
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(ticketOrderDto);

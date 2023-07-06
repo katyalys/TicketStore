@@ -14,6 +14,7 @@ namespace Order.WebApi.Extensions
                     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
                     options.RequireHttpsMetadata = false;
                 });
+
             return services;
         }
     }

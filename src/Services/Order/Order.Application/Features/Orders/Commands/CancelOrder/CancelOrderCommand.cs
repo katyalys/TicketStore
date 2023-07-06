@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Order.Domain.ErrorModels;
-using System.Text.Json.Serialization;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {

@@ -1,6 +1,6 @@
 ﻿using Order.Domain.Entities;
 
-namespace Order.Domain.Specification
+namespace Order.Domain.Specification.OrderSpecifications
 {
     public class GetTicketsSpec : BaseSpecification<OrderTicket>
     {
