@@ -22,7 +22,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CheckoutOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration, IPublishEndpoint publishEndpoint)
+        public CheckoutOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration,
+                                                IPublishEndpoint publishEndpoint)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
