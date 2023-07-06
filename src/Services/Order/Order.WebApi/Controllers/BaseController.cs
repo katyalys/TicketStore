@@ -19,6 +19,7 @@ namespace Order.WebApi.Controllers
                         Id = base.User.FindFirstValue(ClaimTypes.NameIdentifier)
                     };
                 }
+
                 return _userDto;
             }
         }

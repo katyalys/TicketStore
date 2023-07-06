@@ -44,7 +44,8 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
 
             if (!ticketIds.Any())
             {
-                return ResultReturnService.CreateErrorResult<List<TicketDetailInfoDto>>(ErrorStatusCode.NotFound, "No tickets were found");
+                return ResultReturnService.CreateErrorResult<List<TicketDetailInfoDto>>(ErrorStatusCode.NotFound,
+                    "No tickets were found");
             }
 
             var grpcRequest = new GetTicketInfoRequest();
@@ -53,7 +54,8 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
 
             if (ticketOrderDto == null || !ticketOrderDto.TicketDto.Any())
             {
-                return ResultReturnService.CreateErrorResult<List<TicketDetailInfoDto>>(ErrorStatusCode.NotFound, "No tickets were found");
+                return ResultReturnService.CreateErrorResult<List<TicketDetailInfoDto>>(ErrorStatusCode.NotFound,
+                    "No tickets were found");
             }
 
             var ticketInfoList = new List<TicketDetailInfoDto>();

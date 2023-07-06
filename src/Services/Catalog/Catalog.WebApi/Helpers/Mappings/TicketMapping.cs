@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Domain.Entities;
-using OrderServerGrpc;
 
 namespace Catalog.WebApi.Helpers.Mappings
 {

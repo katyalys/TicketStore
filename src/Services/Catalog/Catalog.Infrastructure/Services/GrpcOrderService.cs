@@ -82,6 +82,5 @@ namespace Catalog.Infrastructure.Services
 
             return ticketList;
         }
-
     }
 }

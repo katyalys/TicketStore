@@ -44,7 +44,6 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
             foreach (var orderInfo in orderInfoList)
             {
                 var ticketIds = orderInfo.Tickets.Select(t => t.TicketBasketId).ToList();
-
                 var grpcRequest = new GetTicketInfoRequest();
                 grpcRequest.TicketId.Add(ticketIds);
                 var ticketOrderDto = await _client.GetTicketInfoAsync(grpcRequest);

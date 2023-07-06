@@ -6,7 +6,6 @@ using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
-using Order.Domain.Specification;
 using Order.Domain.Specification.OrderSpecifications;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
@@ -38,7 +37,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
             if (!orderInfoList.Any())
             {
-                return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "No orders");
+                return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                    "No orders");
             }
 
             var orderGroups = orderInfoList.GroupBy(u => u.CustomerId);
@@ -52,7 +52,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
                 if (!ticketIds.Any())
                 {
-                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "No tickets in order");
+                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                        "No tickets in order");
                 }
 
                 var grpcRequest = new GetTicketInfoRequest();
@@ -61,7 +62,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
                 if (ticketOrderDto == null || !ticketOrderDto.TicketDto.Any())
                 {
-                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound, "Cant get ticket info");
+                    return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
+                        "Cant get ticket info");
                 }
 
                 var ticketInfoList = new List<TicketDetailInfoDto>();

@@ -35,7 +35,8 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (!ticketExists.Any())
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Check input data or tickets already canceled");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
+                    "Check input data or tickets already canceled");
             }
 
             var ticketIds = ticketExists.Select(ticket => ticket.TicketBasketId).FirstOrDefault();
@@ -45,7 +46,8 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (ticketOrderDto == null)
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Ticket info not found");
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
+                    "Ticket info not found");
             }
 
             var ticketDto = ticketOrderDto.TicketDate.FirstOrDefault();
@@ -57,7 +59,8 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
                 if (ticket == null)
                 {
-                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "Cant find ticket");
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
+                        "Cant find ticket");
                 }
 
                 ticket.TicketStatus = Status.Canceled;
@@ -68,5 +71,4 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             return ResultReturnService.CreateSuccessResult();
         }
     }
-
 }

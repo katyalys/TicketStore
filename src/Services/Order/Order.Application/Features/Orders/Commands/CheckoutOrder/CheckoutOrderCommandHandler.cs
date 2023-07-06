@@ -34,7 +34,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 
             if (ticketOrderDto == null)
             {
-                return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound, "No tickets to checkout");
+                return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound,
+                    "No tickets to checkout");
             }
 
             var order = _mapper.Map<OrderTicket>(ticketOrderDto);
