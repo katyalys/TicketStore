@@ -26,11 +26,6 @@ namespace Identity.Application.Services
                 mail.To.Add(MailboxAddress.Parse(mailAddress));
             }
 
-            foreach (string mailAddress in mailData.ToMail)
-            {
-                mail.To.Add(MailboxAddress.Parse(mailAddress));
-            }
-
             var body = new BodyBuilder();
             mail.Subject = mailData.Subject;
             body.HtmlBody = mailData.Body;

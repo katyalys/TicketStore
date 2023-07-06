@@ -25,6 +25,7 @@ namespace Catalog.Infrastructure.Services
             var place = _mapper.Map<Place>(placeDto);
             var spec = new PlaceSpec(place);
             var placeExists = await _unitOfWork.Repository<Place>().GetEntityWithSpec(spec);
+
             if (placeExists != null)
             {
                 return ResultReturnService.CreateErrorResult<Result>
@@ -46,6 +47,7 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result> DeletePlaceAsync(int placeId)
         {
             var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
+
             if (place == null)
             {
                 return ResultReturnService.CreateErrorResult<Result>
@@ -94,6 +96,7 @@ namespace Catalog.Infrastructure.Services
 
             _unitOfWork.Repository<Place>().Update(updatedPlace);
             var result = await _unitOfWork.Complete();
+
             if (result < 0)
             {
                 return ResultReturnService.CreateErrorResult
@@ -106,6 +109,7 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result<PlaceDto>> GetPlace(int placeId)
         {
             var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
+
             if (place == null)
             {
                 return ResultReturnService.CreateErrorResult<PlaceDto>

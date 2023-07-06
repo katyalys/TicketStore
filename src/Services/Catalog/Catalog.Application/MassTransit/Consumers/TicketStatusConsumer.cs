@@ -28,7 +28,7 @@ namespace Catalog.Application.MassTransit.Consumers
                 {
                     ticket.StatusId = (int)StatusTypes.Bought + 1;
                 }
-                else if (context.Message.TicketStatus == Shared.EventBus.Messages.Enums.Status.Canceled)
+                else
                 {
                     ticket.StatusId = (int)StatusTypes.Free + 1;
                     ticket.CustomerId = null;

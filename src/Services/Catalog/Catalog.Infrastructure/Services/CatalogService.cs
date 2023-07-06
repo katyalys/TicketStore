@@ -84,9 +84,9 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result> AddConcertAsync(FullInfoConcertDto fullInfoConcertModel)
         {
             var concert = _mapper.Map<Concert>(fullInfoConcertModel);
-
             await _unitOfWork.Repository<Concert>().Add(concert);
             var added = await _unitOfWork.Complete();
+
             if (added < 0)
             {
                 return ResultReturnService.CreateErrorResult
@@ -143,14 +143,14 @@ namespace Catalog.Infrastructure.Services
 
             if (previousPlaceId != updatedConcert.PlaceId)
             {
-                eventMessage.UpdatedProperties.Add("City", concertFullInfo.Place.City);
-                eventMessage.UpdatedProperties.Add("Street", concertFullInfo.Place.Street);
-                eventMessage.UpdatedProperties.Add("PlaceNumber", concertFullInfo.Place.PlaceNumber.ToString());
+                eventMessage.UpdatedProperties.Add(nameof(concertFullInfo.Place.City), concertFullInfo.Place.City);
+                eventMessage.UpdatedProperties.Add(nameof(concertFullInfo.Place.Street), concertFullInfo.Place.Street);
+                eventMessage.UpdatedProperties.Add(nameof(concertFullInfo.Place.PlaceNumber), concertFullInfo.Place.PlaceNumber.ToString());
             }
 
             if (previousDateConcert != updatedConcert.Date)
             {
-                eventMessage.UpdatedProperties.Add("Date", concertFullInfo.Date.ToString());
+                eventMessage.UpdatedProperties.Add(nameof(concertFullInfo.Date), concertFullInfo.Date.ToString());
             }
 
             await _publishEndpoint.Publish(eventMessage);
