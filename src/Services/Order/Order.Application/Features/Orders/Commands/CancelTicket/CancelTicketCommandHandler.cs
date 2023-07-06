@@ -22,6 +22,8 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly string _url;
         private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, IConfiguration configuration,
                                             IMapper mapper, IPublishEndpoint publishEndpoint)
@@ -30,6 +32,8 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             _url = configuration["GrpcServer:Address"];
             _channel = GrpcChannel.ForAddress(_url);
             _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
