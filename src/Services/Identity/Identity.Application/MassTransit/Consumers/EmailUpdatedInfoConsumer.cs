@@ -27,6 +27,7 @@ namespace Identity.Application.MassTransit.Consumers
                 var user = await _userService.GetByIdAsync(userId);
                 emailList.Add(user.Email);
             }
+
             var mailData = new MailDataDto();
             mailData.ToMail = emailList;
             mailData.Subject = "Concert info has changed";
@@ -38,6 +39,7 @@ namespace Identity.Application.MassTransit.Consumers
             {
                 messageBody.Append($"{kvp.Key}: {kvp.Value} ");
             }
+
             mailData.Body += messageBody;
 
             await _mail.SendMailAsync(mailData, new CancellationToken());

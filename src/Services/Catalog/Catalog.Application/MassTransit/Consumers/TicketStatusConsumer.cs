@@ -23,6 +23,7 @@ namespace Catalog.Application.MassTransit.Consumers
             foreach (var ticketId in context.Message.TicketBasketId)
             {
                 var ticket = await _unitOfWork.Repository<Ticket>().GetByIdAsync(ticketId);
+
                 if (context.Message.TicketStatus == Shared.EventBus.Messages.Enums.Status.Paid)
                 {
                     ticket.StatusId = (int)StatusTypes.Bought + 1;
