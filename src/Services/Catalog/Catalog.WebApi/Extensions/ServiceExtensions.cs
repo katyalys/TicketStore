@@ -5,7 +5,6 @@ using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Dtos.TicketDtos;
 using Catalog.Application.FluentValidation;
 using Catalog.Application.Interfaces;
-using Catalog.Application.MassTransit.Consumers;
 using Catalog.Domain.Interfaces;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
