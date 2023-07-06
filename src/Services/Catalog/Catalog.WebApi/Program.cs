@@ -18,7 +18,7 @@ builder.Services.AddHangfire(connectionHangfireString);
 builder.Services.AddMassTransitConfig(configuration);
 builder.Services.AddAuthentification();
 builder.Services.AddSwagger();
-builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly, builder.Configuration);
+builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
