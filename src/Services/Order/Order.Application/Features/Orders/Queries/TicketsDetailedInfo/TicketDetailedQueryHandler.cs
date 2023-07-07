@@ -17,18 +17,15 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
     public class TicketDetailedQueryHandler : IRequestHandler<TicketsDetailedQuery, Result<List<TicketDetailInfoDto>>>
     {
         private readonly IMapper _mapper;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
 
-        public TicketDetailedQueryHandler(IMapper mapper, IConfiguration configuration,
-                                IGenericRepository<OrderTicket> orderRepository)
+        public TicketDetailedQueryHandler(IMapper mapper,
+             OrderProtoService.OrderProtoServiceClient client,
+             IGenericRepository<OrderTicket> orderRepository)
         {
             _mapper = mapper;
-            _url = configuration["GrpcServer:Address"];
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _client = client;
             _orderRepository = orderRepository;
         }
 

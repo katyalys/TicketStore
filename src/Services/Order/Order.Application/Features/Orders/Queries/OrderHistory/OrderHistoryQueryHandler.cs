@@ -16,18 +16,15 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
     {
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public OrderHistoryQueryHandler(IMapper mapper, IConfiguration configuration,
-                        IGenericRepository<OrderTicket> orderRepository)
+        public OrderHistoryQueryHandler(IMapper mapper,
+             OrderProtoService.OrderProtoServiceClient client,
+             IGenericRepository<OrderTicket> orderRepository)
         {
             _mapper = mapper;
-            _url = configuration["GrpcServer:Address"];
             _orderRepository = orderRepository;
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _client = client;
         }
 
         public async Task<Result<List<FullOrderDto>>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)

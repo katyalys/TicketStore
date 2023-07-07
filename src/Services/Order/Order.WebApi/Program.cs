@@ -29,7 +29,7 @@ builder.Services.AddSwagger();
 builder.Services.AddAutoMapper(assembly);
 builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
 {
-    o.Address = new Uri("http://localhost:5046");
+    o.Address = new Uri(builder.Configuration["GrpcServer:Address"]);
 });
 
 var app = builder.Build();

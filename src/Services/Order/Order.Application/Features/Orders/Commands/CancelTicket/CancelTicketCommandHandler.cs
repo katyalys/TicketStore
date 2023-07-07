@@ -16,16 +16,13 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     public class CancelTicketCommandHandler : IRequestHandler<CancelTicketCommand, Result>
     {
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, IConfiguration configuration)
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
+            OrderProtoService.OrderProtoServiceClient client)
         {
             _ticketRepository = ticketRepository;
-            _url = configuration["GrpcServer:Address"];
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _client = client;
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
