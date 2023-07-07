@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Grpc.Net.Client;
+﻿using MediatR;
+using AutoMapper;
 using MassTransit;
-using MediatR;
-using Microsoft.Extensions.Configuration;
 using Order.Application.Features.Orders.Commands.CancelTicket;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
@@ -19,20 +17,16 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     public class CancelTicketCommandHandler : IRequestHandler<CancelTicketCommand, Result>
     {
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, IConfiguration configuration,
-                                            IMapper mapper, IPublishEndpoint publishEndpoint)
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _ticketRepository = ticketRepository;
-            _url = configuration["GrpcServer:Address"];
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
-            _mapper = mapper;
+            _client = client;
             _publishEndpoint = publishEndpoint;
         }
 

@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
-using Grpc.Net.Client;
-using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
@@ -17,20 +14,17 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
     {
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CheckoutOrderCommandHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration,
-                                                IPublishEndpoint publishEndpoint)
+        public CheckoutOrderCommandHandler(IMapper mapper, 
+            IGenericRepository<OrderTicket> orderRepository,
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
-            _url = configuration["GrpcServer:Address"];
-            _publishEndpoint = publishEndpoint;
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _client = client ;
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)

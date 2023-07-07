@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Grpc.Net.Client;
 using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
@@ -19,22 +17,16 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     {
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
-        private readonly string _url;
-        private readonly IMapper _mapper;
-        private readonly IPublishEndpoint _publishEndpoint;
 
-        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository, IGenericRepository<Ticket> ticketRepository,
-                                            IConfiguration configuration, IMapper mapper, IPublishEndpoint publishEndpoint)
+        public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository,
+            IGenericRepository<Ticket> ticketRepository, 
+            OrderProtoService.OrderProtoServiceClient client)
         {
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
-            _url = configuration["GrpcServer:Address"];
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
-            _mapper = mapper;
             _publishEndpoint = publishEndpoint;
+            _client = client;
         }
 
         public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)

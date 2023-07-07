@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Grpc.Net.Client;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
@@ -16,17 +14,15 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
     {
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
-        private readonly string _url;
-        private readonly GrpcChannel _channel;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public AllOrdersQueryHandler(IMapper mapper, IGenericRepository<OrderTicket> orderRepository, IConfiguration configuration)
+        public AllOrdersQueryHandler(IMapper mapper, 
+            IGenericRepository<OrderTicket> orderRepository,
+            OrderProtoService.OrderProtoServiceClient client)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
-            _url = configuration["GrpcServer:Address"];
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new OrderProtoService.OrderProtoServiceClient(_channel);
+            _client = client;
         }
 
         public async Task<Result<List<OrderDto>>> Handle(AllOrdersQuery request, CancellationToken cancellationToken)
