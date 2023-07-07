@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MassTransit;
 using MediatR;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
@@ -24,7 +25,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
-            _client = client ;
+            _client = client;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)

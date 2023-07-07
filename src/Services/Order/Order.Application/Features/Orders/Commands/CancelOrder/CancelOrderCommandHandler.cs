@@ -18,14 +18,19 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository,
+            IMapper mapper,
             IGenericRepository<Ticket> ticketRepository, 
-            OrderProtoService.OrderProtoServiceClient client)
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
             _publishEndpoint = publishEndpoint;
+            _mapper = mapper;
             _client = client;
         }
 

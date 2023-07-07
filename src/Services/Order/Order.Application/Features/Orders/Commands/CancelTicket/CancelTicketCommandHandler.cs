@@ -22,11 +22,13 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IPublishEndpoint _publishEndpoint;
 
         public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
+            IMapper mapper,
             OrderProtoService.OrderProtoServiceClient client,
             IPublishEndpoint publishEndpoint)
         {
             _ticketRepository = ticketRepository;
             _client = client;
+            _mapper = mapper;
             _publishEndpoint = publishEndpoint;
         }
 
