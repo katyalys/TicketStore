@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Grpc.Net.Client;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;

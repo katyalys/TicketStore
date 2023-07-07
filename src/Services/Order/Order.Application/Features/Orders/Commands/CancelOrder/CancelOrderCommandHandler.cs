@@ -1,6 +1,4 @@
-﻿using Grpc.Net.Client;
-using MediatR;
-using Microsoft.Extensions.Configuration;
+﻿using MediatR;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;

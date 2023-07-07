@@ -2,12 +2,10 @@
 using MediatR;
 using Order.Application.Features.Orders.Queries.TicketDetailedInfo;
 using OrderClientGrpc;
-using Grpc.Net.Client;
 using Order.Domain.Enums;
 using Order.Application.Dtos;
 using Order.Domain.ErrorModels;
 using Order.Infrastructure.Services;
-using Microsoft.Extensions.Configuration;
 using Order.Domain.Entities;
 using Order.Domain.Interfaces;
 using Order.Domain.Specification.OrderSpecifications;
