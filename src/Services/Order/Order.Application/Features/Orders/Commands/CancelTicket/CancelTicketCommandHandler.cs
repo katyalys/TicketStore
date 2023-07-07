@@ -11,6 +11,7 @@ using static Order.Application.Constants.Constants;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
 using Shared.EventBus.Messages.Events;
+using Shared.EventBus.Messages.Enums;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -21,7 +22,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository,
             IMapper mapper,
             OrderProtoService.OrderProtoServiceClient client,
             IPublishEndpoint publishEndpoint)
@@ -73,7 +74,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             }
 
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
-            eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
+            eventMessage.TicketStatus = MessageStatus.Canceled;
             await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();

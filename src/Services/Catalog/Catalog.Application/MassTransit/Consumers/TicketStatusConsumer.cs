@@ -3,6 +3,7 @@ using Catalog.Domain.Entities;
 using Catalog.Domain.Enums;
 using Catalog.Domain.Interfaces;
 using MassTransit;
+using Shared.EventBus.Messages.Enums;
 using Shared.EventBus.Messages.Events;
 
 namespace Catalog.Application.MassTransit.Consumers
@@ -24,7 +25,7 @@ namespace Catalog.Application.MassTransit.Consumers
             {
                 var ticket = await _unitOfWork.Repository<Ticket>().GetByIdAsync(ticketId);
 
-                if (context.Message.TicketStatus == Shared.EventBus.Messages.Enums.Status.Paid)
+                if (context.Message.TicketStatus == MessageStatus.Paid)
                 {
                     ticket.StatusId = (int)StatusTypes.Bought + 1;
                 }
@@ -39,7 +40,7 @@ namespace Catalog.Application.MassTransit.Consumers
 
             await _unitOfWork.Complete();
 
-            if (context.Message.TicketStatus == Shared.EventBus.Messages.Enums.Status.Paid && context.Message.UserId != null)
+            if (context.Message.TicketStatus == MessageStatus.Paid && context.Message.UserId != null)
             {
                 await _basketService.DeleteBasketAsync(context.Message.UserId);
             }

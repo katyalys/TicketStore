@@ -10,6 +10,7 @@ using Order.Infrastructure.Services;
 using static Order.Application.Constants.Constants;
 using OrderClientGrpc;
 using Shared.EventBus.Messages.Events;
+using Shared.EventBus.Messages.Enums;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -23,7 +24,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
         public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository,
             IMapper mapper,
-            IGenericRepository<Ticket> ticketRepository, 
+            IGenericRepository<Ticket> ticketRepository,
             OrderProtoService.OrderProtoServiceClient client,
             IPublishEndpoint publishEndpoint)
         {
@@ -40,7 +41,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (order.CustomerId != request.CustomerId || order == null)
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, 
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
                     "Invalid input values");
             }
 
@@ -49,7 +50,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (!tickets.Any())
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                     "No tickets to checkout");
             }
 
@@ -69,7 +70,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
                     if (ticket == null)
                     {
-                        return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                        return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                             "Cant cancel ticket or tickets have been already canceled");
                     }
 
@@ -79,7 +80,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
                 }
                 else
                 {
-                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                         "Tickets are canceled 10 days before the show max");
                 }
             }
@@ -89,7 +90,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             await _orderRepository.SaveAsync();
 
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
-            eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Canceled;
+            eventMessage.TicketStatus = MessageStatus.Canceled;
             await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();

@@ -7,6 +7,7 @@ using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
+using Shared.EventBus.Messages.Enums;
 using Shared.EventBus.Messages.Events;
 
 namespace Order.Application.Features.Orders.Commands.CheckoutOrder
@@ -18,7 +19,7 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly OrderProtoService.OrderProtoServiceClient _client;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public CheckoutOrderCommandHandler(IMapper mapper, 
+        public CheckoutOrderCommandHandler(IMapper mapper,
             IGenericRepository<OrderTicket> orderRepository,
             OrderProtoService.OrderProtoServiceClient client,
             IPublishEndpoint publishEndpoint)
@@ -54,7 +55,7 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
             await _orderRepository.SaveAsync();
 
             var eventMessage = _mapper.Map<GetTicketStatusEvent>(ticketOrderDto);
-            eventMessage.TicketStatus = Shared.EventBus.Messages.Enums.Status.Paid;
+            eventMessage.TicketStatus = MessageStatus.Paid;
             await _publishEndpoint.Publish(eventMessage);
 
             return new Result<int>()

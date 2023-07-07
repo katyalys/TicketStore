@@ -1,6 +1,6 @@
 ﻿namespace Shared.EventBus.Messages.Enums
 {
-    public enum Status
+    public enum MessageStatus
     {
         Paid,
         Canceled,
