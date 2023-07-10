@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
+using Catalog.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -39,7 +40,7 @@ app.UseHangfireDashboard("/mydashboard");
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+app.MapGrpcService<GrpcOrderService>();
 app.MapControllers();
 
 HangfireUpdateConcert.HangfireUpdateConcerts();

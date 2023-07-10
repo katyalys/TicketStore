@@ -1,0 +1,77 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "OrderClientGrpc";
+
+import "google/protobuf/duration.proto";  
+import "google/protobuf/timestamp.proto";
+
+service OrderProtoService
+{
+	rpc GetTicketsToOrder (GetTicketsRequest) returns (TicketOrderDto);
+	rpc GetTicketInfo (GetTicketInfoRequest) returns (TicketList);
+	rpc GetTicketDate (GetTicketDateRequest) returns (TicketDateList);
+}
+
+message GetTicketsRequest
+{
+	string userId = 1;
+}
+
+message GetTicketInfoRequest
+{
+	repeated int32 ticketId = 1;
+}
+
+message GetTicketDateRequest
+{
+	string userId = 1;
+	repeated int32 ticketId = 2;
+}
+
+message TicketOrderDto
+{
+	string userId = 1;
+	repeated int32 ticketIds = 2;
+	float totalPrice = 3;
+}
+
+message TicketList
+{
+	repeated TicketDto ticketDto = 1;
+}
+
+message TicketDto
+{
+	ConcertsShortViewDto concert = 1;
+	float price = 2;
+	string sectorName = 3;
+	int32 row = 4;
+	int32 seat = 5;
+}
+
+message ConcertsShortViewDto
+{
+	google.protobuf.Timestamp date = 1;
+	string name = 2;
+	string perfomer = 3;
+	string genreName = 4;
+	PlaceDto place = 5;
+}
+
+message PlaceDto
+{
+	string city = 1;
+	string street = 2;
+	string placeNmuber = 3;
+}
+
+message TicketDateList
+{
+	repeated TicketDate ticketDate = 1;
+}
+
+message TicketDate
+{
+	int32 ticketId = 1;
+	google.protobuf.Timestamp date = 2;
+}
