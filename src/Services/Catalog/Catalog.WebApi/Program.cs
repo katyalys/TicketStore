@@ -6,6 +6,7 @@ using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
@@ -16,6 +17,7 @@ builder.Services.AddHangfire(connectionHangfireString);
 builder.Services.AddAuthentification();
 builder.Services.AddSwagger();
 builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly);
+builder.Services.AddElasticsearchLogging(configuration);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
