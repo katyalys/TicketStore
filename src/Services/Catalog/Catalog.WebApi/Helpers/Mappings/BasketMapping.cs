@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Catalog.Application.Dtos.BasketDtos;
 using Catalog.Domain.Entities;
+using OrderServerGrpc;
 
 namespace Catalog.WebApi.Helpers.Mappings
 {
@@ -9,7 +10,10 @@ namespace Catalog.WebApi.Helpers.Mappings
         public BasketMapping()
         {
             CreateMap<Basket, BasketDto>()
-                .ReverseMap();
+               .ReverseMap();
+
+            CreateMap<Basket, TicketOrderDto>()
+               .ReverseMap();
         }
     }
 }

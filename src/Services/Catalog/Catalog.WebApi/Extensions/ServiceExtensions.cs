@@ -50,6 +50,11 @@ namespace Catalog.WebApi.Extensions
             services.AddScoped<ISectorService, SectorService>();
             services.AddScoped<ITicketService, TicketService>();
 
+            services.AddGrpc(opt =>
+            {
+                opt.EnableDetailedErrors = true;
+            });
+
             return services;
         }
     }

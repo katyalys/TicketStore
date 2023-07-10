@@ -7,10 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.54.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.116" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
 
+    <ItemGroup>
+	    <Protobuf Include="Protos\order.proto" GrpcServices="Server" />
+    </ItemGroup>
+	
   <ItemGroup>
     <ProjectReference Include="..\..\Identity\Identity.Application\Identity.Application.csproj" />
   </ItemGroup>
