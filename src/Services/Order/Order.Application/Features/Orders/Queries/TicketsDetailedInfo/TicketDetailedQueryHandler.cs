@@ -34,7 +34,6 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
             var ticketIds = tickets.SelectMany(u => u.Tickets.Where(t => t.TicketStatus == Status.Paid))
                                        .Select(t => t.TicketBasketId);
 
-
             if (!ticketIds.Any())
             {
                 return ResultReturnService.CreateErrorResult<List<TicketDetailInfoDto>>(ErrorStatusCode.NotFound,
