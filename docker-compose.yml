@@ -1,6 +1,33 @@
 version: '3.4'
 
 services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.17.10
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    networks:
+      - elastic
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.17.10
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - elastic
+
   catalog.webapi:
     image: ${DOCKER_REGISTRY-}catalogwebapi
     build:
@@ -13,10 +40,16 @@ services:
       context: .
       dockerfile: src/Services/Identity/Identity.WebApi/Dockerfile
 
-
   order.webapi:
     image: ${DOCKER_REGISTRY-}orderwebapi
     build:
       context: .
       dockerfile: src/Services/Order/Order.WebApi/Dockerfile
+
+networks:
+  elastic:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
 
