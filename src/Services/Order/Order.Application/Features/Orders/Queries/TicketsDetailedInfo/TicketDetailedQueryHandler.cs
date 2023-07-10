@@ -31,11 +31,9 @@ namespace Order.Application.Features.Orders.Queries.TicketsDetailedInfo
         {
             var spec = new OrderWithTicketsSpec(request.OrderId, request.CustomerId);
             var tickets = await _orderRepository.ListAsync(spec);
-            var ticketIds = tickets.ToList()
-                                    .SelectMany(u => u.Tickets)
-                                    .Where(t => t.TicketStatus == Status.Paid)
-                                    .Select(t => t.TicketBasketId)
-                                    .ToList();
+            var ticketIds = tickets.SelectMany(u => u.Tickets.Where(t => t.TicketStatus == Status.Paid))
+                                       .Select(t => t.TicketBasketId);
+
 
             if (!ticketIds.Any())
             {
