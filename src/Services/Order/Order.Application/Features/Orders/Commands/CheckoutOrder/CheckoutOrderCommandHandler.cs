@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
@@ -14,14 +15,17 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly ILogger<CheckoutOrderCommandHandler> _logger;
 
         public CheckoutOrderCommandHandler(IMapper mapper, 
             IGenericRepository<OrderTicket> orderRepository,
-            OrderProtoService.OrderProtoServiceClient client)
+            OrderProtoService.OrderProtoServiceClient client,
+            ILogger<CheckoutOrderCommandHandler> logger)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
-            _client = client ;
+            _client = client;
+            _logger = logger;
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
@@ -30,6 +34,8 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 
             if (ticketOrderDto == null)
             {
+                _logger.LogError("No tickets to checkout for CustomerId {CustomerId}", request.CustomerId);
+
                 return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound,
                     "No tickets to checkout");
             }
@@ -47,6 +53,9 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 
             await _orderRepository.AddAsync(order);
             await _orderRepository.SaveAsync();
+
+            _logger.LogInformation("Order successfully checked out. OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                order.Id, request.CustomerId);
 
             return new Result<int>()
             {

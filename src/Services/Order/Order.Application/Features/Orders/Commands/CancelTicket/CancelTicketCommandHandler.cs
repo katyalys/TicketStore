@@ -8,6 +8,7 @@ using Order.Domain.Specification.TicketSpecifications;
 using static Order.Application.Constants.Constants;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
+using Microsoft.Extensions.Logging;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -15,12 +16,15 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     {
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly ILogger<CancelTicketCommandHandler> _logger;
 
         public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
-            OrderProtoService.OrderProtoServiceClient client)
+            OrderProtoService.OrderProtoServiceClient client,
+            ILogger<CancelTicketCommandHandler> logger)
         {
             _ticketRepository = ticketRepository;
             _client = client;
+            _logger = logger;
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
@@ -30,6 +34,9 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (!ticketExists.Any())
             {
+                _logger.LogError("Invalid input data or tickets already canceled. TicketId: {TicketId}, OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                    request.TicketId, request.OrderId, request.CustomerId);
+
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
                     "Check input data or tickets already canceled");
             }
@@ -41,6 +48,9 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (ticketOrderDto == null)
             {
+                _logger.LogError("Ticket info not found for TicketId {TicketId}, OrderId {OrderId}, CustomerId {CustomerId}", 
+                    request.TicketId, request.OrderId, request.CustomerId);
+
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                     "Ticket info not found");
             }
@@ -54,6 +64,9 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
                 if (ticket == null)
                 {
+                    _logger.LogError("Ticket not found for TicketId {TicketId}, OrderId {OrderId}, CustomerId {CustomerId}", 
+                        request.TicketId, request.OrderId, request.CustomerId);
+
                     return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                         "Cant find ticket");
                 }
@@ -62,6 +75,9 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
                 _ticketRepository.Update(ticket);
                 await _ticketRepository.SaveAsync();
             }
+
+            _logger.LogInformation("Ticket canceled successfully. TicketId: {TicketId}, OrderId: {OrderId}, CustomerId: {CustomerId}",
+                request.TicketId, request.OrderId, request.CustomerId);
 
             return ResultReturnService.CreateSuccessResult();
         }

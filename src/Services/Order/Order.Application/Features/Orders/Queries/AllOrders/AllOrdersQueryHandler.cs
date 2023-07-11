@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
@@ -15,14 +16,17 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly ILogger<AllOrdersQueryHandler> _logger;
 
         public AllOrdersQueryHandler(IMapper mapper, 
             IGenericRepository<OrderTicket> orderRepository,
-            OrderProtoService.OrderProtoServiceClient client)
+            OrderProtoService.OrderProtoServiceClient client,
+            ILogger<AllOrdersQueryHandler> logger)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _client = client;
+            _logger = logger;
         }
 
         public async Task<Result<List<OrderDto>>> Handle(AllOrdersQuery request, CancellationToken cancellationToken)
@@ -33,6 +37,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
             if (!orderInfoList.Any())
             {
+                _logger.LogWarning("No orders found");
+
                 return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
                     "No orders");
             }
@@ -48,6 +54,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
                 if (!ticketIds.Any())
                 {
+                    _logger.LogWarning("No tickets found for order with CustomerId {CustomerId}", customerId);
+
                     return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
                         "No tickets in order");
                 }
@@ -58,6 +66,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
 
                 if (ticketOrderDto == null || !ticketOrderDto.TicketDto.Any())
                 {
+                    _logger.LogWarning("Ticket info not found for order with CustomerId {CustomerId}", customerId);
+
                     return ResultReturnService.CreateErrorResult<List<OrderDto>>(ErrorStatusCode.NotFound,
                         "Cant get ticket info");
                 }
@@ -76,6 +86,8 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
                 fullOrderDto.TicketDetails = ticketInfoList;
                 fullOrderDtoList.Add(fullOrderDto);
             }
+
+            _logger.LogInformation("All orders query completed successfully. Total orders: {OrderCount}", fullOrderDtoList.Count);
 
             return new Result<List<OrderDto>>()
             {

@@ -2,7 +2,7 @@
 using Serilog.Sinks.Elasticsearch;
 using System.Reflection;
 
-namespace Catalog.WebApi.Extensions
+namespace Order.WebApi.Extensions
 {
     public static class LoggingExtension
     {
