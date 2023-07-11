@@ -1,11 +1,6 @@
 ﻿using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
 using Hangfire;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Catalog.Infrastructure.BackgroundJobs
 {
@@ -14,7 +9,7 @@ namespace Catalog.Infrastructure.BackgroundJobs
         public static void UpdateBasket(Ticket ticket, string userId)
         {
             BackgroundJob.Enqueue<IBackgroundJobsService>(
-                            x => x.AddBasketUpdate(ticket, userId));
+                            x => x.AddBasketUpdateAsync(ticket, userId));
         }
     }
 }

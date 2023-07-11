@@ -1,11 +1,5 @@
-﻿using AutoMapper;
-using Catalog.Application.Dtos;
-using Catalog.Application.Dtos.ConcertDtos;
+﻿using Catalog.Application.Dtos.ConcertDtos;
 using Catalog.Application.Interfaces;
-using Catalog.Domain.Entities;
-using Catalog.Domain.ErrorModels;
-using Catalog.Domain.Interfaces;
-using Catalog.Domain.Specification;
 using Catalog.Domain.Specification.ConcertSpecifications;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +23,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCurrentConcerts([FromQuery] ConcertsSpecParam specParam, bool isDescOrder = false)
         {
-            var concerts = await _catalogService.GetCurrentConcerts(specParam, isDescOrder);
+            var concerts = await _catalogService.GetCurrentConcertsAsync(specParam, isDescOrder);
 
             return ErrorHandle.HandleResult(concerts);
         }
@@ -39,7 +33,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ConcertById(int id)
         {
-            var concert = await _catalogService.GetConcert(id);
+            var concert = await _catalogService.GetConcertAsync(id);
 
             return ErrorHandle.HandleResult(concert);
         }
@@ -49,7 +43,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SearchConcerts([FromQuery] string searchTerm)
         {
-            var concerts = await _catalogService.GetSearchedConcerts(searchTerm);
+            var concerts = await _catalogService.GetSearchedConcertsAsync(searchTerm);
 
             return ErrorHandle.HandleResult(concerts);
         }
@@ -87,7 +81,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllConcerts()
         {
-            var concerts = await _catalogService.GetAllConcerts();
+            var concerts = await _catalogService.GetAllConcertsAsync();
 
             return ErrorHandle.HandleResult(concerts);
         }

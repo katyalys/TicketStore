@@ -20,7 +20,7 @@ namespace Catalog.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<int> Complete()
+        public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();
         }

@@ -5,9 +5,13 @@ using System.Reflection;
 using Hangfire;
 using Catalog.Infrastructure.BackgroundJobs;
 using Catalog.Infrastructure.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+
+LoggingExtension.ConfigureLogging();
+builder.Host.UseSerilog();
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var connectionHangfireString = builder.Configuration.GetConnectionString("HangfireConnectionString");
@@ -18,7 +22,6 @@ builder.Services.AddHangfire(connectionHangfireString);
 builder.Services.AddAuthentification();
 builder.Services.AddSwagger();
 builder.Services.AddOtherExtensions(connectionString, redisConnectionString, assembly);
-builder.Services.AddElasticsearchLogging(configuration);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -29,6 +32,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 await app.UseDatabaseSeed();
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using Catalog.Application.Dtos.SectorDtos;
+﻿using Catalog.Application.Dtos.SectorDtos;
 using Catalog.Application.Interfaces;
-using Catalog.Domain.ErrorModels;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +23,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ListAllSeats(int placeId)
         {
-            var seats = await _sectorService.ListAllPossibleSeats(placeId);
+            var seats = await _sectorService.ListAllPossibleSeatsAsync(placeId);
 
             return ErrorHandle.HandleResult(seats);
         }
@@ -35,7 +33,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddSector(SectorFullInffoDto sectorAddDto)
         {
-            var result = await _sectorService.AddSector(sectorAddDto);
+            var result = await _sectorService.AddSectorAsync(sectorAddDto);
 
             return ErrorHandle.HandleResult(result);
         }
@@ -45,7 +43,7 @@ namespace Catalog.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteSector(int sectorId)
         {
-            var result = await _sectorService.DeleteSector(sectorId);
+            var result = await _sectorService.DeleteSectorAsync(sectorId);
 
             return ErrorHandle.HandleResult(result);
         }

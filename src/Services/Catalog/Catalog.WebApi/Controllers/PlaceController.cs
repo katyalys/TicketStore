@@ -1,11 +1,5 @@
-﻿using AutoMapper;
-using Catalog.Application.Dtos;
-using Catalog.Application.Dtos.PlaceDtos;
+﻿using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Interfaces;
-using Catalog.Domain.Entities;
-using Catalog.Domain.ErrorModels;
-using Catalog.Domain.Interfaces;
-using Catalog.Infrastructure.Services;
 using Catalog.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +45,7 @@ namespace Catalog.WebApi.Controllers
         [HttpGet("GetPlace")]
         public async Task<IActionResult> GetPlace(int placeId)
         {
-            var place = await _placeService.GetPlace(placeId);
+            var place = await _placeService.GetPlaceAsync(placeId);
 
             return ErrorHandle.HandleResult(place);
         }

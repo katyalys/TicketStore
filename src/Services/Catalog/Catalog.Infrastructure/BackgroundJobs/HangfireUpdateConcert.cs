@@ -12,7 +12,7 @@ namespace Catalog.Infrastructure.BackgroundJobs
                 TimeZone = TimeZoneInfo.Local,
             };
             RecurringJob.AddOrUpdate<IBackgroundJobsService>("job-1",
-                x => x.UpdateDeletedConcerts(), Cron.Daily, options);
+                x => x.UpdateDeletedConcertsAsync(), Cron.Daily, options);
         }
     }
 }

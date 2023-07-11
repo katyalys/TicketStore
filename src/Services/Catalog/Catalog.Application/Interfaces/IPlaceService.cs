@@ -14,6 +14,6 @@ namespace Catalog.Application.Interfaces
         Task<Result> AddPlaceAsync(PlaceDto placeDto);
         Task<Result> DeletePlaceAsync(int placeId);
         Task<Result> UpdatePlaceAsync(PlaceDto placeDto, int placeId);
-        Task<Result<PlaceDto>> GetPlace(int placeId);
+        Task<Result<PlaceDto>> GetPlaceAsync(int placeId);
     }
 }
