@@ -1,6 +1,6 @@
-﻿namespace Identity.Application.Dtos.MailDto
+﻿namespace Identity.Application.Dtos.Mail
 {
-    public class MailSettingsDto
+    public class MailSettings
     {
         public string Mail { get; set; }
         public string DisplayName { get; set; }

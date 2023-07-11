@@ -33,7 +33,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             await _unitOfWork.Repository<Place>().Add(place);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if (result < 0)
             {
@@ -72,7 +72,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Place>().Delete(place);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if (result < 0)
             {
@@ -95,7 +95,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Place>().Update(updatedPlace);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if (result < 0)
             {

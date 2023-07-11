@@ -1,4 +1,4 @@
-﻿using Identity.Application.Dtos.MailDto;
+﻿using Identity.Application.Dtos.Mail;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -9,9 +9,9 @@ namespace Identity.Application.Services
 {
     public class MailService : IMailService
     {
-        private readonly MailSettingsDto _mailSettings;
+        private readonly MailSettings _mailSettings;
 
-        public MailService(IOptions<MailSettingsDto> mailSettings)
+        public MailService(IOptions<MailSettings> mailSettings)
         {
             _mailSettings = mailSettings.Value;
         }

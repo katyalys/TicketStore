@@ -117,7 +117,7 @@ namespace Catalog.Infrastructure.Services
             ticket.StatusId = (int)StatusTypes.Free + 1;
             ticket.CustomerId = null;
             _unitOfWork.Repository<Ticket>().Update(ticket);
-            var updated = await _unitOfWork.Complete();
+            var updated = await _unitOfWork.CompleteAsync();
 
             if (updated < 0)
             {

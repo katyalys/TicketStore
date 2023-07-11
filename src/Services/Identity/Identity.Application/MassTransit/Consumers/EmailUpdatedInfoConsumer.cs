@@ -1,4 +1,4 @@
-﻿using Identity.Application.Dtos.MailDto;
+﻿using Identity.Application.Dtos.Mail;
 using Identity.Application.Interfaces;
 using Identity.Infrastructure.Interfaces;
 using MassTransit;

@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Dtos.MailDto
+﻿namespace Identity.Application.Dtos.Mail
 {
     public class MailDataDto
     {

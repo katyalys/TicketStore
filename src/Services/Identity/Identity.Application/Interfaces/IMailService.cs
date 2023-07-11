@@ -1,4 +1,4 @@
-﻿using Identity.Application.Dtos.MailDto;
+﻿using Identity.Application.Dtos.Mail;
 
 namespace Identity.Application.Interfaces
 {

@@ -85,7 +85,7 @@ namespace Catalog.Infrastructure.Services
         {
             var concert = _mapper.Map<Concert>(fullInfoConcertModel);
             await _unitOfWork.Repository<Concert>().Add(concert);
-            var added = await _unitOfWork.Complete();
+            var added = await _unitOfWork.CompleteAsync();
 
             if (added < 0)
             {
@@ -109,7 +109,7 @@ namespace Catalog.Infrastructure.Services
 
             var concertToDelete = await _unitOfWork.Repository<Concert>().GetByIdAsync(concertId);
             _unitOfWork.Repository<Concert>().Delete(concertToDelete);
-            var deleted = await _unitOfWork.Complete();
+            var deleted = await _unitOfWork.CompleteAsync();
 
             if (deleted < 0)
             {
@@ -127,7 +127,7 @@ namespace Catalog.Infrastructure.Services
             var previousPlaceId = concert.PlaceId;
             var updatedConcert = _mapper.Map(concertFullInfo, concert);
             _unitOfWork.Repository<Concert>().Update(updatedConcert);
-            var updated = await _unitOfWork.Complete();
+            var updated = await _unitOfWork.CompleteAsync();
 
             if (updated < 0)
             {

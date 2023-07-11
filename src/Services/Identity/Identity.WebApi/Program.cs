@@ -11,7 +11,7 @@ using IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Identity.Application.Dtos;
-using Identity.Application.Dtos.MailDto;
+using Identity.Application.Dtos.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +34,7 @@ builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));
 builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
-builder.Services.Configure<MailSettingsDto>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddMassTransitConfig(configuration);
 

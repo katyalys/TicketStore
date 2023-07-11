@@ -21,7 +21,7 @@ namespace Catalog.Infrastructure.Services
             ticket.StatusId = (int)StatusTypes.Book + 1;
             ticket.CustomerId = userId;
             _unitOfWork.Repository<Ticket>().Update(ticket);
-            await _unitOfWork.Complete();
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task UpdateDeletedConcerts()
@@ -36,7 +36,7 @@ namespace Catalog.Infrastructure.Services
                 concert.Tickets.ForEach(ticket => ticket.IsDeleted = true);
             }
 
-            await _unitOfWork.Complete();
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task DeleteBasket(string userId)
@@ -55,7 +55,7 @@ namespace Catalog.Infrastructure.Services
                 }
             }
 
-            await _unitOfWork.Complete();
+            await _unitOfWork.CompleteAsync();
         }
 
     }

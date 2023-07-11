@@ -38,7 +38,7 @@ namespace Catalog.Application.MassTransit.Consumers
                 _unitOfWork.Repository<Ticket>().Update(ticket);
             }
 
-            await _unitOfWork.Complete();
+            await _unitOfWork.CompleteAsync();
 
             if (context.Message.TicketStatus == MessageStatus.Paid && context.Message.UserId != null)
             {

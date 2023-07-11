@@ -69,7 +69,7 @@ namespace Catalog.Infrastructure.Services
             foreach (var ticket in tickets)
             {
                 await _unitOfWork.Repository<Ticket>().Add(ticket);
-                var added = await _unitOfWork.Complete();
+                var added = await _unitOfWork.CompleteAsync();
                 if (added < 0)
                 {
                     return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be added to db");
@@ -90,7 +90,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Ticket>().DeleteRange(tickets);
-            var deleted = await _unitOfWork.Complete();
+            var deleted = await _unitOfWork.CompleteAsync();
 
             if (deleted < 0)
             {
