@@ -11,8 +11,12 @@ using IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Identity.Application.Dtos;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LoggingExtension.ConfigureLogging();
+builder.Host.UseSerilog();
 
 var configuration = builder.Configuration;
 var environment = builder.Environment;

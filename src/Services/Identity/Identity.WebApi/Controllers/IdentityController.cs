@@ -7,8 +7,6 @@ using AutoMapper;
 using Identity.Application.Interfaces;
 using Identity.Infrastructure.Attributes;
 using Identity.WebApi.Helpers;
-using Identity.Application.Services;
-using Identity.Domain.ErrorModels;
 
 namespace Identity.WebApi.Controllers
 {
@@ -33,7 +31,7 @@ namespace Identity.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteUserById(string userId)
         {
-            var result = await _userService.DeleteUser(userId);
+            var result = await _userService.DeleteUserAsync(userId);
 
             return ErrorHandle.HandleResult(result);
         }
@@ -45,7 +43,7 @@ namespace Identity.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ListAllUsers()
         {
-            var users = await _userService.GetAllUsers();
+            var users = await _userService.GetAllUsersAsync();
 
             return ErrorHandle.HandleResult(users);
         }
@@ -57,7 +55,7 @@ namespace Identity.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ChangeUserRole(string id, string newRole)
         {
-            var user = await _userService.ChangeRole(id, newRole);
+            var user = await _userService.ChangeRoleAsync(id, newRole);
 
             return ErrorHandle.HandleResult(user);
         }
@@ -69,7 +67,7 @@ namespace Identity.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById(string id)
         {
-            var user = await _userService.GetById(id);
+            var user = await _userService.GetByIdAsync(id);
 
             return ErrorHandle.HandleResult(user);
         }
@@ -77,7 +75,7 @@ namespace Identity.WebApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
-            var result = await _userService.RegisterCustomer(registerUser);
+            var result = await _userService.RegisterCustomerAsync(registerUser);
 
             return ErrorHandle.HandleResult(result);
         }
@@ -85,7 +83,7 @@ namespace Identity.WebApi.Controllers
         [HttpPost("Token")]
         public async Task<IActionResult> Login(LoginUser loginUser)
         {
-            var tokenRes = await _tokenService.GetToken(loginUser);
+            var tokenRes = await _tokenService.GetTokenAsync(loginUser);
 
             return ErrorHandle.HandleResult(tokenRes);
         }
