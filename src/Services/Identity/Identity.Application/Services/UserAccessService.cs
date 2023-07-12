@@ -18,7 +18,7 @@ namespace Identity.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> CheckIfExists(IdentityUser entity)
+        public async Task<bool> CheckIfExistsAsync(IdentityUser entity)
         {
             var isExist = await _identityUser.Users.AnyAsync(x => x.Email == entity.Email || x.UserName == entity.UserName);
            
@@ -51,7 +51,7 @@ namespace Identity.Application.Services
            return await _identityUser.FindByIdAsync(id);
         }
 
-        public async Task<IList<string>> GetUserRole(string userId)
+        public async Task<IList<string>> GetUserRoleAsync(string userId)
         {
             var user = await GetByIdAsync(userId);
 

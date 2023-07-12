@@ -10,8 +10,8 @@ namespace Identity.Infrastructure.Interfaces
 		Task<List<IdentityResult>> AddAsync(IdentityUser entity, string password);
 		Task<(IdentityUser user, string newRole)> UpdateUserRoleAsync(IdentityUser user, string newRole);
 		Task DeleteAsync(IdentityUser entity);
-		Task<bool> CheckIfExists(IdentityUser entity);
+		Task<bool> CheckIfExistsAsync(IdentityUser entity);
 		Task AddClaimssAsync(IdentityUser entity);
-		Task<IList<string>> GetUserRole(string userId);
+		Task<IList<string>> GetUserRoleAsync(string userId);
 	}
 }

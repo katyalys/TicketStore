@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Order.Application.Dtos;
 using Order.Domain.Entities;
 using Order.Domain.ErrorModels;
@@ -15,14 +16,17 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly ILogger<OrderHistoryQueryHandler> _logger;
 
         public OrderHistoryQueryHandler(IMapper mapper,
              OrderProtoService.OrderProtoServiceClient client,
-             IGenericRepository<OrderTicket> orderRepository)
+             IGenericRepository<OrderTicket> orderRepository,
+             ILogger<OrderHistoryQueryHandler> logger)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _client = client;
+            _logger = logger;
         }
 
         public async Task<Result<List<FullOrderDto>>> Handle(OrderHistoryQuery request, CancellationToken cancellationToken)
@@ -33,6 +37,8 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
 
             if (!orderInfoList.Any())
             {
+                _logger.LogWarning("No orders found for CustomerId {CustomerId}", request.CustomerId);
+
                 return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.ForbiddenAction, "Unauthorized access");
             }
 
@@ -45,6 +51,8 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
 
                 if (ticketOrderDto == null)
                 {
+                    _logger.LogWarning("No tickets found for order with Id {OrderId}", orderInfo.Id);
+
                     return ResultReturnService.CreateErrorResult<List<FullOrderDto>>(ErrorStatusCode.NotFound, "No tickets were found");
                 }
 
@@ -61,6 +69,8 @@ namespace Order.Application.Features.Orders.Queries.OrderHistory
                 fullOrderDto.TicketDetails = ticketInfoList;
                 fullOrderDtoList.Add(fullOrderDto);
             }
+
+            _logger.LogInformation("Order history query completed successfully. Total orders: {OrderCount}", fullOrderDtoList.Count);
 
             return new Result<List<FullOrderDto>>()
             {

@@ -1,22 +1,14 @@
-﻿using StackExchange.Redis;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Catalog.Domain.Interfaces
+﻿namespace Catalog.Domain.Interfaces
 {
     public interface IRedisRepository
     {
         void ExpiredKeyNotification();
-        Task<bool> Remove(string key);
-        Task<bool> Exists(string key, TimeSpan expiresAt);
-        Task<bool> Add<T>(string key, T value, TimeSpan expiresAt) where T : class;
-        Task<bool> Update<T>(string key, T value, TimeSpan expiresAt) where T : class;
-        Task<T> Get<T>(string key) where T : class;
+        Task<bool> RemoveAsync(string key);
+        Task<bool> ExistsAsync(string key, TimeSpan expiresAt);
+        Task<bool> AddAsync<T>(string key, T value, TimeSpan expiresAt) where T : class;
+        Task<bool> UpdateAsync<T>(string key, T value, TimeSpan expiresAt) where T : class;
+        Task<T> GetAsync<T>(string key) where T : class;
         TimeSpan? TimeToExpire(string key);
-        Task<Dictionary<string, T>> GetList<T>() where T : class;
+        Task<Dictionary<string, T>> GetListAsync<T>() where T : class;
     }
 }

@@ -1,30 +1,30 @@
 ﻿using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
 using Identity.Application.Dtos;
-using Identity.Application.Services;
 using Identity.Domain.ErrorModels;
 using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityServer
 {
     public class IdentityTokenService: ITokenService
     {
-
         private readonly IMapper _mapper;
-        private IValidator<LoginUser> _validator;
         private readonly string _url;
+        private readonly ILogger<IdentityTokenService> _logger;
 
-        public IdentityTokenService(IMapper mapper, IValidator<LoginUser> validator, IConfiguration configuration)
+        public IdentityTokenService(IMapper mapper, IConfiguration configuration,
+            ILogger<IdentityTokenService> logger)
         {
             _mapper = mapper;
-            _validator = validator;
             _url = configuration["ID4:Authority"];
+            _logger = logger;
         }
 
-        public async Task<Result<TokenViewModel>> GetToken(LoginUser loginUser)
+        public async Task<Result<TokenViewModel>> GetTokenAsync(LoginUser loginUser)
         {
+            _logger.LogInformation("Getting access token");
+
             var client = new HttpClient();
             var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
@@ -34,6 +34,7 @@ namespace IdentityServer
 
             if (disco.IsError)
             {
+                _logger.LogError(disco.Error, "Error getting discovery document");
                 throw disco.Exception;
             }
 
@@ -49,12 +50,14 @@ namespace IdentityServer
 
             var token = await client.RequestPasswordTokenAsync(passwordTokenRequest);
             var tokenRes = _mapper.Map<TokenViewModel>(token);
+            _logger.LogInformation("Access token retrieved successfully");
 
             return new Result<TokenViewModel>() { Value = tokenRes };
         }
 
         public async Task<TokenViewModel> GetRefreshedTokenPairAsync(string clientId, string clientSecret, string refreshToken)
         {
+            _logger.LogInformation("Refreshing token pair");
             using var client = new HttpClient();
 
             var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
@@ -62,8 +65,10 @@ namespace IdentityServer
                 Address = _url,
                 Policy = new DiscoveryPolicy { RequireHttps = false, }
             });
+
             if (disco.IsError)
             {
+                _logger.LogError(disco.Error, "Error getting discovery document");
                 throw disco.Exception;
             }
 
@@ -77,10 +82,12 @@ namespace IdentityServer
 
             if (refreshTokenResponse.IsError)
             {
+                _logger.LogError("Error refreshing token pair");
                 return null;
             }
 
             var tokenRes = _mapper.Map<TokenViewModel>(refreshTokenResponse);
+            _logger.LogInformation("Token pair refreshed successfully");
 
             return tokenRes;
         }

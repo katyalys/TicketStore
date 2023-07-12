@@ -6,8 +6,13 @@ using Order.WebApi.Extensions;
 using System.Reflection;
 using OrderClientGrpc;
 using System.Net;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configuration = builder.Configuration;
+LoggingExtension.ConfigureLogging();
+builder.Host.UseSerilog();
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 var assembly = Assembly.GetExecutingAssembly();
@@ -41,6 +46,7 @@ if (app.Environment.IsDevelopment())
 }
 
 await app.UseDatabaseSeed();
+app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();

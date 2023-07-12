@@ -19,7 +19,7 @@ namespace Catalog.WebApi.Controllers
         [HttpGet("ListFreeTickets")]
         public async Task<IActionResult> ListFreeTickets(TicketSpecParam ticketsSpec)
         {
-            var freeTickets = await _ticketService.GetFreeTickets(ticketsSpec);
+            var freeTickets = await _ticketService.GetFreeTicketsAsync(ticketsSpec);
 
             return ErrorHandle.HandleResult(freeTickets);
         }
@@ -28,7 +28,7 @@ namespace Catalog.WebApi.Controllers
         [HttpGet("ListAllTickets")]
         public async Task<IActionResult> ListAllTickets(int concertId, bool isDescOredr)
         {
-            var allTickets = await _ticketService.GetAllTickets(concertId, isDescOredr);
+            var allTickets = await _ticketService.GetAllTicketsAsync(concertId, isDescOredr);
 
             return ErrorHandle.HandleResult(allTickets);
         }
@@ -46,7 +46,7 @@ namespace Catalog.WebApi.Controllers
         [HttpDelete("DeleteTickets")]
         public async Task<IActionResult> DeleteTickets(List<int> ticketsIds, int concertId)
         {
-            var result = await _ticketService.DeleteTickets(ticketsIds, concertId);
+            var result = await _ticketService.DeleteTicketsAsync(ticketsIds, concertId);
 
             return ErrorHandle.HandleResult(result);
         }

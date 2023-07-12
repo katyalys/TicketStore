@@ -55,7 +55,7 @@ namespace Catalog.WebApi.Controllers
         public async Task<IActionResult> DeleteTicketFromBasketById(int ticketId)
         {
             _authUserDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var updatedBasket = await _basketService.DeleteFromBasketTicket(ticketId, _authUserDto.UserId);
+            var updatedBasket = await _basketService.DeleteFromBasketTicketAsync(ticketId, _authUserDto.UserId);
 
             return ErrorHandle.HandleResult(updatedBasket);
         }
@@ -64,7 +64,7 @@ namespace Catalog.WebApi.Controllers
         [HttpGet("ListAllBaskets")]
         public async Task<IActionResult> ListAllBaskets()
         {
-            var baskets = await _basketService.GetAllBaskets();
+            var baskets = await _basketService.GetAllBasketsAsync();
 
             return ErrorHandle.HandleResult(baskets);
         }

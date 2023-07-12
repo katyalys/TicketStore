@@ -5,10 +5,10 @@ namespace Identity.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<Result> RegisterCustomer(RegisterUser registerUser);
-        Task<Result> DeleteUser(string id);
-        Task<Result<UserWithRoles>> ChangeRole(string id, string role);
-        Task<Result<List<UserWithRoles>>> GetAllUsers();
-        Task<Result<UserWithRoles>> GetById(string id);
+        Task<Result> RegisterCustomerAsync(RegisterUser registerUser);
+        Task<Result> DeleteUserAsync(string id);
+        Task<Result<UserWithRoles>> ChangeRoleAsync(string id, string role);
+        Task<Result<List<UserWithRoles>>> GetAllUsersAsync();
+        Task<Result<UserWithRoles>> GetByIdAsync(string id);
     }
 }
