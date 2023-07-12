@@ -34,7 +34,7 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 
             if (ticketOrderDto == null)
             {
-                _logger.LogError("No tickets to checkout for CustomerId {CustomerId}", request.CustomerId);
+                _logger.LogWarning("No tickets to checkout for CustomerId {CustomerId}", request.CustomerId);
 
                 return ResultReturnService.CreateErrorResult<int>(ErrorStatusCode.NotFound,
                     "No tickets to checkout");

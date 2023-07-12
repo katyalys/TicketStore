@@ -37,7 +37,6 @@ namespace Catalog.Infrastructure.Services
             }
 
             var mappedConcerts = _mapper.Map<IReadOnlyList<ConcertsShortViewDto>>(concerts);
-
             _logger.LogInformation("Current concerts were successfully received. Count: {Count}", mappedConcerts.Count);
 
             return new Result<IReadOnlyList<ConcertsShortViewDto>>()
@@ -60,7 +59,6 @@ namespace Catalog.Infrastructure.Services
             }
 
             var mappedConcert = _mapper.Map<FullInfoConcertDto>(concert);
-
             _logger.LogInformation("Concert with id {ConcertId} was successfully recieved", id);
 
             return new Result<FullInfoConcertDto>()
@@ -83,7 +81,6 @@ namespace Catalog.Infrastructure.Services
             }
 
             var mappedConcerts = _mapper.Map<IReadOnlyList<ConcertsShortViewDto>>(concerts);
-
             _logger.LogInformation("Concerts with search term {SearchTerm} were successfully recieved", searchTerm);
 
             return new Result<IReadOnlyList<ConcertsShortViewDto>>()
@@ -176,7 +173,6 @@ namespace Catalog.Infrastructure.Services
             }
 
             var mappedConcerts = _mapper.Map<IReadOnlyList<ConcertsShortViewDto>>(allConcerts);
-
             _logger.LogInformation("All concerts were successfully recieved");
 
             return new Result<IReadOnlyList<ConcertsShortViewDto>>()

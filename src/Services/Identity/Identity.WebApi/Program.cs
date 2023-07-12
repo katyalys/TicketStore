@@ -42,6 +42,7 @@ builder.Services.AddLocalApiAuthentication();
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
 await app.UseDatabaseSeed();
 
 // Configure the HTTP request pipeline.
