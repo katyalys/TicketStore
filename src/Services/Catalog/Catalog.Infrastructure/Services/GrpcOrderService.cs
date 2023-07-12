@@ -31,6 +31,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             var ticketOrderModel = _mapper.Map<TicketOrderDto>(basket);
+            ticketOrderModel.UserId = ticketsRequest.UserId;
 
             return ticketOrderModel;
         }

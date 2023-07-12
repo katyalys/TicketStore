@@ -16,7 +16,7 @@ namespace Order.Application.Features.Orders.Queries.AllOrders
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
 
-        public AllOrdersQueryHandler(IMapper mapper, 
+        public AllOrdersQueryHandler(IMapper mapper,
             IGenericRepository<OrderTicket> orderRepository,
             OrderProtoService.OrderProtoServiceClient client)
         {

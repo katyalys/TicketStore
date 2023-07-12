@@ -92,7 +92,7 @@ namespace Catalog.Infrastructure.Services
             sectorAddDto.Price = TicketPriceCalculator.CalculatePrice(sectorAddDto.Price, enumName, place.City);
             var sectorsDto = _mapper.Map<Sector>(sectorAddDto);
             await _unitOfWork.Repository<Sector>().Add(sectorsDto);
-            var added = await _unitOfWork.Complete();
+            var added = await _unitOfWork.CompleteAsync();
             if (added < 0)
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be added to db");
@@ -117,7 +117,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Sector>().Delete(sector);
-            var deleted = await _unitOfWork.Complete();
+            var deleted = await _unitOfWork.CompleteAsync();
             if (deleted < 0)
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, "Value cant be deletd from db");
@@ -159,7 +159,7 @@ namespace Catalog.Infrastructure.Services
 
             var updatedSector = _mapper.Map(sectorFullInffoDto, sector);
             _unitOfWork.Repository<Sector>().Update(updatedSector);
-            var updated = await _unitOfWork.Complete();
+            var updated = await _unitOfWork.CompleteAsync();
 
             if (updated < 0)
             {

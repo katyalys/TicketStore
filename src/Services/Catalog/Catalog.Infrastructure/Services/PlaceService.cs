@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Catalog.Application.Dtos;
 using Catalog.Application.Dtos.PlaceDtos;
 using Catalog.Application.Interfaces;
 using Catalog.Domain.Entities;
@@ -7,11 +6,6 @@ using Catalog.Domain.ErrorModels;
 using Catalog.Domain.Interfaces;
 using Catalog.Domain.Specification.PlacesSpecifications;
 using Catalog.Domain.Specification.SectorsSpecifications;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Catalog.Infrastructure.Services
 {
@@ -31,6 +25,7 @@ namespace Catalog.Infrastructure.Services
             var place = _mapper.Map<Place>(placeDto);
             var spec = new PlaceSpec(place);
             var placeExists = await _unitOfWork.Repository<Place>().GetEntityWithSpec(spec);
+
             if (placeExists != null)
             {
                 return ResultReturnService.CreateErrorResult<Result>
@@ -38,7 +33,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             await _unitOfWork.Repository<Place>().Add(place);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if (result < 0)
             {
@@ -52,6 +47,7 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result> DeletePlaceAsync(int placeId)
         {
             var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
+
             if (place == null)
             {
                 return ResultReturnService.CreateErrorResult<Result>
@@ -76,7 +72,7 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Place>().Delete(place);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if (result < 0)
             {
@@ -99,7 +95,8 @@ namespace Catalog.Infrastructure.Services
             }
 
             _unitOfWork.Repository<Place>().Update(updatedPlace);
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
+
             if (result < 0)
             {
                 return ResultReturnService.CreateErrorResult
@@ -112,6 +109,7 @@ namespace Catalog.Infrastructure.Services
         public async Task<Result<PlaceDto>> GetPlace(int placeId)
         {
             var place = await _unitOfWork.Repository<Place>().GetByIdAsync(placeId);
+
             if (place == null)
             {
                 return ResultReturnService.CreateErrorResult<PlaceDto>

@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using AutoMapper;
+using MassTransit;
 using Order.Application.Features.Orders.Commands.CancelTicket;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
@@ -8,6 +10,8 @@ using Order.Domain.Specification.TicketSpecifications;
 using static Order.Application.Constants.Constants;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
+using Shared.EventBus.Messages.Events;
+using Shared.EventBus.Messages.Enums;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -15,12 +19,18 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
     {
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository, 
-            OrderProtoService.OrderProtoServiceClient client)
+        public CancelTicketCommandHandler(IGenericRepository<Ticket> ticketRepository,
+            IMapper mapper,
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _ticketRepository = ticketRepository;
             _client = client;
+            _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result> Handle(CancelTicketCommand request, CancellationToken cancellationToken)
@@ -62,6 +72,10 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
                 _ticketRepository.Update(ticket);
                 await _ticketRepository.SaveAsync();
             }
+
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
+            eventMessage.TicketStatus = MessageStatus.Canceled;
+            await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();
         }

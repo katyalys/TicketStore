@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MassTransit;
+using MediatR;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 using Order.Domain.ErrorModels;
@@ -7,6 +9,8 @@ using Order.Domain.Specification.TicketSpecifications;
 using Order.Infrastructure.Services;
 using static Order.Application.Constants.Constants;
 using OrderClientGrpc;
+using Shared.EventBus.Messages.Events;
+using Shared.EventBus.Messages.Enums;
 
 namespace Order.Application.Features.Orders.Commands.CancelOrder
 {
@@ -15,13 +19,19 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public CancelOrderCommandHandler(IGenericRepository<OrderTicket> orderRepository,
-            IGenericRepository<Ticket> ticketRepository, 
-            OrderProtoService.OrderProtoServiceClient client)
+            IMapper mapper,
+            IGenericRepository<Ticket> ticketRepository,
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
             _ticketRepository = ticketRepository;
+            _publishEndpoint = publishEndpoint;
+            _mapper = mapper;
             _client = client;
         }
 
@@ -31,7 +41,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (order.CustomerId != request.CustomerId || order == null)
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction, 
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.WrongAction,
                     "Invalid input values");
             }
 
@@ -40,7 +50,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
             if (!tickets.Any())
             {
-                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                     "No tickets to checkout");
             }
 
@@ -60,7 +70,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
 
                     if (ticket == null)
                     {
-                        return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                        return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                             "Cant cancel ticket or tickets have been already canceled");
                     }
 
@@ -70,7 +80,7 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
                 }
                 else
                 {
-                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, 
+                    return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound,
                         "Tickets are canceled 10 days before the show max");
                 }
             }
@@ -78,6 +88,10 @@ namespace Order.Application.Features.Orders.Commands.CancelOrder
             order.OrderStatus = Status.Canceled;
             _orderRepository.Update(order);
             await _orderRepository.SaveAsync();
+
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(grpcRequest);
+            eventMessage.TicketStatus = MessageStatus.Canceled;
+            await _publishEndpoint.Publish(eventMessage);
 
             return ResultReturnService.CreateSuccessResult();
         }

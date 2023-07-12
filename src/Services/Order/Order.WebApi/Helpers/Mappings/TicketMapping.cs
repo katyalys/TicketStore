@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Order.Application.Dtos;
+using Order.Domain.Entities;
+using OrderClientGrpc;
+using Shared.EventBus.Messages.Events;
 
 namespace Order.WebApi.Helpers.Mappings
 {
@@ -22,6 +25,15 @@ namespace Order.WebApi.Helpers.Mappings
 
             CreateMap<DateTime, Timestamp>().ConvertUsing(src => Timestamp.FromDateTime(DateTime.SpecifyKind(src, DateTimeKind.Utc)));
             CreateMap<Timestamp, DateTime>().ConvertUsing(src => src.ToDateTime());
+
+            CreateMap<TicketOrderDto, GetTicketStatusEvent>()
+                    .ForMember(dest => dest.TicketBasketId, opt => opt.MapFrom(src => src.TicketIds))
+                    .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                    .ReverseMap();
+
+            CreateMap<GetTicketDateRequest, GetTicketStatusEvent>()
+                   .ForMember(dest => dest.TicketBasketId, opt => opt.MapFrom(src => src.TicketId))
+                   .ReverseMap();
         }
     }
 }

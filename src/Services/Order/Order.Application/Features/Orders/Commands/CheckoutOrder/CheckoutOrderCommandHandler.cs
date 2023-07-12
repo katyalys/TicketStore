@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MassTransit;
 using MediatR;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
@@ -6,6 +7,8 @@ using Order.Domain.ErrorModels;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Services;
 using OrderClientGrpc;
+using Shared.EventBus.Messages.Enums;
+using Shared.EventBus.Messages.Events;
 
 namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 {
@@ -14,14 +17,17 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
         private readonly IMapper _mapper;
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly OrderProtoService.OrderProtoServiceClient _client;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public CheckoutOrderCommandHandler(IMapper mapper, 
+        public CheckoutOrderCommandHandler(IMapper mapper,
             IGenericRepository<OrderTicket> orderRepository,
-            OrderProtoService.OrderProtoServiceClient client)
+            OrderProtoService.OrderProtoServiceClient client,
+            IPublishEndpoint publishEndpoint)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
-            _client = client ;
+            _client = client;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<int>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
@@ -47,6 +53,10 @@ namespace Order.Application.Features.Orders.Commands.CheckoutOrder
 
             await _orderRepository.AddAsync(order);
             await _orderRepository.SaveAsync();
+
+            var eventMessage = _mapper.Map<GetTicketStatusEvent>(ticketOrderDto);
+            eventMessage.TicketStatus = MessageStatus.Paid;
+            await _publishEndpoint.Publish(eventMessage);
 
             return new Result<int>()
             {

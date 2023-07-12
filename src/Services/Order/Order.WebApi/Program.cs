@@ -9,7 +9,8 @@ using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+var configuration = builder.Configuration;
+var connectionString = configuration.GetConnectionString("ConnectionString");
 var assembly = Assembly.GetExecutingAssembly();
 
 HttpClient myHttpClient = new HttpClient
@@ -17,6 +18,7 @@ HttpClient myHttpClient = new HttpClient
     DefaultRequestVersion = HttpVersion.Version20,
     DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower
 };
+
 
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -31,6 +33,7 @@ builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
 {
     o.Address = new Uri(builder.Configuration["GrpcServer:Address"]);
 });
+builder.Services.AddMassTransitConfig(configuration);
 
 var app = builder.Build();
 

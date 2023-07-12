@@ -11,13 +11,12 @@ using IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Identity.Application.Dtos;
+using Identity.Application.Dtos.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 var environment = builder.Environment;
-
-// Add services to the container.
 
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 builder.Services.AddDbContext<IdentityDbContext>(options =>
@@ -35,6 +34,9 @@ builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));
 builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddMassTransitConfig(configuration);
 
 var app = builder.Build();
 
