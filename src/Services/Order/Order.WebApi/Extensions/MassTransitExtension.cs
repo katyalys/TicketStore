@@ -1,5 +1,7 @@
 ﻿using MassTransit;
+using Shared.EventBus.Messages.Constants;
 using Shared.MassTransit.Filters;
+using System.Reflection;
 
 namespace Order.WebApi.Extensions
 {

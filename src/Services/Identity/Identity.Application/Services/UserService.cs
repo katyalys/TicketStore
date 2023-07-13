@@ -1,14 +1,9 @@
 ﻿using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
 using Identity.Application.Dtos;
 using Identity.Application.Interfaces;
 using Identity.Domain.ErrorModels;
 using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Identity.Application.Services;
-using Microsoft.AspNetCore.SignalR;
-using Identity.Application.SignalR;
 
 namespace Identity.Application.Services
 {
@@ -17,15 +12,15 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserAccessService _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private IHubContext<DeletedUserHub> _userHub;
+        private readonly DeleteOrdersService _deleteOrdersService;
 
         public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager,
-            IHubContext<DeletedUserHub> userHub)
+             DeleteOrdersService deleteOrdersService)
         {
             _identityUser = identityUser;
             _mapper = mapper;
             _roleManager = roleManager;
-            _userHub = userHub;
+            _deleteOrdersService = deleteOrdersService; 
         }
 
         public async Task<Result> RegisterCustomer(RegisterUser registerUser)
@@ -66,7 +61,7 @@ namespace Identity.Application.Services
             }
 
             await _identityUser.DeleteAsync(user);
-            await _userHub.Clients.All.SendAsync("DeleteOrdersByUserId", id);
+            await _deleteOrdersService.InvokeOrderHubMethod(id);
 
             return ResultReturnService.CreateSuccessResult();
         }

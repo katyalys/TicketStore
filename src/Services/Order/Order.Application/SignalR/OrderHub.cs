@@ -4,14 +4,14 @@ using Order.Domain.Interfaces;
 using Order.Domain.Specification.OrderSpecifications;
 using Order.Domain.Specification.TicketSpecifications;
 
-namespace Order.Infrastructure.Services
+namespace Order.Application.SignalR
 {
-    public class DeleteOrdersService : Hub
+    public class OrderHub : Hub
     {
         private readonly IGenericRepository<OrderTicket> _orderRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
 
-        public DeleteOrdersService(IGenericRepository<OrderTicket> orderRepository,
+        public OrderHub(IGenericRepository<OrderTicket> orderRepository,
             IGenericRepository<Ticket> ticketRepository)
         {
             _orderRepository = orderRepository;
@@ -23,11 +23,13 @@ namespace Order.Infrastructure.Services
             var spec = new OrderByCustomerSpec(userId);
             var orders = await _orderRepository.ListAsync(spec);
             _orderRepository.DeleteRange(orders);
+            await _orderRepository.SaveAsync();
 
             var orderIds = orders.Select(o => o.Id).ToList();
             var ticketSpec = new TicketsByOrdersListSpec(orderIds);
             var tickets = await _ticketRepository.ListAsync(ticketSpec);
             _ticketRepository.DeleteRange(tickets);
+            await _orderRepository.SaveAsync();
         }
     }
 }

@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Identity.Application.Dtos;
 using Identity.Application.Dtos.Mail;
-using Identity.Application.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,12 +32,13 @@ builder.Services.AddScoped(typeof(IUserAccessService), typeof(UserAccessService)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));
+builder.Services.AddScoped(typeof(DeleteOrdersService));
+
 builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddMassTransitConfig(configuration);
-builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -56,6 +56,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<DeletedUserHub>("/deletedUserHub");
 
 app.Run();
