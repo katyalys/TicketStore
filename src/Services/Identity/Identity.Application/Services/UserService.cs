@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
 using Identity.Application.Dtos;
 using Identity.Application.Interfaces;
 using Identity.Domain.ErrorModels;
 using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Identity.Application.Services;
 
 namespace Identity.Application.Services
 {
@@ -15,11 +12,15 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserAccessService _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
+        private readonly DeleteOrdersService _deleteOrdersService;
+
+        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager,
+             DeleteOrdersService deleteOrdersService)
         {
             _identityUser = identityUser;
             _mapper = mapper;
             _roleManager = roleManager;
+            _deleteOrdersService = deleteOrdersService; 
         }
 
         public async Task<Result> RegisterCustomer(RegisterUser registerUser)
@@ -58,7 +59,9 @@ namespace Identity.Application.Services
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
+
             await _identityUser.DeleteAsync(user);
+            await _deleteOrdersService.InvokeOrderHubMethod(id);
 
             return ResultReturnService.CreateSuccessResult();
         }

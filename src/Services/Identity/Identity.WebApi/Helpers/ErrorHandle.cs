@@ -1,10 +1,8 @@
 ﻿using Identity.Domain.ErrorModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.WebApi.Helpers
 {
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-
     public static class ErrorHandle
     {
         public static IActionResult HandleResult(Result result)

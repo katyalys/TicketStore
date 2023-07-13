@@ -20,7 +20,8 @@ namespace Order.Infrastructure.Migrations
                     CustomerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderStatus = table.Column<int>(type: "int", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,14 +35,9 @@ namespace Order.Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TicketBasketId = table.Column<int>(type: "int", nullable: false),
-                    Sector = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Row = table.Column<int>(type: "int", nullable: true),
-                    Seat = table.Column<int>(type: "int", nullable: true),
-                    Place = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Concert = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TicketStatus = table.Column<int>(type: "int", nullable: true),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    OrderTicketId = table.Column<int>(type: "int", nullable: true)
+                    OrderTicketId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,7 +46,8 @@ namespace Order.Infrastructure.Migrations
                         name: "FK_Tickets_Orders_OrderTicketId",
                         column: x => x.OrderTicketId,
                         principalTable: "Orders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

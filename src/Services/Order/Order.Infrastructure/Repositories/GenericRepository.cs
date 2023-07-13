@@ -20,6 +20,15 @@ namespace Order.Infrastructure.Repositories
             await _context.Set<T>().AddAsync(entity);
         }
 
+        public void DeleteRange(IReadOnlyList<T> entities)
+        {
+            _context.Set<T>().UpdateRange(entities.Select(e =>
+            {
+                e.IsDeleted = true;
+                return e;
+            }));
+        }
+
         public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);

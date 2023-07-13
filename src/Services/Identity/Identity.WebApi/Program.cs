@@ -32,6 +32,8 @@ builder.Services.AddScoped(typeof(IUserAccessService), typeof(UserAccessService)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, IdentityTokenService>();
 builder.Services.AddScoped(typeof(IdentityTokenService));
+builder.Services.AddScoped(typeof(DeleteOrdersService));
+
 builder.Services.AddAutoMapper(typeof(AddMappingProfile));
 builder.Services.AddLocalApiAuthentication();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));

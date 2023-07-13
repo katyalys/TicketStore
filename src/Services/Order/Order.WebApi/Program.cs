@@ -6,6 +6,8 @@ using Order.WebApi.Extensions;
 using System.Reflection;
 using OrderClientGrpc;
 using System.Net;
+using Order.Infrastructure.Services;
+using Order.Application.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +20,6 @@ HttpClient myHttpClient = new HttpClient
     DefaultRequestVersion = HttpVersion.Version20,
     DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower
 };
-
 
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -34,6 +35,7 @@ builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>(o =>
     o.Address = new Uri(builder.Configuration["GrpcServer:Address"]);
 });
 builder.Services.AddMassTransitConfig(configuration);
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -49,5 +51,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<OrderHub>("/orderHub");
 
 app.Run();

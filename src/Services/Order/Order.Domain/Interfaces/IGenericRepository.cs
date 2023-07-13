@@ -12,5 +12,6 @@ namespace Order.Domain.Interfaces
         Task SaveAsync();
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
         Task<T> GetEntityWithSpec(ISpecification<T> spec);
+        void DeleteRange(IReadOnlyList<T> entities);
     }
 }

@@ -12,7 +12,7 @@ using Order.Infrastructure.Data;
 namespace Order.Infrastructure.Migrations
 {
     [DbContext(typeof(OrderContext))]
-    [Migration("20230628103339_initial-migration")]
+    [Migration("20230713160640_initial-migration")]
     partial class initialmigration
     {
         /// <inheritdoc />
@@ -37,6 +37,9 @@ namespace Order.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -59,26 +62,11 @@ namespace Order.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Concert")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("OrderTicketId")
+                    b.Property<int>("OrderTicketId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Place")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Row")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Seat")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Sector")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TicketBasketId")
                         .HasColumnType("int");
@@ -97,7 +85,9 @@ namespace Order.Infrastructure.Migrations
                 {
                     b.HasOne("Order.Domain.Entities.OrderTicket", "Order")
                         .WithMany("Tickets")
-                        .HasForeignKey("OrderTicketId");
+                        .HasForeignKey("OrderTicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });
