@@ -6,22 +6,23 @@ namespace Identity.Application.Services
     public class DeleteOrdersService
     {
         private readonly string _url;
+        private readonly HubConnection _hubConnection;
 
         public DeleteOrdersService(IConfiguration configuration)
         {
             _url = configuration["SignalR:Address"];
+
+            var hubConnectionBuilder = new HubConnectionBuilder();
+            _hubConnection = hubConnectionBuilder.WithUrl(_url)
+                .Build();
         }
 
         public async Task InvokeOrderHubMethod(string userId)
         {
-            var hubConnectionBuilder = new HubConnectionBuilder();
-            var hubConnection = hubConnectionBuilder.WithUrl(_url)
-                .Build();
-
             try
             {
-                await hubConnection.StartAsync();
-                await hubConnection.InvokeAsync("DeleteOrdersByUserId", userId);
+                await _hubConnection.StartAsync();
+                await _hubConnection.InvokeAsync(Constants.DeleteOrderMethod, userId);
             }
             catch (Exception ex)
             {
@@ -30,7 +31,7 @@ namespace Identity.Application.Services
             }
             finally
             {
-                await hubConnection.StopAsync();
+                await _hubConnection.StopAsync();
             }
         }
     }

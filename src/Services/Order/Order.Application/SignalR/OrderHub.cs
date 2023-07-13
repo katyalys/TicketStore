@@ -22,14 +22,18 @@ namespace Order.Application.SignalR
         {
             var spec = new OrderByCustomerSpec(userId);
             var orders = await _orderRepository.ListAsync(spec);
-            _orderRepository.DeleteRange(orders);
-            await _orderRepository.SaveAsync();
 
-            var orderIds = orders.Select(o => o.Id).ToList();
-            var ticketSpec = new TicketsByOrdersListSpec(orderIds);
-            var tickets = await _ticketRepository.ListAsync(ticketSpec);
-            _ticketRepository.DeleteRange(tickets);
-            await _orderRepository.SaveAsync();
+            if (orders.Any())
+            {
+                _orderRepository.DeleteRange(orders);
+                await _orderRepository.SaveAsync();
+
+                var orderIds = orders.Select(o => o.Id).ToList();
+                var ticketSpec = new TicketsByOrdersListSpec(orderIds);
+                var tickets = await _ticketRepository.ListAsync(ticketSpec);
+                _ticketRepository.DeleteRange(tickets);
+                await _orderRepository.SaveAsync();
+            }
         }
     }
 }
