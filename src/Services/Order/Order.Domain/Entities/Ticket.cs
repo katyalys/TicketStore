@@ -6,7 +6,7 @@ namespace Order.Domain.Entities
     {
         public int TicketBasketId { get; set; }
         public Status? TicketStatus { get; set; }
-        public int? OrderTicketId { get; set; }
+        public int OrderTicketId { get; set; }
         public OrderTicket? Order { get; set; }
     }
 }

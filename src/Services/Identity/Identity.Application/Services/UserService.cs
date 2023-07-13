@@ -7,6 +7,8 @@ using Identity.Domain.ErrorModels;
 using Identity.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Identity.Application.Services;
+using Microsoft.AspNetCore.SignalR;
+using Identity.Application.SignalR;
 
 namespace Identity.Application.Services
 {
@@ -15,11 +17,15 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserAccessService _identityUser;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager)
+        private IHubContext<DeletedUserHub> _userHub;
+
+        public UserService(IUserAccessService identityUser, IMapper mapper, RoleManager<IdentityRole> roleManager,
+            IHubContext<DeletedUserHub> userHub)
         {
             _identityUser = identityUser;
             _mapper = mapper;
             _roleManager = roleManager;
+            _userHub = userHub;
         }
 
         public async Task<Result> RegisterCustomer(RegisterUser registerUser)
@@ -58,7 +64,9 @@ namespace Identity.Application.Services
             {
                 return ResultReturnService.CreateErrorResult(ErrorStatusCode.NotFound, "There is no user with such id found");
             }
+
             await _identityUser.DeleteAsync(user);
+            await _userHub.Clients.All.SendAsync("DeleteOrdersByUserId", id);
 
             return ResultReturnService.CreateSuccessResult();
         }
